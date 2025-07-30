@@ -231,10 +231,15 @@
             csrfToken: "{{ csrf_token() }}",
             userRole: "{{ Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest' }}",
             currentCategorySlug: "{{ $currentCategory ?? '' }}",
+            // Tambahkan ID numerik kategori di sini:
+            currentCategoryId: {{ isset($selectedNavItem) && $selectedNavItem->category ? $selectedNavItem->category->id : ($currentCategoryObject->id ?? 'null') }},
+            // Logika fallback untuk currentCategoryId jika $selectedNavItem tidak ada atau category tidak ada.
+            // Anda perlu memastikan $currentCategoryObject tersedia di controller jika index() yang dipanggil langsung.
+            // Atau, ambil ID-nya dari kategori yang slug-nya sedang aktif di controller.
+
             currentMenuId: {{ $selectedNavItem->menu_id ?? 'null' }},
             singleUseCase: {!! isset($singleUseCase) ? json_encode($singleUseCase) : 'null' !!},
             useCases: {!! isset($useCases) ? json_encode($useCases->toArray()) : '[]' !!},
-            // Tambahkan data lain yang mungkin dibutuhkan oleh JS di sini
         };
     </script>
     {{-- Load all modular JS files --}}

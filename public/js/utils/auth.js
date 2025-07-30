@@ -4,13 +4,15 @@ import { domUtils } from '../core/domUtils.js';
 
 export const authUtils = {
     initLogoutButton: () => {
+        console.log('authUtils.initLogoutButton dipanggil.'); // DEBUG
         const logoutForm = domUtils.getElement('logout-form');
         const logoutBtn = domUtils.getElement('logout-btn');
-        const logoutFormMobile = domUtils.getElement('logout-form-mobile'); // Untuk mobile
+        const logoutFormMobile = domUtils.getElement('logout-form-mobile');
         const logoutBtnMobile = logoutFormMobile ? logoutFormMobile.querySelector('button') : null;
 
         const handleLogout = (form) => {
-            window.Swal.fire({ // Menggunakan Swal dari window
+            console.log('Logout initiated.'); // DEBUG
+            window.Swal.fire({
                 title: 'Yakin ingin keluar?',
                 text: 'Anda akan logout dari sistem.',
                 icon: 'warning',
@@ -21,7 +23,10 @@ export const authUtils = {
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log('Logout confirmed, submitting form.'); // DEBUG
                     form.submit();
+                } else {
+                    console.log('Logout cancelled.'); // DEBUG
                 }
             });
         };
@@ -31,6 +36,8 @@ export const authUtils = {
                 e.preventDefault();
                 handleLogout(logoutForm);
             });
+        } else {
+            console.log('Desktop logout button or form not found.'); // DEBUG
         }
 
         if (logoutFormMobile && logoutBtnMobile) {
@@ -38,6 +45,8 @@ export const authUtils = {
                 e.preventDefault();
                 handleLogout(logoutFormMobile);
             });
+        } else {
+            console.log('Mobile logout button or form not found.'); // DEBUG
         }
     }
 };

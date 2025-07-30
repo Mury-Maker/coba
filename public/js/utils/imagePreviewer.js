@@ -1,7 +1,8 @@
 // public/js/utils/imagePreviewer.js
+
 import { domUtils } from '../core/domUtils.js';
 
-// Perbarui fungsi agar menerima fileInput
+// Perbarui fungsi agar menerima fileInputForName jika itu yang digunakan untuk menentukan nama input hidden
 function createPreviewImageElement(src, filename, imageId = null, isNew = false, fileInputForName = null) {
     const wrapper = document.createElement('div');
     wrapper.className = `relative group border rounded-md p-1 image-preview-wrapper ${isNew ? 'new-image-preview' : 'existing-image-preview'}`;
@@ -12,11 +13,20 @@ function createPreviewImageElement(src, filename, imageId = null, isNew = false,
             <i class="fas fa-times"></i>
         </button>
     `;
-    if (!isNew && fileInputForName) { // Hanya tambahkan hidden input jika ini gambar lama
+    // Tambahkan input hidden untuk gambar yang sudah ada, hanya jika fileInputForName disediakan
+    // Ini penting agar hidden input memiliki nama yang benar seperti 'existing_uat_images[]'
+    if (!isNew && fileInputForName) {
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
-        // Gunakan fileInputForName untuk mendapatkan nama input yang benar
-        hiddenInput.name = fileInputForName.name.replace('[]', '_current[]');
+        hiddenInput.name = fileInputForName.name.replace('[]', '_current[]'); // Gunakan nama input file aslinya
+        hiddenInput.value = src;
+        wrapper.appendChild(hiddenInput);
+    } else if (!isNew) {
+        // Fallback jika fileInputForName tidak ada (misal dipanggil dari PHP render),
+        // maka kita berasumsi nama input adalah 'existing_images[]' atau sejenisnya
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'existing_images[]'; // Nama default jika tidak ada fileInputForName
         hiddenInput.value = src;
         wrapper.appendChild(hiddenInput);
     }
@@ -30,11 +40,13 @@ function createPreviewImageElement(src, filename, imageId = null, isNew = false,
  * @param {HTMLElement} previewContainer - Kontainer untuk menampilkan pratinjau gambar.
  */
 export function initImagePreviewer(fileInput, previewContainer) {
+    console.log('initImagePreviewer dipanggil untuk:', fileInput.id); // DEBUG
     if (!fileInput || !previewContainer) {
-        console.error('Image previewer: fileInput atau previewContainer tidak ditemukan.');
+        console.error('Image previewer: fileInput atau previewContainer tidak ditemukan.'); // DEBUG
         return;
     }
 
+    // Bersihkan listener lama untuk menghindari duplikasi
     fileInput.removeEventListener('change', handleFileSelect);
     previewContainer.removeEventListener('click', handleRemoveButtonClick);
 
@@ -42,6 +54,7 @@ export function initImagePreviewer(fileInput, previewContainer) {
     domUtils.addEventListener(previewContainer, 'click', handleRemoveButtonClick);
 
     function handleFileSelect(event) {
+        console.log('File selected for preview.'); // DEBUG
         const newPreviews = previewContainer.querySelectorAll('.new-image-preview');
         newPreviews.forEach(preview => preview.remove());
 
@@ -61,11 +74,13 @@ export function initImagePreviewer(fileInput, previewContainer) {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    // Pass the original fileInput to createPreviewImageElement
+                    // Pass fileInput itself as fileInputForName
                     const imgElement = createPreviewImageElement(e.target.result, file.name, null, true, fileInput);
                     previewContainer.appendChild(imgElement);
                 };
                 reader.readAsDataURL(file);
+            } else {
+                console.warn('File selected is not an image:', file.name); // DEBUG
             }
         }
     }
@@ -77,17 +92,16 @@ export function initImagePreviewer(fileInput, previewContainer) {
             const wrapper = removeButton.closest('.image-preview-wrapper');
             if (wrapper) {
                 wrapper.remove();
-                // Untuk input hidden dari gambar lama, pastikan itu juga dihapus dari parentnya
-                const hiddenInputToRemove = wrapper.querySelector('input[type="hidden"]');
-                if(hiddenInputToRemove) hiddenInputToRemove.remove();
+                console.log('Image preview removed:', removeButton.dataset.imagePath); // DEBUG
+                // Jika input hidden terkait dengan gambar lama, itu sudah dihapus bersama wrapper.
             }
         }
     }
 
-    // Paparkan fungsi createPreviewImageElement dengan parameter yang benar
-    window.createImagePreviewElement = (src, filename, imageId, isNew) => {
-        // Saat dipanggil dari luar (misal dataManager), fileInputForName tidak di-pass karena itu untuk gambar baru.
-        // Untuk gambar lama yang di-render dari PHP/JS, kita hanya perlu path dan ID
-        return createPreviewImageElement(src, filename, imageId, isNew, fileInput);
+    // Paparkan fungsi createPreviewImageElement agar bisa digunakan di dataManager
+    // Saat dipanggil dari dataManager untuk gambar EXISTING, fileInputForName perlu diteruskan.
+    window.createImagePreviewElement = (src, filename, imageId, isNew, customFileInputForName = null) => {
+        // Gunakan customFileInputForName jika disediakan, jika tidak, gunakan fileInput dari scope ini
+        return createPreviewImageElement(src, filename, imageId, isNew, customFileInputForName || fileInput);
     };
 }

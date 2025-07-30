@@ -3,8 +3,10 @@
 import { domUtils } from '../core/domUtils.js';
 import { apiClient } from '../core/apiClient.js';
 import { notificationManager } from '../core/notificationManager.js';
+import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initSearchModal() {
+    console.log('Search modal initialized.'); // DEBUG: Confirm initialization
     const openSearchModalBtnHeader = domUtils.getElement('open-search-modal-btn-header');
     const searchOverlay = domUtils.getElement('search-overlay');
     const searchOverlayInput = domUtils.getElement('search-overlay-input');
@@ -14,36 +16,47 @@ export function initSearchModal() {
 
     const openSearchModal = () => {
         domUtils.toggleClass(searchOverlay, 'open', true);
-        searchOverlayInput.value = ''; // Bersihkan input
+        searchOverlayInput.value = '';
         searchOverlayInput.focus();
         searchResultsList.innerHTML = '<p class="text-center text-gray-500 p-8">Mulai ketik untuk mencari...</p>';
         domUtils.hideElement(clearSearchInputBtn);
+        console.log('Search modal opened.');
     };
 
     const closeSearchModal = () => {
         domUtils.toggleClass(searchOverlay, 'open', false);
         searchOverlayInput.value = '';
-        searchResultsList.innerHTML = ''; // Kosongkan hasil saat ditutup
+        searchResultsList.innerHTML = '';
         domUtils.hideElement(clearSearchInputBtn);
+        console.log('Search modal closed.');
     };
 
-    domUtils.addEventListener(openSearchModalBtnHeader, 'click', openSearchModal);
+    if (openSearchModalBtnHeader) {
+        domUtils.addEventListener(openSearchModalBtnHeader, 'click', openSearchModal);
+    } else {
+        console.log('Open search modal button not found.');
+    }
 
-    domUtils.addEventListener(searchOverlay, 'click', (e) => {
-        if (e.target === searchOverlay || e.target.closest('#close-search-overlay-btn')) {
-            closeSearchModal();
-        }
-    });
+    if (searchOverlay) {
+        domUtils.addEventListener(searchOverlay, 'click', (e) => {
+            if (e.target === searchOverlay || e.target.closest('#close-search-overlay-btn')) {
+                closeSearchModal();
+            }
+        });
+    }
 
-    domUtils.addEventListener(closeSearchOverlayBtn, 'click', closeSearchModal);
+    if (closeSearchOverlayBtn) {
+        domUtils.addEventListener(closeSearchOverlayBtn, 'click', closeSearchModal);
+    }
 
-    // Shortcut keyboard (Ctrl+K atau Cmd+K)
     domUtils.addEventListener(document, 'keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
             e.preventDefault();
+            console.log('Keyboard shortcut Ctrl+K/Cmd+K pressed.');
             openSearchModal();
         }
         if (e.key === 'Escape' && searchOverlay.classList.contains('open')) {
+            console.log('Escape key pressed, closing search modal.');
             closeSearchModal();
         }
     });
@@ -52,6 +65,7 @@ export function initSearchModal() {
     domUtils.addEventListener(searchOverlayInput, 'input', () => {
         clearTimeout(searchTimeout);
         const query = searchOverlayInput.value.trim();
+        console.log('Search input changed. Query:', query);
 
         if (query.length > 0) {
             domUtils.showElement(clearSearchInputBtn);
@@ -69,13 +83,14 @@ export function initSearchModal() {
         searchResultsList.innerHTML = '<p class="text-center text-gray-500 p-8">Mencari...</p>';
 
         searchTimeout = setTimeout(async () => {
+            console.log('Performing search API call for query:', query);
             try {
-                const data = await apiClient.fetchAPI(`/api/search?query=${query}`);
+                const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.SEARCH}?query=${query}`);
                 searchResultsList.innerHTML = '';
 
                 if (data.results && data.results.length > 0) {
                     const groupedResultsByMenuName = data.results.reduce((acc, result) => {
-                        if (!acc[result.category_name]) { // Group by combined category name
+                        if (!acc[result.category_name]) {
                             acc[result.category_name] = [];
                         }
                         acc[result.category_name].push(result);
@@ -100,21 +115,26 @@ export function initSearchModal() {
                             searchResultsList.appendChild(itemLink);
                         });
                     }
+                    console.log('Search results displayed:', data.results.length);
                 } else {
                     searchResultsList.innerHTML = '<p class="text-center text-gray-500 p-8">Tidak ada hasil yang ditemukan.</p>';
+                    console.log('No search results found.');
                 }
 
             } catch (error) {
-                // Error already handled by apiClient, just display generic message in results
                 searchResultsList.innerHTML = '<p class="text-center text-red-500 p-8">Terjadi kesalahan saat mencari.</p>';
+                console.error('Search API call failed:', error);
             }
         }, 300);
     });
 
-    domUtils.addEventListener(clearSearchInputBtn, 'click', () => {
-        searchOverlayInput.value = '';
-        searchOverlayInput.focus();
-        domUtils.hideElement(clearSearchInputBtn);
-        searchResultsList.innerHTML = '<p class="text-center text-gray-500 p-8">Mulai ketik untuk mencari...</p>';
-    });
+    if (clearSearchInputBtn) {
+        domUtils.addEventListener(clearSearchInputBtn, 'click', () => {
+            searchOverlayInput.value = '';
+            searchOverlayInput.focus();
+            domUtils.hideElement(clearSearchInputBtn);
+            searchResultsList.innerHTML = '<p class="text-center text-gray-500 p-8">Mulai ketik untuk mencari...</p>';
+            console.log('Clear search input button clicked.');
+        });
+    }
 }

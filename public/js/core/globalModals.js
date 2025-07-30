@@ -3,6 +3,7 @@
 import { domUtils } from './domUtils.js';
 
 export function initGlobalModals() {
+    console.log('initGlobalModals dipanggil.'); // DEBUG
     const commonConfirmModal = domUtils.getElement('commonConfirmModal');
     const commonConfirmMessage = domUtils.getElement('common-confirm-message');
     const commonCancelBtn = domUtils.getElement('common-cancel-btn');
@@ -20,7 +21,9 @@ export function initGlobalModals() {
      * @param {string} message - Pesan konfirmasi.
      * @param {Function} onConfirm - Callback yang dijalankan saat tombol konfirmasi diklik.
      */
+    // INI BARIS KRITISNYA: MENGEKSPOR FUNGSI KE OBJEK WINDOW
     window.openCommonConfirmModal = (message, onConfirm) => {
+        console.log('openCommonConfirmModal dipanggil.'); // DEBUG
         if (!commonConfirmModal || !commonConfirmMessage || !commonConfirmBtn || !commonCancelBtn) {
             console.error("Elemen modal konfirmasi tidak ditemukan.");
             return;
@@ -36,6 +39,7 @@ export function initGlobalModals() {
     function closeCommonConfirmModal() {
         domUtils.toggleModal(commonConfirmModal, false);
         confirmCallback = null; // Reset callback
+        console.log('commonConfirmModal closed.'); // DEBUG
     }
 
     // Event listener untuk tombol Batal
@@ -54,7 +58,9 @@ export function initGlobalModals() {
      * @param {string} title - Judul modal.
      * @param {string} contentHtml - Konten HTML yang akan ditampilkan.
      */
+    // INI BARIS KRITISNYA: MENGEKSPOR FUNGSI KE OBJEK WINDOW
     window.openCommonDetailModal = (title, contentHtml) => {
+        console.log('openCommonDetailModal dipanggil.'); // DEBUG
         if (!commonDetailModal || !commonDetailModalTitle || !detailContentWrapper) {
             console.error("Elemen modal detail tidak ditemukan.");
             return;
@@ -72,6 +78,7 @@ export function initGlobalModals() {
         if (detailContentWrapper) {
             detailContentWrapper.innerHTML = ''; // Bersihkan konten
         }
+        console.log('commonDetailModal closed.'); // DEBUG
     }
 
     // Event listener untuk tombol Tutup di modal detail

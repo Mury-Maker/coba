@@ -23,8 +23,9 @@ class DocumentationController extends Controller
             abort(403, 'Akses Ditolak: Anda harus login.');
         }
 
-        $currentCategory = Category::where('slug', $currentCategorySlug)->firstOrFail();
-        $allMenus = NavMenu::where('category_id', $currentCategory->id)->orderBy('menu_order')->get();
+        $currentCategoryObject = Category::where('slug', $currentCategorySlug)->firstOrFail(); // Ambil objek kategori lengkap
+
+        $allMenus = NavMenu::where('category_id', $currentCategoryObject->id)->orderBy('menu_order')->get(); // Gunakan ID objek
         $navigation = NavMenu::buildTree($allMenus);
         $allCategories = Category::all()->pluck('slug', 'name')->toArray();
 
@@ -35,9 +36,10 @@ class DocumentationController extends Controller
         }
 
         return [
-            'title'             => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategory->name)) . ' - Dokumentasi',
+            'title'             => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategoryObject->name)) . ' - Dokumentasi',
             'navigation'        => $navigation,
-            'currentCategory'   => $currentCategory->slug,
+            'currentCategory'   => $currentCategoryObject->slug, // Tetap slug untuk URL
+            'currentCategoryId' => $currentCategoryObject->id,   // <--- TAMBAHKAN INI
             'currentPage'       => $currentPageSlug,
             'selectedNavItem'   => $selectedNavItem,
             'menu_id'           => $selectedNavItem ? $selectedNavItem->menu_id : null,

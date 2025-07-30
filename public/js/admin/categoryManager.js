@@ -6,6 +6,7 @@ import { notificationManager } from '../core/notificationManager.js';
 import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initCategoryManager() {
+    console.log('initCategoryManager dipanggil.'); // DEBUG
     const adminCategoryModal = domUtils.getElement('adminCategoryModal');
     const adminCategoryModalTitle = domUtils.getElement('adminCategoryModalTitle');
     const adminCategoryForm = domUtils.getElement('adminCategoryForm');
@@ -21,19 +22,22 @@ export function initCategoryManager() {
      * @param {string} [categorySlug=''] - Slug kategori untuk mode edit.
      */
     window.openAdminCategoryModal = async (mode, categoryName = '', categorySlug = '') => {
-        if (!adminCategoryForm || !adminCategoryModalTitle) {
-            notificationManager.showNotification('Elemen form kategori tidak ditemukan.', 'error');
+        console.log('openAdminCategoryModal dipanggil. Mode:', mode, 'Category Slug:', categorySlug); // DEBUG
+        if (!adminCategoryModal || !adminCategoryModalTitle || !adminCategoryForm) {
+            notificationManager.showNotification('Elemen modal kategori tidak ditemukan.', 'error');
+            console.error('Category modal elements are missing.'); // DEBUG
             return;
         }
 
         adminCategoryForm.reset(); // RESET FORM SEBELUM MENGISI DATA BARU
         formCategoryIdToEdit.value = ''; // Pastikan ID kosong untuk CREATE
-        formCategoryMethod.value = 'POST'; // Default untuk CREATE
+        formCategoryMethod.value = 'POST'; // Default untuk 'create'
 
         if (mode === 'create') {
             adminCategoryModalTitle.textContent = 'Tambah Kategori Baru';
             formCategoryName.value = '';
-            // TIDAK ADA PANGGILAN API UNTUK GET DATA KATEGORI DI SINI UNTUK MODE 'CREATE'
+            // TIDAK ADA PANGGILAN API GET DI BLOK 'create' INI.
+            // Modal hanya dibuka kosong.
         } else if (mode === 'edit' && categorySlug) { // HANYA JIKA MODE 'EDIT' DAN categorySlug ADA
             adminCategoryModalTitle.textContent = `Edit Kategori: ${categoryName}`;
             formCategoryMethod.value = 'PUT'; // Metode untuk PUT
@@ -41,15 +45,19 @@ export function initCategoryManager() {
 
             // Isi form dengan data kategori yang ada (HANYA UNTUK MODE EDIT)
             try {
+                console.log('Fetching category data for edit:', categorySlug); // DEBUG
                 const categoryData = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.GET}/${categorySlug}`);
                 formCategoryName.value = categoryData.name || '';
+                console.log('Category data loaded:', categoryData); // DEBUG
             } catch (error) {
                 notificationManager.showNotification('Gagal memuat data kategori untuk diedit.', 'error');
                 domUtils.toggleModal(adminCategoryModal, false); // Tutup modal jika gagal memuat data edit
+                console.error('Failed to fetch category data:', error); // DEBUG
                 return; // Penting: keluar dari fungsi jika gagal memuat data edit
             }
         }
         domUtils.toggleModal(adminCategoryModal, true);
+        console.log('Category modal toggled to show.'); // DEBUG
     };
 
     /**
@@ -58,30 +66,34 @@ export function initCategoryManager() {
     function closeAdminCategoryModal() {
         domUtils.toggleModal(adminCategoryModal, false);
         adminCategoryForm.reset(); // Bersihkan form
+        console.log('Category modal closed and form reset.'); // DEBUG
     }
 
     domUtils.addEventListener(cancelAdminCategoryFormBtn, 'click', closeAdminCategoryModal);
 
     domUtils.addEventListener(adminCategoryForm, 'submit', async (e) => {
         e.preventDefault();
+        console.log('Form Kategori disubmit.'); // DEBUG
 
         const loadingNotif = notificationManager.showNotification('Memproses kategori...', 'loading');
 
         const categoryName = formCategoryName.value;
         const method = formCategoryMethod.value;
-        const categoryIdToEdit = formCategoryIdToEdit.value; // Ini adalah slug saat edit
+        const categoryIdToEdit = formCategoryIdToEdit.value;
 
-        let url = APP_CONSTANTS.API_ROUTES.CATEGORIES.STORE; // Default untuk POST
+        let url = APP_CONSTANTS.API_ROUTES.CATEGORIES.STORE; // Default untuk POST (CREATE)
         let httpMethod = 'POST';
 
-        if (method === 'PUT') {
-            url = `${APP_CONSTANTS.API_ROUTES.CATEGORIES.UPDATE}/${categoryIdToEdit}`; // Gunakan slug di URL
-            httpMethod = 'POST'; // Untuk method override
+        if (method === 'PUT') { // Jika method dari form adalah PUT (untuk EDIT)
+            url = `${APP_CONSTANTS.API_ROUTES.CATEGORIES.UPDATE}/${categoryIdToEdit}`; // URL untuk UPDATE (dengan slug)
+            httpMethod = 'POST'; // Tetap POST karena FormData memerlukan ini, nanti di-override via header
         }
 
         const formData = {
             name: categoryName,
         };
+
+        console.log('Sending API request:', url, 'Method:', httpMethod, 'Data:', formData); // DEBUG
 
         try {
             const options = {
@@ -92,21 +104,22 @@ export function initCategoryManager() {
                 options.headers = { 'X-HTTP-Method-Override': 'PUT' };
             }
 
-            const data = await apiClient.fetchAPI(url, options);
+            const data = await apiClient.fetchAPI(url, options); // Tunggu respons API
 
+            console.log('API request berhasil. Respons:', data); // DEBUG
             notificationManager.hideNotification(loadingNotif);
-            notificationManager.showCentralSuccessPopup(data.success);
+            notificationManager.showCentralSuccessPopup(data.success); // Ini yang menampilkan pop-up sukses
             closeAdminCategoryModal();
 
             if (data.redirect_url) {
                 window.location.href = data.redirect_url;
             } else {
-                window.location.reload(); // Fallback reload
+                window.location.reload();
             }
         } catch (error) {
+            console.error('API request GAGAL:', error); // DEBUG
             notificationManager.hideNotification(loadingNotif);
-            // Error handling sudah ada di apiClient, jadi cukup tampilkan pesan umum jika perlu
-            // atau Laravel akan menampilkan error validasi otomatis.
+            // Error sudah ditangani oleh apiClient
         }
     });
 
@@ -116,20 +129,24 @@ export function initCategoryManager() {
      * @param {string} categoryName - Nama kategori untuk pesan konfirmasi.
      */
     window.confirmDeleteCategory = (categorySlug, categoryName) => {
+        console.log('confirmDeleteCategory dipanggil untuk:', categoryName, 'slug:', categorySlug); // DEBUG
         window.openCommonConfirmModal(`Apakah Anda yakin ingin menghapus kategori "${categoryName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua menu dan konten terkait.`, async () => {
+            console.log('Konfirmasi Hapus disetujui untuk:', categorySlug); // DEBUG
             const loadingNotif = notificationManager.showNotification('Menghapus kategori...', 'loading');
             try {
                 const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.DESTROY}/${categorySlug}`, {
                     method: 'DELETE'
                 });
+                console.log('Delete API berhasil. Respons:', data); // DEBUG
                 notificationManager.hideNotification(loadingNotif);
                 notificationManager.showCentralSuccessPopup(data.success);
                 if (data.redirect_url) {
                     window.location.href = data.redirect_url;
                 } else {
-                    window.location.reload(); // Fallback reload
+                    window.location.reload();
                 }
             } catch (error) {
+                console.error('Delete API GAGAL:', error); // DEBUG
                 notificationManager.hideNotification(loadingNotif);
             }
         });

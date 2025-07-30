@@ -8,32 +8,32 @@ export const APP_CONSTANTS = {
     },
     API_ROUTES: {
         CATEGORIES: {
-            GET: '/api/categories', // Akan ditambah slug
+            GET: '/api/categories',
             STORE: '/api/categories',
-            UPDATE: '/api/categories', // Akan ditambah slug
-            DESTROY: '/api/categories' // Akan ditambah slug
+            UPDATE: '/api/categories',
+            DESTROY: '/api/categories'
         },
         NAVMENU: {
-            GET_ALL: '/api/navmenu/all', // Akan ditambah categorySlug
-            PARENTS: '/api/navmenu/parents', // Akan ditambah categorySlug
-            GET: '/api/navmenu', // Akan ditambah menu_id
+            GET_ALL: '/api/navmenu/all',
+            PARENTS: '/api/navmenu/parents',
+            GET: '/api/navmenu',
             STORE: '/api/navmenu',
-            UPDATE: '/api/navmenu', // Akan ditambah menu_id
-            DESTROY: '/api/navmenu' // Akan ditambah menu_id
+            UPDATE: '/api/navmenu',
+            DESTROY: '/api/navmenu'
         },
         USECASE: {
             STORE: '/api/usecase',
-            UPDATE: '/api/usecase', // Akan ditambah id
-            DESTROY: '/api/usecase', // Akan ditambah id
+            UPDATE: '/api/usecase',
+            DESTROY: '/api/usecase',
             UAT_STORE: '/api/usecase/uat',
-            UAT_UPDATE: '/api/usecase/uat', // Akan ditambah id
-            UAT_DESTROY: '/api/usecase/uat', // Akan ditambah id
+            UAT_UPDATE: '/api/usecase/uat',
+            UAT_DESTROY: '/api/usecase/uat',
             REPORT_STORE: '/api/usecase/report',
-            REPORT_UPDATE: '/api/usecase/report', // Akan ditambah id
-            REPORT_DESTROY: '/api/usecase/report', // Akan ditambah id
+            REPORT_UPDATE: '/api/usecase/report',
+            REPORT_DESTROY: '/api/usecase/report',
             DATABASE_STORE: '/api/usecase/database',
-            DATABASE_UPDATE: '/api/usecase/database', // Akan ditambah id
-            DATABASE_DESTROY: '/api/usecase/database' // Akan ditambah id
+            DATABASE_UPDATE: '/api/usecase/database',
+            DATABASE_DESTROY: '/api/usecase/database'
         },
         SEARCH: '/api/search'
     },
