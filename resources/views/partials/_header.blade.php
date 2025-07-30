@@ -19,10 +19,7 @@
                 {{-- Category Dropdown (untuk Desktop dan Mobile Sidebar) --}}
                 <div class="relative hidden md:block">
                     <button id="category-dropdown-btn" class="flex items-center px-4 py-2 text-base font-medium rounded-lg transition-colors focus:outline-none">
-                        <span id="category-button-text" class="truncate-text" title="{!! ucwords(str_replace('-',' ',$currentCategory)) !!}">{!! ucwords(str_replace('-',' ',$currentCategory)) !!}</span>
-                        {{-- Ganti $currentCategory dengan $currentCategorySlug jika itu yang diteruskan dari controller --}}
-                        {{-- <span id="category-button-text" class="truncate-text" title="{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}">{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}</span> --}}
-
+                        <span id="category-button-text" class="truncate-text" title="{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}">{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}</span>
                         <i class="ml-2 fa fa-chevron-down text-xs"></i>
                     </button>
 
@@ -30,8 +27,7 @@
                         {{-- Iterasi kategori untuk dropdown --}}
                         @foreach ($categories as $name => $slug)
                             @php
-                                $isActive = ($currentCategory === $slug); // Variabel ini seharusnya menggunakan $currentCategorySlug
-                                // $isActive = ($currentCategorySlug === $slug);
+                                $isActive = ($currentCategorySlug === $slug);
                             @endphp
                             <div class="flex items-center justify-between">
                                 <a href="{{ route('docs', ['category' => $slug]) }}"
@@ -41,7 +37,7 @@
                                    title="{!! ucwords(str_replace('-',' ',$name)) !!}">
                                     <span class="truncate-text">{!! ucwords(str_replace('-',' ',$name)) !!}</span>
                                 </a>
-                                @if ($userRole === 'admin') {{-- INI BARIS 40 (dulu) --}}
+                                @if ($userRole === 'admin')
                                     <div class="flex-shrink-0 flex items-center space-x-1 pr-2">
                                         <button type="button" data-action="edit-category" data-slug="{{ $slug }}" data-name="{{ $name }}" title="Edit Kategori" class="text-blue-500 hover:text-blue-700 p-1">
                                             <i class="fas fa-edit"></i>
@@ -93,4 +89,3 @@
             </div>
         </div>
     </header>
-    

@@ -11,7 +11,7 @@
             title="{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}">
             <span class="truncate-text">Dokumentasi</span>
         </a>
-        @if($editorMode) {{-- Gunakan $editorMode di sini --}}
+        @if($editorMode)
             <button id="add-parent-menu-btn" class="bg-blue-500 text-white w-8 h-8 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors" title="Tambah Menu Utama Baru">
                 <i class="fa fa-plus"></i>
             </button>
@@ -34,7 +34,7 @@
             <div id="category-dropdown-menu-mobile" class="header-dropdown-menu">
                 @foreach ($categories as $name => $slug)
                     @php
-                        $isActive = ($currentCategorySlug === $slug); // Pastikan konsisten dengan $currentCategorySlug
+                        $isActive = ($currentCategorySlug === $slug);
                     @endphp
                     <div class="flex items-center justify-between">
                         <a href="{{ route('docs', ['category' => $slug]) }}"
@@ -43,7 +43,7 @@
                            data-category-name="{{ $name }}">
                             {!! ucwords(str_replace('-',' ',$name)) !!}
                         </a>
-                        @if ($editorMode) {{-- Gunakan $editorMode di sini --}}
+                        @if ($editorMode)
                             <div class="flex-shrink-0 flex items-center space-x-1 pr-2">
                                 <button type="button" data-action="edit-category" data-slug="{{ $slug }}" data-name="{{ $name }}" title="Edit Kategori" class="text-blue-500 hover:text-blue-700 p-1">
                                     <i class="fas fa-edit"></i>
@@ -57,7 +57,7 @@
                         @endif
                     </div>
                 @endforeach
-                @if ($editorMode) {{-- Gunakan $editorMode di sini --}}
+                @if ($editorMode)
                     <div class="border-t border-gray-200 my-1"></div>
                     <button type="button" data-action="add-category" class="text-blue-600 hover:underline text-sm p-3">
                         + Tambah Kategori

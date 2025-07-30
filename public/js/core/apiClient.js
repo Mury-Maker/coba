@@ -1,7 +1,7 @@
 // public/js/core/apiClient.js
 
 import { notificationManager } from './notificationManager.js';
-import { APP_CONSTANTS } from '../utils/constants.js'; // Untuk roles, dll.
+import { APP_CONSTANTS } from '../utils/constants.js';
 
 /**
  * Melakukan permintaan Fetch API.
@@ -13,7 +13,7 @@ export async function fetchAPI(url, options = {}) {
     let headers = new Headers(options.headers || {});
 
     // Selalu tambahkan CSRF token
-    const csrfToken = window.APP_DATA.csrfToken; // Ambil dari data global
+    const csrfToken = window.APP_BLADE_DATA.csrfToken; // Ambil dari data global
     if (csrfToken && !headers.has('X-CSRF-TOKEN')) {
         headers.set('X-CSRF-TOKEN', csrfToken);
     }

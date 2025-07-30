@@ -3,6 +3,7 @@
 import { domUtils } from '../core/domUtils.js';
 import { apiClient } from '../core/apiClient.js';
 import { notificationManager } from '../core/notificationManager.js';
+import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initCategoryManager() {
     const adminCategoryModal = domUtils.getElement('adminCategoryModal');
@@ -25,25 +26,27 @@ export function initCategoryManager() {
             return;
         }
 
-        adminCategoryForm.reset();
-        formCategoryIdToEdit.value = ''; // Reset ID
-        formCategoryMethod.value = 'POST'; // Default untuk create
+        adminCategoryForm.reset(); // RESET FORM SEBELUM MENGISI DATA BARU
+        formCategoryIdToEdit.value = ''; // Pastikan ID kosong untuk CREATE
+        formCategoryMethod.value = 'POST'; // Default untuk CREATE
 
         if (mode === 'create') {
             adminCategoryModalTitle.textContent = 'Tambah Kategori Baru';
             formCategoryName.value = '';
-        } else if (mode === 'edit' && categorySlug) {
+            // TIDAK ADA PANGGILAN API UNTUK GET DATA KATEGORI DI SINI UNTUK MODE 'CREATE'
+        } else if (mode === 'edit' && categorySlug) { // HANYA JIKA MODE 'EDIT' DAN categorySlug ADA
             adminCategoryModalTitle.textContent = `Edit Kategori: ${categoryName}`;
-            formCategoryMethod.value = 'PUT';
+            formCategoryMethod.value = 'PUT'; // Metode untuk PUT
             formCategoryIdToEdit.value = categorySlug; // Menggunakan slug untuk identifikasi di route
 
-            // Isi form dengan data kategori yang ada
+            // Isi form dengan data kategori yang ada (HANYA UNTUK MODE EDIT)
             try {
-                const categoryData = await apiClient.fetchAPI(`/api/categories/${categorySlug}`);
+                const categoryData = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.GET}/${categorySlug}`);
                 formCategoryName.value = categoryData.name || '';
             } catch (error) {
                 notificationManager.showNotification('Gagal memuat data kategori untuk diedit.', 'error');
-                return;
+                domUtils.toggleModal(adminCategoryModal, false); // Tutup modal jika gagal memuat data edit
+                return; // Penting: keluar dari fungsi jika gagal memuat data edit
             }
         }
         domUtils.toggleModal(adminCategoryModal, true);

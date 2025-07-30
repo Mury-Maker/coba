@@ -26,14 +26,15 @@ export function initUseCaseFormHandler() {
         }
 
         useCaseForm.reset();
-        useCaseFormMenuId.value = window.APP_DATA.currentMenuId;
+        // Gunakan window.APP_BLADE_DATA
+        useCaseFormMenuId.value = window.APP_BLADE_DATA.currentMenuId;
 
         if (mode === 'create') {
             useCaseModalTitle.textContent = 'Tambah Tindakan Baru';
             useCaseFormMethod.value = 'POST';
             useCaseFormUseCaseId.value = '';
             domUtils.getElement('form_usecase_id').value = '';
-            // Kosongkan semua textarea (CKEditor tidak digunakan, jadi langsung textarea)
+            // Kosongkan semua textarea
             domUtils.getElement('form_deskripsi_aksi').value = '';
             domUtils.getElement('form_tujuan').value = '';
             domUtils.getElement('form_kondisi_awal').value = '';
@@ -78,7 +79,7 @@ export function initUseCaseFormHandler() {
         let url = useCaseId ? `${APP_CONSTANTS.API_ROUTES.USECASE.UPDATE}/${useCaseId}` : APP_CONSTANTS.API_ROUTES.USECASE.STORE;
         let httpMethod = 'POST'; // Karena PUT/DELETE API akan menggunakan POST dengan method override
 
-        const formData = new FormData(useCaseForm); // FormData otomatis menangani input files (jika ada, meskipun di use case ini tidak ada)
+        const formData = new FormData(useCaseForm);
 
         try {
             const options = {
@@ -96,9 +97,10 @@ export function initUseCaseFormHandler() {
             closeUseCaseModal();
 
             // Redirect ke halaman detail Use Case yang baru dibuat/diedit
-            let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${window.APP_DATA.currentCategorySlug}/${window.APP_DATA.currentPage}`;
+            // Gunakan window.APP_BLADE_DATA
+            let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${window.APP_BLADE_DATA.currentCategorySlug}/${window.APP_BLADE_DATA.currentPage}`;
             if (data.use_case_slug) {
-                redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${window.APP_DATA.currentCategorySlug}/${window.APP_DATA.currentPage}/${data.use_case_slug}`;
+                redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${window.APP_BLADE_DATA.currentCategorySlug}/${window.APP_BLADE_DATA.currentPage}/${data.use_case_slug}`;
             }
             window.location.href = redirectUrl;
 

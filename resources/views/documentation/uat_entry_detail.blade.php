@@ -1,4 +1,3 @@
-@extends('layouts.docs')
 
 @section('action-buttons')
     {{-- Tombol untuk kembali ke halaman use case utama --}}
@@ -11,7 +10,7 @@
     </a>
 @endsection
 
-@section('content')
+
     <div class="prose max-w-none">
         <h2 class="text-2xl font-bold mb-4">Detail Data UAT</h2>
 
@@ -47,4 +46,3 @@
             </div>
         </div>
     </div>
-@endsection

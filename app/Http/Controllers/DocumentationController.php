@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/DocumentationController.php
 
 namespace App\Http\Controllers;
 
@@ -16,14 +17,9 @@ use Illuminate\Support\Facades\Auth;
 
 class DocumentationController extends Controller
 {
-    // Helper untuk menyiapkan data umum yang dibutuhkan di semua view docs
     private function prepareCommonViewData($currentCategorySlug, $currentPageSlug, $selectedNavItem = null)
     {
-        // Pastikan pengguna sudah login sebelum memproses data.
-        // Ini adalah langkah fallback jika rute lupa diproteksi.
         if (!Auth::check()) {
-            // Ini seharusnya tidak tercapai jika redirect di index/show sudah jalan,
-            // tapi sebagai pengaman tambahan.
             abort(403, 'Akses Ditolak: Anda harus login.');
         }
 
@@ -46,12 +42,13 @@ class DocumentationController extends Controller
             'selectedNavItem'   => $selectedNavItem,
             'menu_id'           => $selectedNavItem ? $selectedNavItem->menu_id : null,
             'categories'        => $allCategories,
+            'userRole'          => Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest',
+            'editorMode'        => (Auth::check() && (Auth::user()->role ?? '') === 'admin')
         ];
     }
 
     public function index(): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -60,7 +57,10 @@ class DocumentationController extends Controller
         $defaultCategory = Category::where('slug', $defaultCategorySlug)->first();
 
         if (!$defaultCategory || !$defaultCategory->navMenus()->exists()) {
-            return $this->renderNoContentFallback($defaultCategorySlug);
+             $viewData = $this->prepareCommonViewData($defaultCategorySlug, 'homepage');
+             $viewData['fallbackMessage'] = "<h3>Selamat Datang di Dokumentasi!</h3><p>Belum ada menu atau konten yang dibuat untuk kategori ini. Silakan login sebagai **Admin** untuk menambahkan kategori, menu, dan detail aksi.</p><p>Gunakan tombol **+ Tambah Menu Utama Baru** di sidebar atau tombol **+ Tambah Kategori** di dropdown kategori untuk memulai.</p>";
+             $viewData['contentView'] = 'documentation.homepage'; // Tambahkan ini
+             return view('documentation.index', $viewData);
         }
 
         $firstContentMenu = $defaultCategory->navMenus()
@@ -78,31 +78,30 @@ class DocumentationController extends Controller
                                 ->orderBy('menu_order', 'asc')
                                 ->first();
 
-            if ($firstAnyMenu && trim($firstAnyMenu->menu_nama) !== '') {
+            if ($firstAnyMenu) {
                 return redirect()->route('docs', [
                     'category' => $defaultCategorySlug,
                     'page' => Str::slug($firstAnyMenu->menu_nama),
                 ]);
             }
         }
-
-        return $this->renderNoContentFallback($defaultCategorySlug);
+        $viewData = $this->prepareCommonViewData($defaultCategorySlug, 'homepage');
+        $viewData['contentView'] = 'documentation.homepage'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 
     public function show($categorySlug, $pageSlug = null): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $currentCategory = Category::where('slug', $categorySlug)->first();
         if (!$currentCategory) {
-            return $this->index();
+            return redirect()->route('docs.index');
         }
 
         $allMenusInCategory = NavMenu::where('category_id', $currentCategory->id)->orderBy('menu_order')->get();
-
         $selectedNavItem = $allMenusInCategory->first(function ($menu) use ($pageSlug) {
             return Str::slug($menu->menu_nama) === $pageSlug;
         });
@@ -115,24 +114,27 @@ class DocumentationController extends Controller
                     'page' => Str::slug($firstMenuInCategory->menu_nama),
                 ]);
             } else {
-                return $this->renderNoContentFallback($categorySlug);
+                $viewData = $this->prepareCommonViewData($categorySlug, 'homepage');
+                $viewData['fallbackMessage'] = "<h3>Selamat Datang!</h3><p>Tidak ada menu yang ditemukan dalam kategori ini. Anda dapat menambahkan menu baru melalui panel admin.</p>";
+                $viewData['contentView'] = 'documentation.homepage'; // Tambahkan ini
+                return view('documentation.index', $viewData);
             }
         }
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
 
         if ($selectedNavItem->menu_status == 1) {
-            $useCases = UseCase::where('menu_id', $selectedNavItem->menu_id)->orderBy('id', 'desc')->get();
-            $viewData['useCases'] = $useCases;
-            return view('documentation.use_case_list', $viewData);
+            $viewData['useCases'] = UseCase::where('menu_id', $selectedNavItem->menu_id)->orderBy('id', 'desc')->get();
+            $viewData['contentView'] = 'documentation.use_case_list'; // Tambahkan ini
+            return view('documentation.index', $viewData);
         } else {
-            return view('documentation.homepage', $viewData);
+            $viewData['contentView'] = 'documentation.homepage'; // Tambahkan ini
+            return view('documentation.index', $viewData);
         }
     }
 
     public function showUseCaseDetail($categorySlug, $pageSlug, $useCaseSlug): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -163,126 +165,61 @@ class DocumentationController extends Controller
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['singleUseCase'] = $singleUseCase;
         $viewData['contentTypes'] = ['UAT', 'Report', 'Database'];
-
-        return view('documentation.use_case_detail', $viewData);
+        $viewData['contentView'] = 'documentation.use_case_detail'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 
     public function showUatDetailPage($categorySlug, $pageSlug, $useCaseSlug, $uatId): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
+        if (!Auth::check()) { return redirect()->route('login'); }
         $currentCategory = Category::where('slug', $categorySlug)->firstOrFail();
-        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)
-                                ->where(function($query) use ($pageSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]);
-                                })
-                                ->firstOrFail();
-
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)
-                                ->where(function($query) use ($useCaseSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('usecase_id', $useCaseSlug);
-                                })
-                                ->firstOrFail();
-
-        $uatData = UatData::with('images')
-                            ->where('use_case_id', $parentUseCase->id)
-                            ->where('id_uat', $uatId)
-                            ->firstOrFail();
-
+        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->firstOrFail();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->firstOrFail();
+        $uatData = UatData::with('images')->where('use_case_id', $parentUseCase->id)->where('id_uat', $uatId)->firstOrFail();
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['uatData'] = $uatData;
         $viewData['parentUseCase'] = $parentUseCase;
-
-        return view('documentation.uat_entry_detail', $viewData);
+        $viewData['contentView'] = 'documentation.uat_entry_detail'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 
     public function showReportDetailPage($categorySlug, $pageSlug, $useCaseSlug, $reportId): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
+        if (!Auth::check()) { return redirect()->route('login'); }
         $currentCategory = Category::where('slug', $categorySlug)->firstOrFail();
-        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)
-                                ->where(function($query) use ($pageSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]);
-                                })
-                                ->firstOrFail();
-
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)
-                                ->where(function($query) use ($useCaseSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('usecase_id', $useCaseSlug);
-                                })
-                                ->firstOrFail();
-
-        $reportData = ReportData::where('use_case_id', $parentUseCase->id)
-                                ->where('id_report', $reportId)
-                                ->firstOrFail();
-
+        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->firstOrFail();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->firstOrFail();
+        $reportData = ReportData::where('use_case_id', $parentUseCase->id)->where('id_report', $reportId)->firstOrFail();
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['reportData'] = $reportData;
         $viewData['parentUseCase'] = $parentUseCase;
-
-        return view('documentation.report_entry_detail', $viewData);
+        $viewData['contentView'] = 'documentation.report_entry_detail'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 
     public function showDatabaseDetailPage($categorySlug, $pageSlug, $useCaseSlug, $databaseId): View|RedirectResponse
     {
-        // Pastikan pengguna sudah login
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
+        if (!Auth::check()) { return redirect()->route('login'); }
         $currentCategory = Category::where('slug', $categorySlug)->firstOrFail();
-        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)
-                                ->where(function($query) use ($pageSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]);
-                                })
-                                ->firstOrFail();
-
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)
-                                ->where(function($query) use ($useCaseSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('usecase_id', $useCaseSlug);
-                                })
-                                ->firstOrFail();
-
-        $databaseData = DatabaseData::with('images')
-                                    ->where('use_case_id', $parentUseCase->id)
-                                    ->where('id_database', $databaseId)
-                                    ->firstOrFail();
-
+        $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->firstOrFail();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->firstOrFail();
+        $databaseData = DatabaseData::with('images')->where('use_case_id', $parentUseCase->id)->where('id_database', $databaseId)->firstOrFail();
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['databaseData'] = $databaseData;
         $viewData['parentUseCase'] = $parentUseCase;
-
-        return view('documentation.database_entry_detail', $viewData);
+        $viewData['contentView'] = 'documentation.database_entry_detail'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 
     private function renderNoContentFallback($categorySlug): View
     {
         $currentCategory = Category::where('slug', $categorySlug)->first();
         $categoryName = $currentCategory ? Str::headline($currentCategory->name) : 'Dokumentasi';
-
-        $allCategories = Category::all()->pluck('slug', 'name')->toArray();
-
         $fallbackMessage = "<h3>Selamat Datang di Dokumentasi!</h3><p>Belum ada menu atau konten yang dibuat untuk kategori ini. Silakan login sebagai **Admin** untuk menambahkan kategori, menu, dan detail aksi.</p><p>Gunakan tombol **+ Tambah Menu Utama Baru** di sidebar atau tombol **+ Tambah Kategori** di dropdown kategori untuk memulai.</p>";
 
-        return view('documentation.homepage', [
-            'title'             => 'Dokumentasi ' . $categoryName,
-            'navigation'        => [],
-            'currentCategory'   => $categorySlug,
-            'currentPage'       => 'homepage',
-            'selectedNavItem'   => null,
-            'menu_id'           => null,
-            'categories'        => $allCategories,
-            'fallbackMessage'   => $fallbackMessage,
-        ]);
+        $viewData = $this->prepareCommonViewData($categorySlug, 'homepage');
+        $viewData['fallbackMessage'] = $fallbackMessage;
+        $viewData['contentView'] = 'documentation.homepage'; // Tambahkan ini
+        return view('documentation.index', $viewData);
     }
 }

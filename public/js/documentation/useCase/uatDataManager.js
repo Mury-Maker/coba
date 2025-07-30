@@ -4,7 +4,7 @@ import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
 import { APP_CONSTANTS } from '../../utils/constants.js';
-import { initImagePreviewer } from '../../utils/imagePreviewer.js';
+import { initImagePreviewer } from '../../utils/imagePreviewer.js'; // Import the initializer
 
 export function initUatDataManager() {
     const uatDataModal = domUtils.getElement('uatDataModal');
@@ -20,11 +20,12 @@ export function initUatDataManager() {
     const formUatNamaProsesUsecase = domUtils.getElement('form_uat_nama_proses_usecase');
     const formUatKeterangan = domUtils.getElement('form_uat_keterangan');
     const formUatStatus = domUtils.getElement('form_uat_status');
-    const formUatImagesInput = domUtils.getElement('form_uat_images');
-    const formUatImagesPreview = domUtils.getElement('form_uat_images_preview');
-    const existingUatImagesContainer = domUtils.getElement('existing_uat_images_container');
+    const formUatImagesInput = domUtils.getElement('form_uat_images'); // Input file
+    const formUatImagesPreview = domUtils.getElement('form_uat_images_preview'); // Container preview
+    const existingUatImagesContainer = domUtils.getElement('existing_uat_images_container'); // Container hidden inputs for existing images
 
-    let currentUatImages = []; // Menyimpan daftar path gambar UAT saat ini (untuk edit)
+    // window.createImagePreviewElement akan di-expose oleh initImagePreviewer di bawah
+    // Ini adalah fungsionalitas utama untuk membuat elemen pratinjau.
 
     /**
      * Membuka modal UAT Data.
@@ -40,7 +41,6 @@ export function initUatDataManager() {
         uatDataForm.reset();
         formUatImagesPreview.innerHTML = ''; // Bersihkan pratinjau
         existingUatImagesContainer.innerHTML = ''; // Bersihkan input hidden untuk gambar lama
-        currentUatImages = []; // Reset daftar gambar saat ini
 
         const useCaseId = window.APP_BLADE_DATA.singleUseCase ? window.APP_BLADE_DATA.singleUseCase.id : null;
         if (!useCaseId) {
@@ -48,7 +48,6 @@ export function initUatDataManager() {
             return;
         }
         uatDataFormUseCaseId.value = useCaseId;
-
 
         if (mode === 'create') {
             uatDataModalTitle.textContent = 'Tambah Data UAT Baru';
@@ -60,6 +59,7 @@ export function initUatDataManager() {
             }
             formUatKeterangan.value = '';
             formUatStatus.value = '';
+            if (formUatImagesInput) formUatImagesInput.value = ''; // Clear file input
         } else if (mode === 'edit' && uatData) {
             uatDataModalTitle.textContent = 'Edit Data UAT';
             uatDataFormMethod.value = 'POST'; // Untuk FormData PUT
@@ -68,25 +68,26 @@ export function initUatDataManager() {
             formUatNamaProsesUsecase.value = uatData.nama_proses_usecase || '';
             formUatKeterangan.value = uatData.keterangan_uat || '';
             formUatStatus.value = uatData.status_uat || '';
+            if (formUatImagesInput) formUatImagesInput.value = ''; // Clear file input
 
             // Tampilkan gambar-gambar UAT yang sudah ada
             if (uatData.images && uatData.images.length > 0) {
-                currentUatImages = uatData.images.map(img => img.path); // Simpan path gambar saat ini
                 uatData.images.forEach(image => {
-                    formUatImagesPreview.appendChild(createImagePreviewElement(image.path, image.filename, image.id));
-                    // Tambahkan input hidden untuk gambar yang sudah ada (untuk tracking mana yang dipertahankan)
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'existing_uat_images[]';
-                    hiddenInput.value = image.path;
-                    existingUatImagesContainer.appendChild(hiddenInput);
+                    // Panggil window.createImagePreviewElement yang sudah di-expose dari imagePreviewer.js
+                    // Pass `false` untuk isNew dan `formUatImagesInput` untuk konteks penamaan hidden input
+                    const previewElement = window.createImagePreviewElement(image.path, image.filename, image.id, false, formUatImagesInput);
+                    formUatImagesPreview.appendChild(previewElement);
+
+                    // Karena createPreviewImageElement sudah menambah hidden input, kita tidak perlu manual lagi.
+                    // Pastikan hidden input sudah benar dengan nama "existing_uat_images[]"
                 });
+            } else {
+                formUatImagesPreview.innerHTML = '<span class="text-gray-500 text-sm">Tidak ada gambar lama.</span>';
             }
         }
         domUtils.toggleModal(uatDataModal, true);
 
         // Inisialisasi image previewer setelah modal terbuka dan form terisi
-        // Ini memastikan elemen target ada di DOM.
         initImagePreviewer(formUatImagesInput, formUatImagesPreview);
     }
 
@@ -97,9 +98,8 @@ export function initUatDataManager() {
         domUtils.toggleModal(uatDataModal, false);
         uatDataForm.reset();
         formUatImagesPreview.innerHTML = '';
-        existingUatImagesContainer.innerHTML = '';
-        currentUatImages = [];
-        formUatImagesInput.value = ''; // Bersihkan input file
+        existingUatImagesContainer.innerHTML = ''; // Penting: Pastikan ini dibersihkan
+        if (formUatImagesInput) formUatImagesInput.value = ''; // Bersihkan input file
     }
 
     domUtils.addEventListener(cancelUatDataFormBtn, 'click', closeUatDataModal);
@@ -120,11 +120,12 @@ export function initUatDataManager() {
 
             if (viewBtn) {
                 const uatId = parseInt(viewBtn.dataset.id);
-                const uat = window.APP_BLADE_DATA.singleUseCase.uat_data.find(item => item.id_uat === uatId);
+                // Pastikan singleUseCase.uat_data adalah array, atau default ke array kosong
+                const uat = (window.APP_BLADE_DATA.singleUseCase?.uat_data || []).find(item => item.id_uat === uatId);
                 if (uat) {
                     let imagesHtml = '<p class="text-gray-500 italic">Tidak ada gambar UAT.</p>';
                     if (uat.images && uat.images.length > 0) {
-                        imagesHtml = `<div class="grid grid-cols-2 gap-2 mt-2">`;
+                        imagesHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">`;
                         uat.images.forEach(img => {
                             imagesHtml += `<div class="border rounded-lg overflow-hidden shadow-sm"><img src="${img.path}" alt="${img.filename}" class="w-full h-auto object-cover"><p class="p-1 text-xs text-gray-600 truncate">${img.filename}</p></div>`;
                         });
@@ -152,7 +153,7 @@ export function initUatDataManager() {
                 }
             } else if (editBtn) {
                 const uatId = parseInt(editBtn.dataset.id);
-                const uat = window.APP_BLADE_DATA.singleUseCase.uat_data.find(item => item.id_uat === uatId);
+                const uat = (window.APP_BLADE_DATA.singleUseCase?.uat_data || []).find(item => item.id_uat === uatId);
                 if (uat) {
                     openUatDataModal('edit', uat);
                 } else {
@@ -182,17 +183,13 @@ export function initUatDataManager() {
         const uatId = uatDataFormId.value;
         const method = uatDataFormMethod.value;
         let url = uatId ? `${APP_CONSTANTS.API_ROUTES.USECASE.UAT_UPDATE}/${uatId}` : APP_CONSTANTS.API_ROUTES.USECASE.UAT_STORE;
-        let httpMethod = 'POST'; // Akan selalu POST untuk FormData
+        let httpMethod = 'POST';
 
         const formData = new FormData(uatDataForm);
 
-        // Tambahkan kembali path gambar yang sudah ada (jika tidak dihapus dari preview)
-        existingUatImagesContainer.querySelectorAll('input[type="hidden"]').forEach(input => {
-            formData.append(input.name, input.value);
-        });
-
-        // Masalah: FormData.append('_method', 'PUT') tidak berfungsi dengan HTTP method override
-        // Solusi: Kirimkan method override sebagai header. apiClient sudah menangani ini.
+        // createPreviewImageElement sekarang menambahkan hidden input ke dalam wrapper gambar itu sendiri.
+        // Jadi, kita tidak perlu iterasi `existingUatImagesContainer` lagi secara terpisah di sini
+        // karena hidden input sudah otomatis ikut di dalam formData jika elemen preview ada.
 
         try {
             const options = {
@@ -208,34 +205,9 @@ export function initUatDataManager() {
             notificationManager.hideNotification(loadingNotif);
             notificationManager.showCentralSuccessPopup(data.success);
             closeUatDataModal();
-            window.location.reload(); // Reload halaman untuk melihat perubahan
+            window.location.reload();
         } catch (error) {
             notificationManager.hideNotification(loadingNotif);
         }
     });
-
-    // Fungsi untuk membuat elemen pratinjau gambar dengan tombol hapus
-    function createImagePreviewElement(src, filename, imageId) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'relative group border rounded-md p-1';
-        wrapper.innerHTML = `
-            <img src="${src}" alt="${filename}" class="w-full h-24 object-cover rounded-sm">
-            <p class="text-xs text-gray-600 truncate mt-1">${filename}</p>
-            <button type="button" class="absolute top-0 right-0 bg-red-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity remove-image-btn" data-image-id="${imageId}" data-image-path="${src}">
-                <i class="fas fa-times"></i>
-            </button>
-            <input type="hidden" name="existing_uat_images[]" value="${src}">
-        `;
-
-        const removeButton = wrapper.querySelector('.remove-image-btn');
-        domUtils.addEventListener(removeButton, 'click', () => {
-            wrapper.remove();
-            // Hapus juga dari currentUatImages jika ada, untuk memastikan tidak dikirim ulang saat edit
-            currentUatImages = currentUatImages.filter(path => path !== src);
-            // Hapus input hidden yang terkait dengan gambar ini
-            const hiddenInputToRemove = existingUatImagesContainer.querySelector(`input[value="${src}"]`);
-            if(hiddenInputToRemove) hiddenInputToRemove.remove();
-        });
-        return wrapper;
-    }
 }

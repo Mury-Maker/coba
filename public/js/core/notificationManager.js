@@ -88,9 +88,9 @@ function showCentralSuccessPopup(message) {
         centralPopupMessage.textContent = message;
     }
     if (centralSuccessPopup) {
-        centralSuccessPopup.classList.add('show');
+        domUtils.toggleModal(centralSuccessPopup, true); // Gunakan domUtils.toggleModal
         setTimeout(() => {
-            centralSuccessPopup.classList.remove('show');
+            domUtils.toggleModal(centralSuccessPopup, false); // Gunakan domUtils.toggleModal
         }, 1000); // Popup bertahan 1 detik
     }
 }

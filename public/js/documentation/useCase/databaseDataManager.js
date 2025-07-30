@@ -4,7 +4,7 @@ import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
 import { APP_CONSTANTS } from '../../utils/constants.js';
-import { initImagePreviewer } from '../../utils/imagePreviewer.js';
+import { initImagePreviewer } from '../../utils/imagePreviewer.js'; // Import the initializer
 
 export function initDatabaseDataManager() {
     const databaseDataModal = domUtils.getElement('databaseDataModal');
@@ -19,11 +19,12 @@ export function initDatabaseDataManager() {
 
     const formDatabaseKeterangan = domUtils.getElement('form_database_keterangan');
     const formDatabaseRelasi = domUtils.getElement('form_database_relasi');
-    const formDatabaseImagesInput = domUtils.getElement('form_database_images');
-    const formDatabaseImagesPreview = domUtils.getElement('form_database_images_preview');
-    const existingDatabaseImagesContainer = domUtils.getElement('existing_database_images_container');
+    const formDatabaseImagesInput = domUtils.getElement('form_database_images'); // Input file
+    const formDatabaseImagesPreview = domUtils.getElement('form_database_images_preview'); // Container preview
+    const existingDatabaseImagesContainer = domUtils.getElement('existing_database_images_container'); // Container hidden inputs for existing images
 
-    let currentDatabaseImages = []; // Menyimpan daftar path gambar Database saat ini (untuk edit)
+    // window.createImagePreviewElement akan di-expose oleh initImagePreviewer di bawah
+    // Ini adalah fungsionalitas utama untuk membuat elemen pratinjau.
 
     /**
      * Membuka modal Database Data.
@@ -39,7 +40,6 @@ export function initDatabaseDataManager() {
         databaseDataForm.reset();
         formDatabaseImagesPreview.innerHTML = ''; // Bersihkan pratinjau
         existingDatabaseImagesContainer.innerHTML = ''; // Bersihkan input hidden untuk gambar lama
-        currentDatabaseImages = []; // Reset daftar gambar saat ini
 
         const useCaseId = window.APP_BLADE_DATA.singleUseCase ? window.APP_BLADE_DATA.singleUseCase.id : null;
         if (!useCaseId) {
@@ -54,6 +54,7 @@ export function initDatabaseDataManager() {
             databaseDataFormId.value = '';
             formDatabaseKeterangan.value = '';
             formDatabaseRelasi.value = '';
+            if (formDatabaseImagesInput) formDatabaseImagesInput.value = ''; // Clear file input
         } else if (mode === 'edit' && databaseData) {
             databaseDataModalTitle.textContent = 'Edit Data Database';
             databaseDataFormMethod.value = 'POST'; // Untuk FormData PUT
@@ -61,18 +62,19 @@ export function initDatabaseDataManager() {
 
             formDatabaseKeterangan.value = databaseData.keterangan || '';
             formDatabaseRelasi.value = databaseData.relasi || '';
+            if (formDatabaseImagesInput) formDatabaseImagesInput.value = ''; // Clear file input
 
             // Tampilkan gambar-gambar Database yang sudah ada
             if (databaseData.images && databaseData.images.length > 0) {
-                currentDatabaseImages = databaseData.images.map(img => img.path); // Simpan path gambar saat ini
                 databaseData.images.forEach(image => {
-                    formDatabaseImagesPreview.appendChild(createImagePreviewElement(image.path, image.filename, image.id));
-                    const hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = 'existing_database_images[]';
-                    hiddenInput.value = image.path;
-                    existingDatabaseImagesContainer.appendChild(hiddenInput);
+                    // Panggil window.createImagePreviewElement yang sudah di-expose dari imagePreviewer.js
+                    const previewElement = window.createImagePreviewElement(image.path, image.filename, image.id, false, formDatabaseImagesInput);
+                    formDatabaseImagesPreview.appendChild(previewElement);
+
+                    // Karena createPreviewImageElement sudah menambah hidden input, kita tidak perlu manual lagi.
                 });
+            } else {
+                formDatabaseImagesPreview.innerHTML = '<span class="text-gray-500 text-sm">Tidak ada gambar lama.</span>';
             }
         }
         domUtils.toggleModal(databaseDataModal, true);
@@ -86,9 +88,8 @@ export function initDatabaseDataManager() {
         domUtils.toggleModal(databaseDataModal, false);
         databaseDataForm.reset();
         formDatabaseImagesPreview.innerHTML = '';
-        existingDatabaseImagesContainer.innerHTML = '';
-        currentDatabaseImages = [];
-        formDatabaseImagesInput.value = '';
+        existingDatabaseImagesContainer.innerHTML = ''; // Penting: Pastikan ini dibersihkan
+        if (formDatabaseImagesInput) formDatabaseImagesInput.value = ''; // Bersihkan input file
     }
 
     domUtils.addEventListener(cancelDatabaseDataFormBtn, 'click', closeDatabaseDataModal);
@@ -109,11 +110,11 @@ export function initDatabaseDataManager() {
 
             if (viewBtn) {
                 const databaseId = parseInt(viewBtn.dataset.id);
-                const database = window.APP_BLADE_DATA.singleUseCase.database_data.find(item => item.id_database === databaseId);
+                const database = (window.APP_BLADE_DATA.singleUseCase?.database_data || []).find(item => item.id_database === databaseId);
                 if (database) {
                     let imagesHtml = '<p class="text-gray-500 italic">Tidak ada gambar Database.</p>';
                     if (database.images && database.images.length > 0) {
-                        imagesHtml = `<div class="grid grid-cols-2 gap-2 mt-2">`;
+                        imagesHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">`;
                         database.images.forEach(img => {
                             imagesHtml += `<div class="border rounded-lg overflow-hidden shadow-sm"><img src="${img.path}" alt="${img.filename}" class="w-full h-auto object-cover"><p class="p-1 text-xs text-gray-600 truncate">${img.filename}</p></div>`;
                         });
@@ -138,7 +139,7 @@ export function initDatabaseDataManager() {
                 }
             } else if (editBtn) {
                 const databaseId = parseInt(editBtn.dataset.id);
-                const database = window.APP_BLADE_DATA.singleUseCase.database_data.find(item => item.id_database === databaseId);
+                const database = (window.APP_BLADE_DATA.singleUseCase?.database_data || []).find(item => item.id_database === databaseId);
                 if (database) {
                     openDatabaseDataModal('edit', database);
                 } else {
@@ -172,9 +173,10 @@ export function initDatabaseDataManager() {
 
         const formData = new FormData(databaseDataForm);
 
-        existingDatabaseImagesContainer.querySelectorAll('input[type="hidden"]').forEach(input => {
-            formData.append(input.name, input.value);
-        });
+        // existingDatabaseImagesContainer tidak perlu di-query lagi di sini, karena hidden inputs
+        // sudah ditambahkan langsung ke previewElement di createImagePreviewElement,
+        // dan previewElement adalah child dari formDatabaseImagesPreview.
+        // FormData akan otomatis mengambil semua input di dalam form-nya.
 
         try {
             const options = {
@@ -195,27 +197,4 @@ export function initDatabaseDataManager() {
             notificationManager.hideNotification(loadingNotif);
         }
     });
-
-    // Fungsi untuk membuat elemen pratinjau gambar dengan tombol hapus
-    function createImagePreviewElement(src, filename, imageId) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'relative group border rounded-md p-1';
-        wrapper.innerHTML = `
-            <img src="${src}" alt="${filename}" class="w-full h-24 object-cover rounded-sm">
-            <p class="text-xs text-gray-600 truncate mt-1">${filename}</p>
-            <button type="button" class="absolute top-0 right-0 bg-red-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity remove-image-btn" data-image-id="${imageId}" data-image-path="${src}">
-                <i class="fas fa-times"></i>
-            </button>
-            <input type="hidden" name="existing_database_images[]" value="${src}">
-        `;
-
-        const removeButton = wrapper.querySelector('.remove-image-btn');
-        domUtils.addEventListener(removeButton, 'click', () => {
-            wrapper.remove();
-            currentDatabaseImages = currentDatabaseImages.filter(path => path !== src);
-            const hiddenInputToRemove = existingDatabaseImagesContainer.querySelector(`input[value="${src}"]`);
-            if(hiddenInputToRemove) hiddenInputToRemove.remove();
-        });
-        return wrapper;
-    }
 }
