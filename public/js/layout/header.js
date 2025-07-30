@@ -108,7 +108,7 @@ export function initHeader() {
     }
 
     // ADMIN: Event Listeners untuk tombol Add/Edit/Delete Kategori di header/sidebar
-    if (window.APP_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
+    if (window.APP_BLADE_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) { // Menggunakan window.APP_BLADE_DATA
         // Delegasi event untuk tombol kategori (baik desktop maupun mobile)
         domUtils.addEventListener(document, 'click', (e) => {
             const addCategoryBtn = e.target.closest('[data-action="add-category"]');

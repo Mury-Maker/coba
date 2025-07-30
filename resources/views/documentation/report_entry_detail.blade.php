@@ -1,4 +1,3 @@
-@extends('layouts.docs')
 
 @section('action-buttons')
     <a href="{{ route('docs.use_case_detail', [
@@ -10,7 +9,7 @@
     </a>
 @endsection
 
-@section('content')
+
     <div class="prose max-w-none">
         <h2 class="text-2xl font-bold mb-4">Detail Data Report</h2>
 
@@ -33,4 +32,3 @@
             </div>
         </div>
     </div>
-@endsection

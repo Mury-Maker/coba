@@ -1,10 +1,9 @@
-@extends('layouts.docs')
 
 @section('action-buttons')
     {{-- Tidak ada action-buttons di halaman homepage/folder --}}
 @endsection
 
-@section('content')
+
     <div class="prose max-w-none">
         <div class="text-center p-8 bg-gray-50 border border-gray-200 rounded-lg">
             <h3 class="text-xl font-semibold text-gray-700 mb-4">
@@ -28,4 +27,3 @@
             @endauth
         </div>
     </div>
-@endsection

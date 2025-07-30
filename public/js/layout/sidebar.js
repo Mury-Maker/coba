@@ -105,7 +105,13 @@ export function initSidebar() {
             while (currentElement && currentElement !== sidebar) {
                 if (currentElement.classList.contains('submenu-container')) {
                     domUtils.toggleClass(currentElement, 'open', true);
-                    const triggerButton = domUtils.getElement(currentElement.id.replace('submenu-', 'dropdown-wrapper-')); // Cari trigger
+                    // Perbaiki cara mendapatkan triggerButton:
+                    // Trigger button adalah elemen yang memiliki data-toggle="submenu-XYZ"
+                    // dan merupakan sibling dari submenu-container
+                    // Kita perlu naik ke parent <li>, lalu cari div.sidebar-menu-item-wrapper, lalu cari button
+                    const parentWrapper = currentElement.previousElementSibling; // Ini adalah div.sidebar-menu-item-wrapper
+                    const triggerButton = parentWrapper ? parentWrapper.querySelector('[data-toggle^="submenu-"]') : null;
+
                     if (triggerButton) {
                         const icon = triggerButton.querySelector('i');
                         if (icon) {

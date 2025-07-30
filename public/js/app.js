@@ -27,15 +27,11 @@ import { authUtils } from './utils/auth.js';
 import { APP_CONSTANTS } from './utils/constants.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Data global dari Blade (diambil dari body tag di layouts/docs.blade.php)
-    window.APP_DATA = {
-        csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        userRole: document.body.dataset.userRole,
-        currentCategorySlug: document.body.dataset.currentCategory,
-        currentMenuId: parseInt(document.body.dataset.currentMenuId) || null,
-        // Data lain yang dibutuhkan secara global akan di-pass via window.APP_BLADE_DATA di .blade.php
-        // seperti singleUseCase, useCases
-    };
+    console.log('app.js: DOMContentLoaded event fired!');
+
+    // Baca data dari window.APP_BLADE_DATA yang sudah diinisialisasi di Blade
+    const APP_DATA = window.APP_BLADE_DATA;
+    console.log('app.js: window.APP_BLADE_DATA initialized:', APP_DATA);
 
     // Inisialisasi komponen layout
     initSidebar();
@@ -44,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalContentDisplay();
 
     // Inisialisasi logika admin hanya jika user adalah admin
-    if (window.APP_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
+    if (APP_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
+        console.log('app.js: Initializing admin components...');
         initCategoryManager();
         initNavMenuManager();
         initUseCaseFormHandler();
@@ -52,8 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initUatDataManager();
         initReportDataManager();
         initDatabaseDataManager();
+    } else {
+        console.log('app.js: Not an admin. Skipping admin component initialization.');
     }
 
     // Inisialisasi tombol logout
     authUtils.initLogoutButton();
+    console.log('app.js: All initializations complete.');
 });

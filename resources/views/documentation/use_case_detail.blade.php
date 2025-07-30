@@ -1,4 +1,4 @@
-@extends('layouts.docs')
+
 
 @section('action-buttons')
     {{-- Tombol Edit Detail Aksi (di kanan judul halaman) --}}
@@ -13,7 +13,7 @@
     @endauth
 @endsection
 
-@section('content')
+
     @php
         $hasUseCaseData = $singleUseCase && $singleUseCase->id;
     @endphp
@@ -340,4 +340,3 @@
             @endif
         </div>
     </div>
-@endsection

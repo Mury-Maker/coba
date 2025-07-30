@@ -49,7 +49,7 @@ export function initUseCaseDetailDisplay() {
     // Handle Edit Use Case dari halaman detail (use_case_detail.blade.php)
     if (editSingleUseCaseBtn) {
         domUtils.addEventListener(editSingleUseCaseBtn, 'click', () => {
-            const singleUseCaseData = window.APP_BLADE_DATA.singleUseCase;
+            const singleUseCaseData = window.APP_BLADE_DATA.singleUseCase; // Gunakan window.APP_BLADE_DATA
             if (singleUseCaseData && singleUseCaseData.id) {
                 window.openUseCaseModal('edit', singleUseCaseData); // Memanggil fungsi dari useCaseFormHandler.js
             } else {

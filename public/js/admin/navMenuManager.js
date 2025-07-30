@@ -3,7 +3,7 @@
 import { domUtils } from '../core/domUtils.js';
 import { apiClient } from '../core/apiClient.js';
 import { notificationManager } from '../core/notificationManager.js';
-import { APP_CONSTANTS } from '../utils/constants.js';
+import { APP_CONSTANTS } from '../utils/constants.js'; // Pastikan ini diimpor
 
 export function initNavMenuManager() {
     const adminNavMenuModal = domUtils.getElement('adminNavMenuModal');
@@ -34,9 +34,10 @@ export function initNavMenuManager() {
         adminNavMenuForm.reset();
         formNavMenuId.value = '';
         formNavMenuMethod.value = 'POST';
-        formNavMenuCategoryId.value = window.APP_DATA.currentCategorySlug; // Pastikan ini diisi
+        // Gunakan window.APP_BLADE_DATA untuk currentCategorySlug
+        formNavMenuCategoryId.value = window.APP_BLADE_DATA.currentCategorySlug;
 
-        const currentCategorySlug = window.APP_DATA.currentCategorySlug;
+        const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug; // Ambil dari window.APP_BLADE_DATA
 
         // Muat daftar parent menu
         formNavMenuChild.innerHTML = '<option value="0">Tidak Ada (Menu Utama)</option>'; // Reset options
@@ -134,10 +135,8 @@ export function initNavMenuManager() {
             const currentCategorySlug = data.current_category_slug; // Slug kategori yang aktif
             let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${newMenuLink}`;
 
-            if (data.menu_status === 1) { // Jika menu punya konten, tambahkan query param jika relevan
-                // Ini mungkin tidak lagi diperlukan dengan rute showUseCaseDetail terpisah
-                // Namun, kita bisa tambahkan untuk konsistensi atau jika ada tab default.
-                // redirectUrl += `?content_type=UAT`;
+            if (data.menu_status === 1) {
+                // redirectUrl += `?content_type=UAT`; // Tidak lagi diperlukan karena struktur routing baru
             }
             window.location.href = redirectUrl;
 
