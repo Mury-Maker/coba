@@ -6,6 +6,7 @@ import { apiClient } from '../core/apiClient.js';
 import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initHeader() {
+    console.log('Header initialized.'); // DEBUG: Confirm initialization
     const categoryDropdownBtn = domUtils.getElement('category-dropdown-btn');
     const categoryDropdownText = domUtils.getElement('category-button-text');
     const categoryDropdownMenu = domUtils.getElement('category-dropdown-menu');
@@ -14,7 +15,9 @@ export function initHeader() {
     const categoryDropdownTextMobile = domUtils.getElement('category-button-text-mobile');
     const categoryDropdownMenuMobile = domUtils.getElement('category-dropdown-menu-mobile');
 
-    // Fungsi bantu untuk memperbarui teks tombol kategori
+    const addCategoryBtnHeader = document.querySelector('#category-dropdown-menu [data-action="add-category"]');
+
+
     function updateCategoryButtonText(categoryKey, targetTextElement) {
         let categoryDisplayName = categoryKey.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         if (targetTextElement) {
@@ -22,7 +25,6 @@ export function initHeader() {
         }
     }
 
-    // Fungsi untuk menyusun ulang kategori default "ePesantren" di awal daftar
     function reorderCategoryMenu(menuElement) {
         if (!menuElement) return;
         const epesantrenItem = menuElement.querySelector('a[data-category-key="epesantren"]');
@@ -37,7 +39,6 @@ export function initHeader() {
     reorderCategoryMenu(categoryDropdownMenu);
     reorderCategoryMenu(categoryDropdownMenuMobile);
 
-    // Logic untuk dropdown kategori desktop
     if (categoryDropdownBtn && categoryDropdownMenu) {
         domUtils.addEventListener(categoryDropdownBtn, 'click', (e) => {
             e.stopPropagation();
@@ -45,6 +46,7 @@ export function initHeader() {
             const chevronIcon = categoryDropdownBtn.querySelector('.fa-chevron-down, .fa-chevron-up');
             domUtils.toggleClass(chevronIcon, 'fa-chevron-up', isOpen);
             domUtils.toggleClass(chevronIcon, 'fa-chevron-down', !isOpen);
+            console.log('Desktop category dropdown toggled.');
         });
 
         domUtils.addEventListener(document, 'click', (event) => {
@@ -68,11 +70,13 @@ export function initHeader() {
                     domUtils.toggleClass(chevronIcon, 'fa-chevron-up', false);
                     domUtils.toggleClass(chevronIcon, 'fa-chevron-down', true);
                 }
+                console.log('Desktop category item clicked:', newCategoryKey);
             });
         });
+    } else {
+        console.log('Desktop category dropdown elements not found.');
     }
 
-    // Logic untuk dropdown kategori mobile
     if (categoryDropdownBtnMobile && categoryDropdownMenuMobile) {
         domUtils.addEventListener(categoryDropdownBtnMobile, 'click', (e) => {
             e.stopPropagation();
@@ -80,6 +84,7 @@ export function initHeader() {
             const chevronIcon = categoryDropdownBtnMobile.querySelector('.fa-chevron-down, .fa-chevron-up');
             domUtils.toggleClass(chevronIcon, 'fa-chevron-up', isOpen);
             domUtils.toggleClass(chevronIcon, 'fa-chevron-down', !isOpen);
+            console.log('Mobile category dropdown toggled.');
         });
 
         domUtils.addEventListener(document, 'click', (event) => {
@@ -103,28 +108,64 @@ export function initHeader() {
                     domUtils.toggleClass(chevronIcon, 'fa-chevron-up', false);
                     domUtils.toggleClass(chevronIcon, 'fa-chevron-down', true);
                 }
+                console.log('Mobile category item clicked:', newCategoryKey);
             });
         });
+    } else {
+        console.log('Mobile category dropdown elements not found.');
     }
 
     // ADMIN: Event Listeners untuk tombol Add/Edit/Delete Kategori di header/sidebar
-    if (window.APP_BLADE_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) { // Menggunakan window.APP_BLADE_DATA
-        // Delegasi event untuk tombol kategori (baik desktop maupun mobile)
+    if (window.APP_BLADE_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
+        console.log('Header: Admin mode detected, attaching category action listeners.');
         domUtils.addEventListener(document, 'click', (e) => {
-            const addCategoryBtn = e.target.closest('[data-action="add-category"]');
+            const clickedAddCategoryBtn = e.target.closest('[data-action="add-category"]');
             const editCategoryBtn = e.target.closest('[data-action="edit-category"]');
             const deleteCategoryBtn = e.target.closest('[data-action="delete-category"]');
 
-            if (addCategoryBtn) {
-                window.openAdminCategoryModal('create'); // Fungsi dari admin/categoryManager.js
+            if (clickedAddCategoryBtn) {
+                 if (addCategoryBtnHeader && addCategoryBtnHeader.contains(e.target)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Add Category button clicked (via direct target).');
+                    setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0);
+                } else if (categoryDropdownMenu.contains(e.target) && clickedAddCategoryBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Add Category button clicked (via delegation within dropdown).');
+                    setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0);
+                }
             } else if (editCategoryBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Edit Category button clicked.');
                 const categorySlug = editCategoryBtn.dataset.slug;
                 const categoryName = editCategoryBtn.dataset.name;
-                window.openAdminCategoryModal('edit', categoryName, categorySlug); // Fungsi dari admin/categoryManager.js
+                setTimeout(() => notificationManager.openAdminCategoryModal('edit', categoryName, categorySlug), 0);
             } else if (deleteCategoryBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Delete Category button clicked.');
                 const categorySlug = deleteCategoryBtn.dataset.slug;
                 const categoryName = deleteCategoryBtn.dataset.name;
-                window.confirmDeleteCategory(categorySlug, categoryName); // Fungsi dari admin/categoryManager.js
+                // PERBAIKAN DI SINI: Bungkus panggilan openConfirmModal dengan setTimeout
+                setTimeout(() => notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus kategori "${categoryName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua menu dan konten terkait.`, async () => {
+                    const loadingNotif = notificationManager.showNotification('Menghapus kategori...', 'loading');
+                    try {
+                        const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.DESTROY}/${categorySlug}`, {
+                            method: 'DELETE'
+                        });
+                        notificationManager.hideNotification(loadingNotif);
+                        notificationManager.showCentralSuccessPopup(data.success);
+                        if (data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        notificationManager.hideNotification(loadingNotif);
+                    }
+                }), 0); // <<< Tambahkan setTimeout 0ms
             }
         });
     }

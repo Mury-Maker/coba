@@ -74,7 +74,9 @@
                 @if($editorMode)
                     <div class="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mr-1">
                         @if ($item->menu_status == 0) {{-- Hanya folder yang bisa punya sub-menu --}}
+                            {{-- PERBAIKAN DI SINI: Tambah Sub Menu --}}
                             <button
+                                type="button"
                                 data-action="add-child-menu"
                                 data-parent-id="{{ $item->menu_id }}"
                                 class="text-green-500 hover:text-green-700 p-1"
@@ -98,7 +100,7 @@
                             class="text-red-500 hover:text-red-700 p-1"
                             title="Hapus Menu"
                             aria-label="Hapus Menu {{ $item->menu_nama }}">
-                            <i class="fa-solid fa-trash"></i>
+                            <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 @endif

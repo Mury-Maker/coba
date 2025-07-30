@@ -58,6 +58,19 @@ function addEventListener(element, event, handler) {
 }
 
 /**
+ * Menghapus event listener dari elemen.
+ * @param {HTMLElement} element - Elemen DOM.
+ * @param {string} event - Nama event (misal 'click').
+ * @param {Function} handler - Fungsi handler yang akan dihapus.
+ */
+function removeEventListener(element, event, handler) {
+    if (element) {
+        element.removeEventListener(event, handler);
+    }
+}
+
+
+/**
  * Mengatur tampilan modal (menambah/menghapus kelas 'show').
  * @param {HTMLElement} modalElement - Elemen modal.
  * @param {boolean} show - true untuk menampilkan, false untuk menyembunyikan.
@@ -74,5 +87,6 @@ export const domUtils = {
     showElement,
     toggleClass,
     addEventListener,
+    removeEventListener, // <<< Pastikan ini diekspor
     toggleModal
 };

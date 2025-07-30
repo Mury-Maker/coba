@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Collection; // Pastikan ini di-import
 
 class NavMenu extends Model
 {
     use HasFactory;
 
     protected $table = 'navmenu';
-    protected $primaryKey = 'menu_id'; // Kunci utama kustom
-    public $timestamps = true; // Migrasi kita punya timestamps sekarang
+    protected $primaryKey = 'menu_id';
+    public $timestamps = true;
 
     protected $fillable = [
-        'category_id', // Ubah dari 'category' string
+        'category_id',
         'menu_nama',
         'menu_link',
         'menu_icon',
@@ -28,7 +28,7 @@ class NavMenu extends Model
     // Relasi: NavMenu ini dimiliki oleh satu Category
     public function category()
     {
-        return $this->belongsTo(Category::class); // Default FK adalah category_id
+        return $this->belongsTo(Category::class);
     }
 
     // Relasi: Satu NavMenu memiliki banyak UseCase
@@ -66,18 +66,16 @@ class NavMenu extends Model
 
         foreach ($elements as $element) {
             if ($element->menu_child == $parentId) {
-                $item = clone $element; // Kloning objek untuk manipulasi aman
-
-                // Relasi 'children' tidak perlu diset di sini lagi jika sudah ada di model,
-                // tapi jika ingin memuat eager loading secara manual:
-                // $item->children = self::buildTree($elements, $item->menu_id);
+                $item = clone $element;
+                // Eager load children secara rekursif
+                $item->children = self::buildTree($elements, $item->menu_id); // Memuat children di sini
 
                 $branch[] = $item;
             }
         }
 
         usort($branch, function($a, $b) {
-            return $a->menu_order <=> $b->menu_order; // Urutkan berdasarkan menu_order
+            return $a->menu_order <=> $b->menu_order;
         });
 
         return $branch;
@@ -85,17 +83,40 @@ class NavMenu extends Model
 
     /**
      * Memeriksa apakah menu ini adalah turunan dari potensi parent ID.
+     * Digunakan untuk mencegah circular dependency.
+     * @param int $potentialParentId - ID parent yang akan diperiksa.
+     * @return bool
      */
-    public function isDescendantOf($potentialParentId): bool
+    public function isDescendantOf(int $potentialParentId): bool
     {
-        $current = $this;
-        while ($current->menu_child !== 0 && $current->menu_child !== null) {
-            if ($current->menu_child == $potentialParentId) {
-                return true;
-            }
-            $current = NavMenu::find($current->menu_child); // Temukan instance parent
-            if (!$current) break;
+        // Jika potentialParentId adalah 0 (Menu Utama), tidak mungkin ada circular dependency
+        if ($potentialParentId === 0) {
+            return false;
         }
-        return false;
+
+        // Dapatkan semua turunan dari menu yang sedang diedit (this)
+        $descendantIds = $this->getDescendantIdsRecursive($this->menu_id);
+
+        // Periksa apakah potentialParentId ada di antara turunan-turunan tersebut
+        return in_array($potentialParentId, $descendantIds);
+    }
+
+    /**
+     * Helper rekursif untuk mendapatkan semua ID turunan dari sebuah menu.
+     * @param int $menuId - ID menu induk.
+     * @return array - Array berisi ID semua turunan.
+     */
+    private function getDescendantIdsRecursive(int $menuId): array
+    {
+        $descendants = [];
+        $children = NavMenu::where('menu_child', $menuId)->pluck('menu_id')->toArray();
+
+        foreach ($children as $childId) {
+            $descendants[] = $childId;
+            // Rekursif memanggil untuk anak-anak dari anak
+            $descendants = array_merge($descendants, $this->getDescendantIdsRecursive($childId));
+        }
+
+        return array_unique($descendants);
     }
 }

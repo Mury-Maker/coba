@@ -7,22 +7,12 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
-use App\Models\Category; // Import model Category
+use App\Models\Category; // Pastikan ini di-import
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * The path to your application's "home" route.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
-     */
-    public const HOME = '/home'; // Atau ubah ke /docs jika Anda ingin langsung ke docs
+    public const HOME = '/home';
 
-    /**
-     * Define your route model bindings, pattern filters, and other route configuration.
-     */
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
@@ -30,19 +20,21 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // HAPUS BLOK INI:
+            /*
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
+            */
 
+            // BIARKAN BLOK INI:
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
 
-        // --- TAMBAHKAN KODE INI ---
+        // Pastikan Route Model Binding ini tetap ada
         Route::bind('category', function ($value) {
-            // Ini akan mencari kategori berdasarkan 'slug' alih-alih 'id'
             return Category::where('slug', $value)->firstOrFail();
         });
-        // --- AKHIR KODE TAMBAHAN ---
     }
 }

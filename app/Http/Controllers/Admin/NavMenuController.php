@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NavMenu;
 use App\Models\Category;
-use App\Models\UseCase;
+use App\Models\UseCase; // Pastikan ini di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class NavMenuController extends Controller
 {
@@ -38,16 +38,17 @@ class NavMenuController extends Controller
         $category = Category::where('slug', $categorySlug)->firstOrFail();
 
         $query = NavMenu::where('category_id', $category->id)
-            ->where('menu_status', 0)
+            ->where('menu_status', 0) // Hanya folder yang bisa jadi parent
             ->orderBy('menu_nama');
 
         if ($request->has('editing_menu_id')) {
             $editingMenuId = $request->input('editing_menu_id');
-            $query->where('menu_id', '!=', $editingMenuId);
+            $query->where('menu_id', '!=', $editingMenuId); // Menu tidak bisa jadi parent dirinya sendiri
 
+            // Dapatkan semua ID turunan dari menu yang sedang diedit
             $descendantIds = $this->getDescendantIds($editingMenuId);
             if (!empty($descendantIds)) {
-                $query->whereNotIn('menu_id', $descendantIds);
+                $query->whereNotIn('menu_id', $descendantIds); // Kecualikan turunan dari daftar parent
             }
         }
 
@@ -55,32 +56,35 @@ class NavMenuController extends Controller
         return response()->json($parents);
     }
 
+    // Metode ini harus ada dan benar di NavMenuController
+    // Ini adalah metode rekursif untuk mendapatkan semua ID turunan
     private function getDescendantIds($parentId): array
     {
         $descendantIds = [];
-        $queue = collect([$parentId]);
+        $queue = collect([$parentId]); // Mulai dengan parent itu sendiri
 
         while (!$queue->isEmpty()) {
             $currentParentId = $queue->shift();
 
+            // Dapatkan anak-anak langsung dari currentParentId
             $children = NavMenu::where('menu_child', $currentParentId)->pluck('menu_id')->toArray();
 
             foreach ($children as $childId) {
-                if (!in_array($childId, $descendantIds)) {
+                if (!in_array($childId, $descendantIds)) { // Hindari duplikasi
                     $descendantIds[] = $childId;
-                    $queue->push($childId);
+                    $queue->push($childId); // Tambahkan anak ke antrian untuk diperiksa lebih lanjut
                 }
             }
         }
 
+        // Penting: Jangan sertakan parentId itu sendiri dalam daftar turunan yang dikecualikan
+        // Karena kita sudah mengecualikannya dengan 'menu_id != $editingMenuId' di query utama
         return array_unique($descendantIds);
     }
 
+
     public function getAllMenusForSidebar($categorySlug)
     {
-        // Fungsi ini mungkin dipanggil untuk non-admin juga, jadi pemeriksaan akses di sini opsional
-        // Tapi karena getAllMenusForSidebar cuma dipanggil di editorMode, kita bisa tambahkan.
-        // Jika sidebar juga tampil untuk non-admin, pisahkan fungsi ini jadi 2.
         $this->ensureAdminAccess();
 
         $category = Category::where('slug', $categorySlug)->firstOrFail();
@@ -89,9 +93,10 @@ class NavMenuController extends Controller
 
         $html = View::make('partials._menu_item', [
             'items' => $navigation,
-            'editorMode' => true, // Selalu true karena ini dipanggil di mode admin
+            'editorMode' => true,
             'selectedNavItemId' => null,
             'currentCategorySlug' => $categorySlug,
+            'level' => 0
         ])->render();
 
         return response()->json(['html' => $html]);
@@ -99,7 +104,7 @@ class NavMenuController extends Controller
 
     public function store(Request $request)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -147,7 +152,7 @@ class NavMenuController extends Controller
 
     public function update(Request $request, NavMenu $navMenu)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -165,9 +170,13 @@ class NavMenuController extends Controller
             'menu_status' => 'boolean',
         ]);
 
+        // Validasi circular dependency di sini
         if ($request->menu_child == $navMenu->menu_id) {
             return response()->json(['message' => 'Menu tidak bisa menjadi parent-nya sendiri.'], 422);
         }
+        // Gunakan metode isDescendantOf dari model NavMenu
+        // Pastikan $navMenu adalah instance model yang sudah dimuat dengan relasi children
+        $navMenu->load('children'); // Eager load children untuk isDescendantOf
         if ($request->menu_child != 0 && $navMenu->isDescendantOf($request->menu_child)) {
             return response()->json(['message' => 'Tidak bisa mengatur sub-menu sebagai parent dari menu induknya.'], 422);
         }
@@ -198,7 +207,6 @@ class NavMenuController extends Controller
                 'menu_id' => $navMenu->menu_id,
                 'new_menu_nama' => $navMenu->menu_nama,
                 'new_menu_link' => $navMenu->menu_link,
-                'old_menu_link' => $oldMenuLink,
                 'current_category_slug' => $navMenu->category->slug,
                 'menu_status' => $navMenu->menu_status,
             ]);
@@ -210,14 +218,16 @@ class NavMenuController extends Controller
 
     public function destroy(NavMenu $navMenu)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $currentCategorySlug = $navMenu->category->slug;
 
         try {
             DB::transaction(function () use ($navMenu) {
                 $navMenu->children()->each(function ($child) {
-                    $this->destroy($child);
+                    // Memanggil destroy secara rekursif untuk anak-anak
+                    // Pastikan $this tersedia di closure
+                    app(NavMenuController::class)->destroy($child);
                 });
                 $navMenu->delete();
             });
@@ -239,7 +249,7 @@ class NavMenuController extends Controller
             } else {
                 $categoryExists = Category::where('slug', $currentCategorySlug)->exists();
                 if ($categoryExists) {
-                     $redirectUrl = route('docs', ['category' => $currentCategorySlug]);
+                    $redirectUrl = route('docs', ['category' => $currentCategorySlug]);
                 }
             }
 
