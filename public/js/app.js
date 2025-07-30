@@ -4,7 +4,7 @@
 import { apiClient } from './core/apiClient.js';
 import { notificationManager } from './core/notificationManager.js';
 import { domUtils } from './core/domUtils.js';
-import { initGlobalModals } from './core/globalModals.js'; // <<< Pastikan ini diimpor
+import { initGlobalModals } from './core/globalModals.js';
 
 // Import dari folder 'layout'
 import { initSidebar } from './layout/sidebar.js';
@@ -21,11 +21,15 @@ import { initUseCaseDetailDisplay } from './documentation/useCase/useCaseDetailD
 import { initUatDataManager } from './documentation/useCase/uatDataManager.js';
 import { initReportDataManager } from './documentation/useCase/reportDataManager.js';
 import { initDatabaseDataManager } from './documentation/useCase/databaseDataManager.js';
-import { initGlobalContentDisplay as initDocGlobalContentDisplay } from './documentation/globalContentDisplay.js'; // Rename to avoid conflict
+import { initGlobalContentDisplay as initDocGlobalContentDisplay } from './documentation/globalContentDisplay.js';
 
 // Import dari folder 'utils'
 import { authUtils } from './utils/auth.js';
 import { APP_CONSTANTS } from './utils/constants.js';
+
+// --- PERUBAHAN: IMPORT imageViewerManual.js dan inisialisasi di sini ---
+import { initImageViewerManual } from './utils/imageViewerManual.js';
+// --- AKHIR PERUBAHAN ---
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('app.js: DOMContentLoaded event fired!');
@@ -33,12 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const APP_DATA = window.APP_BLADE_DATA;
     console.log('app.js: window.APP_BLADE_DATA initialized:', APP_DATA);
 
-    // >>> INI PERUBAHAN KRITIS: Pastikan initGlobalModals dipanggil di awal <<<
-    // Ini adalah modul yang mengekspos openCommonConfirmModal ke window
     initGlobalModals();
     console.log('app.js: Global modals initialized.');
 
-    // Inisialisasi komponen layout
     console.log('app.js: Initializing layout components...');
     initSidebar();
     initHeader();
@@ -46,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initDocGlobalContentDisplay();
     console.log('app.js: Layout components initialized.');
 
-    // Inisialisasi logika admin hanya jika user adalah admin
     if (APP_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
         console.log('app.js: Initializing admin components...');
         initCategoryManager();
@@ -61,7 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('app.js: Not an admin. Skipping admin component initialization.');
     }
 
-    // Inisialisasi tombol logout
     authUtils.initLogoutButton();
     console.log('app.js: All initializations complete.');
+
+    // --- PERUBAHAN: INISIALISASI MANUAL IMAGE VIEWER ---
+    initImageViewerManual(); // Panggil fungsi inisialisasi dari modul baru
+    console.log('Manual Image Viewer initialized.');
+    // --- AKHIR PERUBAHAN ---
 });

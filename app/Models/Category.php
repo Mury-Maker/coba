@@ -10,7 +10,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug']; // `id` otomatis tidak perlu
+    protected $fillable = ['name', 'slug'];
 
     // Mutator untuk otomatis membuat slug saat nama diatur
     public function setNameAttribute($value)
@@ -18,6 +18,18 @@ class Category extends Model
         $this->attributes['name'] = $value;
         $this->attributes['slug'] = Str::slug($value);
     }
+
+    // --- TAMBAHKAN FUNGSI INI ---
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+    // --- AKHIR TAMBAHAN ---
 
     // Relasi: Satu Category memiliki banyak NavMenu
     public function navMenus()

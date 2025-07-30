@@ -5,17 +5,16 @@ namespace App\Http\Controllers\UseCaseData;
 use App\Http\Controllers\Controller;
 use App\Models\UseCase;
 use App\Models\DatabaseData;
-use App\Models\DatabaseImage;
+use App\Models\DatabaseImage; // Pastikan model DatabaseImage di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class DatabaseDataController extends Controller
 {
-    // Helper untuk memastikan pengguna adalah admin
     private function ensureAdminAccess()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
@@ -25,14 +24,14 @@ class DatabaseDataController extends Controller
 
     public function store(Request $request)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'use_case_id' => 'required|exists:use_cases,id',
             'keterangan' => 'nullable|string',
-            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Mendukung multiple files
             'relasi' => 'nullable|string',
-            'existing_database_images.*' => 'nullable|string',
+            // 'existing_database_images.*' tidak relevan untuk store
         ]);
 
         try {
@@ -47,11 +46,13 @@ class DatabaseDataController extends Controller
 
                 if ($request->hasFile('database_images')) {
                     foreach ($request->file('database_images') as $imageFile) {
-                        $path = $imageFile->store('database_images', 'public');
-                        $databaseData->images()->create([
-                            'path' => Storage::url($path),
-                            'filename' => $imageFile->getClientOriginalName(),
-                        ]);
+                        if ($imageFile->isValid()) { // Pastikan file valid
+                            $path = $imageFile->store('database_images', 'public');
+                            $databaseData->images()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $imageFile->getClientOriginalName(),
+                            ]);
+                        }
                     }
                 }
             });
@@ -68,13 +69,14 @@ class DatabaseDataController extends Controller
 
     public function update(Request $request, DatabaseData $databaseData)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'keterangan' => 'nullable|string',
-            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Untuk file baru
             'relasi' => 'nullable|string',
-            'existing_database_images.*' => 'nullable|string',
+            // Nama input hidden dari imagePreviewer.js adalah 'database_images_current[]'
+            'database_images_current.*' => 'nullable|string', // Validasi untuk path gambar yang tetap ada
         ]);
 
         try {
@@ -84,21 +86,30 @@ class DatabaseDataController extends Controller
                     'relasi',
                 ]));
 
-                $existingImagePaths = $request->input('existing_database_images', []);
+                // Dapatkan path gambar yang harus dipertahankan dari request
+                // Jika tidak ada 'database_images_current', asumsikan semua gambar lama dihapus
+                $keptImagePaths = $request->input('database_images_current', []);
+
+                // Hapus gambar lama yang tidak ada dalam daftar 'keptImagePaths'
                 foreach ($databaseData->images as $image) {
-                    if (!in_array($image->path, $existingImagePaths)) {
-                        Storage::disk('public')->delete(Str::after($image->path, '/storage/'));
-                        $image->delete();
+                    // Str::after untuk mengubah URL penuh menjadi path storage
+                    $storagePath = Str::after($image->path, '/storage/');
+                    if (!in_array($image->path, $keptImagePaths) && !in_array($storagePath, $keptImagePaths)) {
+                        Storage::disk('public')->delete($storagePath); // Hapus file fisik
+                        $image->delete(); // Hapus entri dari database
                     }
                 }
 
+                // Tambahkan gambar baru
                 if ($request->hasFile('database_images')) {
                     foreach ($request->file('database_images') as $imageFile) {
-                        $path = $imageFile->store('database_images', 'public');
-                        $databaseData->images()->create([
-                            'path' => Storage::url($path),
-                            'filename' => $imageFile->getClientOriginalName(),
-                        ]);
+                        if ($imageFile->isValid()) { // Pastikan file valid
+                            $path = $imageFile->store('database_images', 'public');
+                            $databaseData->images()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $imageFile->getClientOriginalName(),
+                            ]);
+                        }
                     }
                 }
             });
@@ -115,7 +126,7 @@ class DatabaseDataController extends Controller
 
     public function destroy(DatabaseData $databaseData)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         try {
             DB::transaction(function () use ($databaseData) {

@@ -5,17 +5,16 @@ namespace App\Http\Controllers\UseCaseData;
 use App\Http\Controllers\Controller;
 use App\Models\UseCase;
 use App\Models\UatData;
-use App\Models\UatImage;
+use App\Models\UatImage; // Pastikan model UatImage di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class UatDataController extends Controller
 {
-    // Helper untuk memastikan pengguna adalah admin
     private function ensureAdminAccess()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
@@ -25,15 +24,15 @@ class UatDataController extends Controller
 
     public function store(Request $request)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'use_case_id' => 'required|exists:use_cases,id',
             'nama_proses_usecase' => 'required|string|max:255',
             'keterangan_uat' => 'nullable|string',
             'status_uat' => 'nullable|string|in:Passed,Failed,Pending',
-            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Untuk multiple files
-            'existing_uat_images.*' => 'nullable|string',
+            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Mendukung multiple files
+            // 'existing_uat_images.*' tidak relevan untuk store
         ]);
 
         try {
@@ -49,11 +48,13 @@ class UatDataController extends Controller
 
                 if ($request->hasFile('uat_images')) {
                     foreach ($request->file('uat_images') as $imageFile) {
-                        $path = $imageFile->store('uat_images', 'public');
-                        $uatData->images()->create([
-                            'path' => Storage::url($path),
-                            'filename' => $imageFile->getClientOriginalName(),
-                        ]);
+                        if ($imageFile->isValid()) { // Pastikan file valid
+                            $path = $imageFile->store('uat_images', 'public');
+                            $uatData->images()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $imageFile->getClientOriginalName(),
+                            ]);
+                        }
                     }
                 }
             });
@@ -70,14 +71,15 @@ class UatDataController extends Controller
 
     public function update(Request $request, UatData $uatData)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $request->validate([
             'nama_proses_usecase' => 'required|string|max:255',
             'keterangan_uat' => 'nullable|string',
             'status_uat' => 'nullable|string|in:Passed,Failed,Pending',
-            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'existing_uat_images.*' => 'nullable|string',
+            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Untuk file baru
+            // Nama input hidden dari imagePreviewer.js adalah 'uat_images_current[]'
+            'uat_images_current.*' => 'nullable|string', // Validasi untuk path gambar yang tetap ada
         ]);
 
         try {
@@ -88,21 +90,29 @@ class UatDataController extends Controller
                     'status_uat',
                 ]));
 
-                $existingImagePaths = $request->input('existing_uat_images', []);
+                // Dapatkan path gambar yang harus dipertahankan dari request
+                // Jika tidak ada 'uat_images_current', asumsikan semua gambar lama dihapus
+                $keptImagePaths = $request->input('uat_images_current', []);
+
+                // Hapus gambar lama yang tidak ada dalam daftar 'keptImagePaths'
                 foreach ($uatData->images as $image) {
-                    if (!in_array($image->path, $existingImagePaths)) {
-                        Storage::disk('public')->delete(Str::after($image->path, '/storage/'));
-                        $image->delete();
+                    $storagePath = Str::after($image->path, '/storage/');
+                    if (!in_array($image->path, $keptImagePaths) && !in_array($storagePath, $keptImagePaths)) {
+                        Storage::disk('public')->delete($storagePath); // Hapus file fisik
+                        $image->delete(); // Hapus entri dari database
                     }
                 }
 
+                // Tambahkan gambar baru
                 if ($request->hasFile('uat_images')) {
                     foreach ($request->file('uat_images') as $imageFile) {
-                        $path = $imageFile->store('uat_images', 'public');
-                        $uatData->images()->create([
-                            'path' => Storage::url($path),
-                            'filename' => $imageFile->getClientOriginalName(),
-                        ]);
+                        if ($imageFile->isValid()) { // Pastikan file valid
+                            $path = $imageFile->store('uat_images', 'public');
+                            $uatData->images()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $imageFile->getClientOriginalName(),
+                            ]);
+                        }
                     }
                 }
             });
@@ -119,7 +129,7 @@ class UatDataController extends Controller
 
     public function destroy(UatData $uatData)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         try {
             DB::transaction(function () use ($uatData) {

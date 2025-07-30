@@ -7,34 +7,38 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB; // Tetap ada untuk logging
 use App\Models\Category; // Pastikan ini di-import
 
 class RouteServiceProvider extends ServiceProvider
 {
-    public const HOME = '/home';
-
+    // ...
     public function boot(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
-
+        // ...
         $this->routes(function () {
-            // HAPUS BLOK INI:
-            /*
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
-            */
-
-            // BIARKAN BLOK INI:
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+            // ...
         });
 
-        // Pastikan Route Model Binding ini tetap ada
+        // --- HAPUS ATAU KOMENTARI BLOK INI ---
+        /*
         Route::bind('category', function ($value) {
-            return Category::where('slug', $value)->firstOrFail();
+            Log::info('Route Model Binding: Mencari kategori dengan slug: ' . $value);
+            DB::enableQueryLog();
+            $category = Category::where('slug', $value)->first();
+            $queryLog = DB::getQueryLog();
+            Log::info('Query SQL yang dieksekusi: ', $queryLog);
+            dd([
+                'slug_yang_dicari' => $value,
+                'kategori_ditemukan' => $category ? true : false,
+                'objek_kategori' => $category,
+                'query_sql_yang_dijalankan' => $queryLog,
+                'pesan' => 'Ini adalah output dari Route Model Binding'
+            ]);
+            return $category;
         });
+        */
+        // --- AKHIR HAPUS/KOMENTARI ---
     }
 }

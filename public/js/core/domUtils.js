@@ -87,6 +87,6 @@ export const domUtils = {
     showElement,
     toggleClass,
     addEventListener,
-    removeEventListener, // <<< Pastikan ini diekspor
+    removeEventListener,
     toggleModal
 };

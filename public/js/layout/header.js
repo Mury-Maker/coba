@@ -124,16 +124,18 @@ export function initHeader() {
             const deleteCategoryBtn = e.target.closest('[data-action="delete-category"]');
 
             if (clickedAddCategoryBtn) {
-                 if (addCategoryBtnHeader && addCategoryBtnHeader.contains(e.target)) {
+                if (addCategoryBtnHeader && addCategoryBtnHeader.contains(e.target)) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Add Category button clicked (via direct target).');
-                    setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0);
+                    // setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0); // Removed setTimeout
+                    notificationManager.openAdminCategoryModal('create');
                 } else if (categoryDropdownMenu.contains(e.target) && clickedAddCategoryBtn) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log('Add Category button clicked (via delegation within dropdown).');
-                    setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0);
+                    // setTimeout(() => notificationManager.openAdminCategoryModal('create'), 0); // Removed setTimeout
+                    notificationManager.openAdminCategoryModal('create');
                 }
             } else if (editCategoryBtn) {
                 e.preventDefault();
@@ -141,15 +143,16 @@ export function initHeader() {
                 console.log('Edit Category button clicked.');
                 const categorySlug = editCategoryBtn.dataset.slug;
                 const categoryName = editCategoryBtn.dataset.name;
-                setTimeout(() => notificationManager.openAdminCategoryModal('edit', categoryName, categorySlug), 0);
+                // setTimeout(() => notificationManager.openAdminCategoryModal('edit', categoryName, categorySlug), 0); // Removed setTimeout
+                notificationManager.openAdminCategoryModal('edit', categoryName, categorySlug);
             } else if (deleteCategoryBtn) {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Delete Category button clicked.');
                 const categorySlug = deleteCategoryBtn.dataset.slug;
                 const categoryName = deleteCategoryBtn.dataset.name;
-                // PERBAIKAN DI SINI: Bungkus panggilan openConfirmModal dengan setTimeout
-                setTimeout(() => notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus kategori "${categoryName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua menu dan konten terkait.`, async () => {
+                // PERBAIKAN DI SINI: Hapus setTimeout
+                notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus kategori "${categoryName}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua menu dan konten terkait.`, async () => {
                     const loadingNotif = notificationManager.showNotification('Menghapus kategori...', 'loading');
                     try {
                         const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.DESTROY}/${categorySlug}`, {
@@ -164,8 +167,9 @@ export function initHeader() {
                         }
                     } catch (error) {
                         notificationManager.hideNotification(loadingNotif);
+                        // Error ditangani oleh apiClient
                     }
-                }), 0); // <<< Tambahkan setTimeout 0ms
+                });
             }
         });
     }
