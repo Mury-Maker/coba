@@ -1,6 +1,6 @@
+{{-- resources/views/documentation/uat_entry_detail.blade.php --}}
 
 @section('action-buttons')
-    {{-- Tombol untuk kembali ke halaman use case utama --}}
     <a href="{{ route('docs.use_case_detail', [
         'category' => $currentCategory,
         'page' => Str::slug($selectedNavItem->menu_nama),
@@ -10,39 +10,57 @@
     </a>
 @endsection
 
-
     <div class="prose max-w-none">
         <h2 class="text-2xl font-bold mb-4">Detail Data UAT</h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div>
-                <p class="font-semibold text-gray-700">ID UAT:</p>
-                <p>{{ $uatData->id_uat ?? 'N/A' }}</p>
-            </div>
-            <div>
-                <p class="font-semibold text-gray-700">Nama Proses Usecase:</p>
-                <p>{{ $uatData->nama_proses_usecase ?? 'N/A' }}</p>
-            </div>
-            <div class="md:col-span-2">
-                <p class="font-semibold text-gray-700">Keterangan:</p>
-                <p class="prose max-w-none">{!! $uatData->keterangan_uat ?? 'N/A' !!}</p>
-            </div>
-            <div>
-                <p class="font-semibold text-gray-700">Status:</p>
-                <p>{{ $uatData->status_uat ?? 'N/A' }}</p>
-            </div>
-            <div class="md:col-span-2">
-                <p class="font-semibold text-gray-700">Gambar UAT:</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">
-                    @forelse($uatData->images as $image)
-                        <div class="border rounded-lg overflow-hidden shadow-sm">
-                            <img src="{{ asset($image->path) }}" alt="{{ $image->filename }}" class="w-full h-auto object-cover">
-                            <p class="p-2 text-xs text-gray-600 truncate">{{ $image->filename }}</p>
-                        </div>
-                    @empty
-                        <p class="text-gray-500 italic">Tidak ada gambar UAT.</p>
-                    @endforelse
-                </div>
+        {{-- PERUBAHAN DI SINI: Struktur Tabel --}}
+        <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
+            <table class="min-w-full bg-white divide-y divide-gray-200">
+                <tbody>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID UAT:</td>
+                        <td class="py-2 px-4 text-gray-900">{{ $uatData->id_uat ?? 'N/A' }}</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Nama Proses Usecase:</td>
+                        <td class="py-2 px-4 text-gray-900">{{ $uatData->nama_proses_usecase ?? 'N/A' }}</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Keterangan:</td>
+                        <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">{!! $uatData->keterangan_uat ?? '<span class="text-gray-500 italic">N/A</span>' !!}</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Status:</td>
+                        <td class="py-2 px-4 text-gray-900">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                @if($uatData->status_uat === 'Passed') bg-green-100 text-green-800
+                                @elseif($uatData->status_uat === 'Failed') bg-red-100 text-red-800
+                                @else bg-gray-100 text-gray-800 @endif">
+                                {{ $uatData->status_uat ?? 'N/A' }}
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {{-- AKHIR PERUBAHAN STRUKTUR TABEL --}}
+
+        {{-- Bagian Gambar UAT tetap di bawah tabel --}}
+        <div class="md:col-span-2">
+            <p class="font-semibold text-gray-700">Gambar UAT:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 uat-image-gallery">
+                @forelse($uatData->images as $index => $image)
+                    <a href="{{ asset($image->path) }}" class="border rounded-lg overflow-hidden shadow-sm w-full gallery-item"
+                       data-full-src="{{ asset($image->path) }}"
+                       data-caption="{{ $image->filename }}"
+                       data-gallery-index="{{ $index }}"
+                       onclick="event.preventDefault(); window.populateAndOpenImageViewerFromHtml(this);">
+                        <img src="{{ asset($image->path) }}" alt="{{ $image->filename }}" class="w-full h-auto object-cover">
+                    </a>
+                @empty
+                    <p class="text-gray-500 italic">Tidak ada gambar UAT.</p>
+                @endforelse
             </div>
         </div>
+
     </div>

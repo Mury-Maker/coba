@@ -1,3 +1,4 @@
+{{-- resources/views/partials/_modals/_database_data_modal.blade.php --}}
 @if (Auth::check() && Auth::user()->role === 'admin')
     <div id="databaseDataModal" class="modal">
         <div class="modal-content">
@@ -14,8 +15,9 @@
                 </div>
                 <div class="mb-4">
                     <label for="form_database_images" class="block text-gray-700 text-sm font-bold mb-2">Gambar Database:</label>
+                    {{-- TAMBAHAN: atribut 'multiple' --}}
                     <input type="file" id="form_database_images" name="database_images[]" accept="image/*" multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <p class="text-xs text-gray-500 mt-1">Ukuran maksimal 2MB per gambar. Format: JPG, PNG, GIF.</p>
+                    <p class="text-xs text-gray-500 mt-1">Ukuran maksimal 2MB per gambar. Format: JPG, PNG, GIF. (Pilih lebih dari satu gambar)</p>
                     <div id="form_database_images_preview" class="mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {{-- Gambar-gambar akan ditampilkan di sini oleh JavaScript --}}
                     </div>

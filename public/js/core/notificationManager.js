@@ -85,8 +85,18 @@ function showCentralSuccessPopupInternal(message) {
     }
 }
 
-// --- Objek notificationManager yang diekspor ---
-// Ini adalah objek yang akan digunakan oleh modul lain untuk memanggil fungsi notifikasi/modal.
+// Variabel global untuk menyimpan referensi handler agar bisa dihapus
+let currentConfirmCancelHandler = null;
+let currentConfirmSubmitHandler = null;
+let currentConfirmModalContentClickHandler = null;
+let currentConfirmModalOverlayClickHandler = null; // Handler baru untuk klik di overlay
+
+let currentDetailCloseHandler = null;
+let currentDetailModalContentClickHandler = null;
+let currentDetailModalOverlayClickHandler = null; // Handler baru untuk klik di overlay
+
+
+// Objek notificationManager yang diekspor
 export const notificationManager = {
     showNotification: showNotificationInternal,
     hideNotification: hideNotificationInternal,
@@ -97,62 +107,73 @@ export const notificationManager = {
         const commonConfirmMessage = domUtils.getElement('common-confirm-message');
         const commonCancelBtn = domUtils.getElement('common-cancel-btn');
         const commonConfirmBtn = domUtils.getElement('common-confirm-btn');
-        let confirmCallback = onConfirm;
+        const modalContent = commonConfirmModal ? commonConfirmModal.querySelector('.modal-content') : null;
 
-        console.log('notificationManager.openConfirmModal dipanggil.');
-        if (!commonConfirmModal || !commonConfirmMessage || !commonCancelBtn || !commonConfirmBtn) {
+        if (!commonConfirmModal || !commonConfirmMessage || !commonCancelBtn || !commonConfirmBtn || !modalContent) {
             console.error("Elemen modal konfirmasi tidak ditemukan di notificationManager.openConfirmModal.");
             return;
         }
-        commonConfirmMessage.textContent = message;
-        domUtils.toggleModal(commonConfirmModal, true);
 
-        // --- PERBAIKAN KRITIS DI SINI ---
-        // Tambahkan event listener untuk menghentikan propagasi pada konten modal itu sendiri
-        const modalContent = commonConfirmModal.querySelector('.modal-content');
-        const handleModalContentClick = (e) => {
-            e.stopPropagation(); // Pastikan klik di dalam konten modal tidak menyebar
-            console.log('Click inside confirm modal content stopped propagation.'); // DEBUG
-        };
-
-        // Hapus listener sebelumnya jika ada (untuk mencegah duplikasi)
-        // Ini perlu fungsi referensi yang sama untuk remove, jadi kita harus define di luar.
-        // Untuk kesederhanaan, mari kita tambahkan kembali `domUtils.removeEventListener` secara konsisten.
-        if (modalContent) {
-            domUtils.removeEventListener(modalContent, handleModalContentClick); // Remove previous
-            domUtils.addEventListener(modalContent, handleModalContentClick);    // Add new
+        // 1. Hapus event listener lama sebelum menambahkan yang baru
+        if (currentConfirmCancelHandler) {
+            domUtils.removeEventListener(commonCancelBtn, currentConfirmCancelHandler);
+            currentConfirmCancelHandler = null; // Reset to null after removing
+        }
+        if (currentConfirmSubmitHandler) {
+            domUtils.removeEventListener(commonConfirmBtn, currentConfirmSubmitHandler);
+            currentConfirmSubmitHandler = null; // Reset to null after removing
+        }
+        if (currentConfirmModalContentClickHandler) {
+            domUtils.removeEventListener(modalContent, currentConfirmModalContentClickHandler);
+            currentConfirmModalContentClickHandler = null; // Reset to null
+        }
+        if (currentConfirmModalOverlayClickHandler) {
+            domUtils.removeEventListener(commonConfirmModal, currentConfirmModalOverlayClickHandler);
+            currentConfirmModalOverlayClickHandler = null; // Reset to null
         }
 
-        const handleCancelClick = (e) => { // Pastikan menerima event
-            e.stopPropagation(); // <<< PASTIKAN INI ADA
-            closeCommonConfirmModal();
+        commonConfirmMessage.textContent = message;
+
+        // 2. Definisikan handler baru
+        currentConfirmCancelHandler = (e) => {
+            e.stopPropagation(); // Penting: Hentikan propagasi event
+            domUtils.toggleModal(commonConfirmModal, false);
             console.log('Confirm modal cancel clicked.');
         };
 
-        const handleConfirmClick = (e) => { // Pastikan menerima event
-            e.stopPropagation(); // <<< PASTIKAN INI ADA
-            if (confirmCallback) {
-                confirmCallback();
+        currentConfirmSubmitHandler = (e) => {
+            e.stopPropagation(); // Penting: Hentikan propagasi event
+            if (onConfirm) {
+                onConfirm(); // Jalankan callback yang diberikan
             }
-            closeCommonConfirmModal();
+            domUtils.toggleModal(commonConfirmModal, false); // Tutup modal setelah konfirmasi
             console.log('Confirm modal confirm clicked.');
         };
 
-        domUtils.removeEventListener(commonCancelBtn, handleCancelClick);
-        domUtils.removeEventListener(commonConfirmBtn, handleConfirmClick);
-        domUtils.addEventListener(commonCancelBtn, handleCancelClick);
-        domUtils.addEventListener(commonConfirmBtn, handleConfirmClick);
+        currentConfirmModalContentClickHandler = (e) => {
+            e.stopPropagation(); // Pastikan klik di dalam konten modal tidak menyebar ke overlay
+            console.log('Click inside confirm modal content stopped propagation.');
+        };
 
-        function closeCommonConfirmModal() {
-            domUtils.toggleModal(commonConfirmModal, false);
-            confirmCallback = null;
-            domUtils.removeEventListener(commonCancelBtn, handleCancelClick);
-            domUtils.removeEventListener(commonConfirmBtn, handleConfirmClick);
-            if (modalContent) {
-                domUtils.removeEventListener(modalContent, handleModalContentClick); // Remove on close
+        // Handler untuk klik pada overlay modal itu sendiri (bukan kontennya)
+        currentConfirmModalOverlayClickHandler = (e) => {
+            // HANYA tutup modal jika target klik adalah elemen modal itu sendiri,
+            // dan BUKAN elemen anak-anaknya.
+            if (e.target === commonConfirmModal) {
+                console.log('Click on confirm modal overlay detected. Closing modal.');
+                domUtils.toggleModal(commonConfirmModal, false);
             }
-            console.log('commonConfirmModal closed.');
-        }
+        };
+
+        // 3. Tambahkan event listener baru
+        domUtils.addEventListener(commonCancelBtn, 'click', currentConfirmCancelHandler);
+        domUtils.addEventListener(commonConfirmBtn, 'click', currentConfirmSubmitHandler);
+        domUtils.addEventListener(modalContent, 'click', currentConfirmModalContentClickHandler); // Mencegah klik di konten dari bubbling ke overlay
+        domUtils.addEventListener(commonConfirmModal, 'click', currentConfirmModalOverlayClickHandler); // Menangkap klik pada overlay
+
+        // 4. Tampilkan modal
+        domUtils.toggleModal(commonConfirmModal, true);
+        console.log('commonConfirmModal opened with new handlers.');
     },
 
     openDetailModal: (title, contentHtml) => {
@@ -160,43 +181,58 @@ export const notificationManager = {
         const commonDetailModalTitle = domUtils.getElement('commonDetailModalTitle');
         const detailContentWrapper = commonDetailModal ? commonDetailModal.querySelector('.detail-content-wrapper') : null;
         const closeCommonDetailModalBtn = domUtils.getElement('closeCommonDetailModalBtn');
+        const modalContent = commonDetailModal ? commonDetailModal.querySelector('.modal-content') : null;
 
-        console.log('notificationManager.openDetailModal dipanggil.');
-        if (!commonDetailModal || !commonDetailModalTitle || !detailContentWrapper) {
+        if (!commonDetailModal || !commonDetailModalTitle || !detailContentWrapper || !closeCommonDetailModalBtn || !modalContent) {
             console.error("Elemen modal detail tidak ditemukan di notificationManager.openDetailModal.");
             return;
         }
+
+        // Hapus listener lama sebelum menambahkan yang baru
+        if (currentDetailCloseHandler) {
+            domUtils.removeEventListener(closeCommonDetailModalBtn, currentDetailCloseHandler);
+            currentDetailCloseHandler = null;
+        }
+        if (currentDetailModalContentClickHandler) {
+            domUtils.removeEventListener(modalContent, currentDetailModalContentClickHandler);
+            currentDetailModalContentClickHandler = null;
+        }
+        if (currentDetailModalOverlayClickHandler) {
+            domUtils.removeEventListener(commonDetailModal, currentDetailModalOverlayClickHandler);
+            currentDetailModalOverlayClickHandler = null;
+        }
+
         commonDetailModalTitle.textContent = title;
         detailContentWrapper.innerHTML = contentHtml;
         domUtils.toggleModal(commonDetailModal, true);
 
-        const modalContent = commonDetailModal.querySelector('.modal-content');
-        const handleDetailModalContentClick = (e) => {
-            e.stopPropagation();
-            console.log('Click inside detail modal content stopped propagation.');
-        };
-        if (modalContent) {
-            domUtils.removeEventListener(modalContent, handleDetailModalContentClick);
-            domUtils.addEventListener(modalContent, handleDetailModalContentClick);
-        }
-
-        const closeDetailClick = (e) => {
+        currentDetailCloseHandler = (e) => {
             e.stopPropagation();
             domUtils.toggleModal(commonDetailModal, false);
             if (detailContentWrapper) {
                 detailContentWrapper.innerHTML = '';
             }
-            domUtils.removeEventListener(closeCommonDetailModalBtn, closeDetailClick);
-            if (modalContent) {
-                domUtils.removeEventListener(modalContent, handleDetailModalContentClick); // Remove on close
-            }
             console.log('commonDetailModal closed.');
         };
 
-        domUtils.removeEventListener(closeCommonDetailModalBtn, closeDetailClick);
-        domUtils.addEventListener(closeCommonDetailModalBtn, closeDetailClick);
+        currentDetailModalContentClickHandler = (e) => {
+            e.stopPropagation();
+            console.log('Click inside detail modal content stopped propagation.');
+        };
+
+        currentDetailModalOverlayClickHandler = (e) => {
+            if (e.target === commonDetailModal) {
+                console.log('Click on detail modal overlay detected. Closing modal.');
+                domUtils.toggleModal(commonDetailModal, false);
+            }
+        };
+
+        domUtils.addEventListener(closeCommonDetailModalBtn, 'click', currentDetailCloseHandler);
+        domUtils.addEventListener(modalContent, 'click', currentDetailModalContentClickHandler);
+        domUtils.addEventListener(commonDetailModal, 'click', currentDetailModalOverlayClickHandler); // Tambahkan handler untuk overlay
     },
 
+    // Metode ini memanggil window.openAdminCategoryModal yang diekspos oleh categoryManager.js
     openAdminCategoryModal: (mode, categoryName, categorySlug) => {
         if (typeof window.openAdminCategoryModal === 'function') {
             window.openAdminCategoryModal(mode, categoryName, categorySlug);
@@ -206,6 +242,7 @@ export const notificationManager = {
         }
     },
 
+    // Metode ini memanggil window.openAdminNavMenuModal yang diekspos oleh navMenuManager.js
     openAdminNavMenuModal: (mode, menuData, parentId) => {
         if (typeof window.openAdminNavMenuModal === 'function') {
             window.openAdminNavMenuModal(mode, menuData, parentId);
@@ -215,6 +252,7 @@ export const notificationManager = {
         }
     },
 
+    // Metode ini memanggil window.openUseCaseModal yang diekspos oleh useCaseFormHandler.js
     openUseCaseModal: (mode, useCase) => {
         if (typeof window.openUseCaseModal === 'function') {
             window.openUseCaseModal(mode, useCase);
@@ -224,6 +262,7 @@ export const notificationManager = {
         }
     },
 
+    // Metode ini memanggil window.openUatDataModal yang diekspos oleh uatDataManager.js
     openUatDataModal: (mode, uatData) => {
         if (typeof window.openUatDataModal === 'function') {
             window.openUatDataModal(mode, uatData);

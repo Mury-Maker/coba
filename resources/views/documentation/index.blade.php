@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     {{-- Ini untuk gaya kustom global yang tidak ada di CDN Tailwind --}}
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {{-- simplelightbox --}}
+    <link rel="stylesheet" href="{{ asset('css/imageviewer.css') }}">
 
     @stack('styles')
 </head>
@@ -52,7 +54,7 @@
         <div id="content-area-wrapper" class="flex-1 flex flex-col">
             {{-- Header Component --}}
             @include('partials._header', [
-                'currentCategorySlug' => $currentCategory ?? 'epesantren', // <--- PERBAIKAN DI SINI
+                'currentCategorySlug' => $currentCategory ?? 'epesantren',
                 'categories' => $categories ?? [],
                 'userRole' => $loggedInUserRole
             ])
@@ -213,6 +215,9 @@
     @include('partials._modals._common_detail_modal')
     @include('partials._modals._common_confirm_modal')
     @include('partials._modals._common_success_popup')
+    @include('partials._modals._image_viewer_manual_modal')
+
+    {{-- Jika ada kategori admin, tampilkan modal admin --}}
 
     @if (Auth::check() && Auth::user()->role === 'admin')
         {{-- Modal Admin --}}
@@ -237,13 +242,17 @@
             // Anda perlu memastikan $currentCategoryObject tersedia di controller jika index() yang dipanggil langsung.
             // Atau, ambil ID-nya dari kategori yang slug-nya sedang aktif di controller.
 
+            currentPage: "{{ $currentPage ?? '' }}", // <<< BARIS TAMBAHAN
             currentMenuId: {{ $selectedNavItem->menu_id ?? 'null' }},
-            singleUseCase: {!! isset($singleUseCase) ? json_encode($singleUseCase) : 'null' !!},
+            singleUseCase: {!! isset($singleUseCase) ? json_encode($singleUseCase->append('slug_nama_proses')) : 'null' !!}, // <<< PERUBAHAN json_encode
             useCases: {!! isset($useCases) ? json_encode($useCases->toArray()) : '[]' !!},
         };
     </script>
     {{-- Load all modular JS files --}}
     <script src="{{ asset('js/app.js') }}" type="module"></script>
+    {{-- <script src="{{ asset('js/utils/imageViewerManual.js') }}"></script> --}}
+    {{-- Or if it needs defer: --}}
+    {{-- <script src="{{ asset('js/imageViewerManual.js') }}" defer></script> --}}
 
 </body>
 </html>
