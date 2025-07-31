@@ -56,7 +56,7 @@ Route::prefix('api/navmenu')->group(function () {
     Route::get('/{navMenu}', [NavMenuController::class, 'getMenuData'])->name('api.navmenu.get');
     Route::post('/', [NavMenuController::class, 'store'])->name('api.navmenu.store');
     Route::put('/{navMenu}', [NavMenuController::class, 'update'])->name('api.navmenu.update');
-    Route::delete('/{navMenu}', [NavMenuController::class, 'destroy'])->name('api.navmenu.destroy');
+    Route::delete('/{menuId}', [NavMenuController::class, 'destroy'])->name('api.navmenu.destroy');
 });
 
 // --- Rute API untuk UseCase Utama (CRUD) ---

@@ -83,29 +83,27 @@ export function initReportDataManager() {
             const deleteBtn = e.target.closest('.delete-report-btn');
 
             if (viewBtn) {
-                const reportId = parseInt(viewBtn.dataset.id);
-                const report = window.APP_BLADE_DATA.singleUseCase.report_data.find(item => item.id_report === reportId);
-                if (report) {
-                    window.openCommonDetailModal('Detail Data Report', `
-                        <div class="detail-item">
-                            <label>ID Report:</label><p>${report.id_report}</p>
-                        </div>
-                        <div class="detail-item">
-                            <label>Aktor:</label><p>${report.aktor || 'N/A'}</p>
-                        </div>
-                        <div class="detail-item">
-                            <label>Nama Report:</label><p>${report.nama_report || 'N/A'}</p>
-                        </div>
-                        <div class="detail-item">
-                            <label>Keterangan:</label><p class="prose max-w-none">${report.keterangan || 'N/A'}</p>
-                        </div>
-                    `);
-                } else {
-                    notificationManager.showNotification('Detail data Report tidak ditemukan.', 'error');
+                // --- PERUBAHAN KRITIS DI SINI: Langsung redirect seperti databaseDataManager.js yang berhasil ---
+                e.preventDefault(); // Pastikan default action dari href dicegah
+                e.stopPropagation(); // Mencegah event bubbling
+
+                const detailUrl = viewBtn.getAttribute('href'); // Ambil URL dari atribut href
+                const reportId = parseInt(viewBtn.dataset.id); // Report ID mungkin masih dibutuhkan untuk log
+
+                if (!detailUrl) { // Cek apakah href kosong
+                    notificationManager.showNotification('URL detail Report tidak ditemukan pada tombol.', 'error');
+                    return;
                 }
+
+                console.log('Redirecting to Report detail:', detailUrl, 'Report ID:', reportId); // DEBUG
+
+                window.location.href = detailUrl; // Lakukan redirect langsung
+                // --- AKHIR PERUBAHAN KRITIS ---
+
             } else if (editBtn) {
                 const reportId = parseInt(editBtn.dataset.id);
-                const report = window.APP_BLADE_DATA.singleUseCase.report_data.find(item => item.id_report === reportId);
+                // Untuk tombol edit, kita masih mencari di cache klien karena kita membuka modal, bukan redirect
+                const report = (window.APP_BLADE_DATA.singleUseCase?.report_data || []).find(item => item.id_report === reportId);
                 if (report) {
                     openReportDataModal('edit', report);
                 } else {
@@ -155,6 +153,7 @@ export function initReportDataManager() {
             closeReportDataModal();
             window.location.reload();
         } catch (error) {
+            Log.error('Gagal menyimpan/memperbarui data Report: ' + error.message);
             notificationManager.hideNotification(loadingNotif);
         }
     });
