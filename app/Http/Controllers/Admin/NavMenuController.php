@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\NavMenu;
 use App\Models\Category;
-use App\Models\UseCase; // Pastikan ini di-import
+use App\Models\UseCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -27,13 +27,13 @@ class NavMenuController extends Controller
 
     public function getMenuData(NavMenu $navMenu)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
         return response()->json($navMenu);
     }
 
     public function getParentMenus(Request $request, $categorySlug)
     {
-        $this->ensureAdminAccess(); // Verifikasi akses Admin
+        $this->ensureAdminAccess();
 
         $category = Category::where('slug', $categorySlug)->firstOrFail();
 
@@ -77,8 +77,6 @@ class NavMenuController extends Controller
             }
         }
 
-        // Penting: Jangan sertakan parentId itu sendiri dalam daftar turunan yang dikecualikan
-        // Karena kita sudah mengecualikannya dengan 'menu_id != $editingMenuId' di query utama
         return array_unique($descendantIds);
     }
 
@@ -113,7 +111,8 @@ class NavMenuController extends Controller
                 'string',
                 'max:50',
                 Rule::unique('navmenu', 'menu_nama')->where(function ($query) use ($request) {
-                    return $query->where('category_id', $request->category_id);
+                    return $query->where('category_id', $request->category_id)
+                                 ->where('menu_child', $request->menu_child);
                 }),
             ],
             'menu_child' => 'required|integer',
@@ -160,9 +159,11 @@ class NavMenuController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('navmenu', 'menu_nama')->where(function ($query) use ($request) {
-                    return $query->where('category_id', $request->category_id);
-                })->ignore($navMenu->menu_id, 'menu_id'),
+                Rule::unique('navmenu', 'menu_nama')->where(function ($query) use ($request, $navMenu) {
+                    return $query->where('category_id', $request->category_id)
+                                 ->where('menu_child', $request->menu_child)
+                                 ->where('menu_id', '!=', $navMenu->menu_id);
+                }),
             ],
             'menu_child' => 'required|integer',
             'menu_order' => 'required|integer',
@@ -174,9 +175,7 @@ class NavMenuController extends Controller
         if ($request->menu_child == $navMenu->menu_id) {
             return response()->json(['message' => 'Menu tidak bisa menjadi parent-nya sendiri.'], 422);
         }
-        // Gunakan metode isDescendantOf dari model NavMenu
-        // Pastikan $navMenu adalah instance model yang sudah dimuat dengan relasi children
-        $navMenu->load('children'); // Eager load children untuk isDescendantOf
+        $navMenu->load('children');
         if ($request->menu_child != 0 && $navMenu->isDescendantOf($request->menu_child)) {
             return response()->json(['message' => 'Tidak bisa mengatur sub-menu sebagai parent dari menu induknya.'], 422);
         }
@@ -216,41 +215,87 @@ class NavMenuController extends Controller
         }
     }
 
-    public function destroy(NavMenu $navMenu)
+    /**
+     * Menghapus menu dan semua sub-menu terkait secara rekursif.
+     * Menerima $menuId (integer) karena Route Model Binding dinonaktifkan untuk rute delete ini.
+     *
+     * @param int $menuId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($menuId)
     {
         $this->ensureAdminAccess();
 
-        $currentCategorySlug = $navMenu->category->slug;
+        // Cari objek NavMenu secara manual.
+        $navMenu = NavMenu::find($menuId);
+        if (!$navMenu) {
+            Log::warning('NavMenuController@destroy: Menu dengan ID ' . $menuId . ' tidak ditemukan untuk dihapus (mungkin sudah di-cascade delete dari tempat lain).');
+            return response()->json(['success' => 'Menu sudah dihapus.'], 200); // Anggap sukses jika tidak ditemukan
+        }
+
+        // Muat relasi kategori sebelum menu dihapus (karena setelah delete, relasi mungkin hilang)
+        $navMenu->load('category');
+        $currentCategorySlug = $navMenu->category ? $navMenu->category->slug : null;
+        $deletedCategoryName = $navMenu->category ? $navMenu->category->name : 'Unknown Category';
 
         try {
-            DB::transaction(function () use ($navMenu) {
-                $navMenu->children()->each(function ($child) {
-                    // Memanggil destroy secara rekursif untuk anak-anak
-                    // Pastikan $this tersedia di closure
-                    app(NavMenuController::class)->destroy($child);
-                });
-                $navMenu->delete();
+            DB::transaction(function () use ($navMenu, $menuId, $currentCategorySlug) {
+                // --- PERUBAHAN KRITIS: Kumpulkan semua ID dan hapus secara massal ---
+                $allMenuIdsToDelete = $this->collectAllDescendantAndSelfIds($menuId);
+
+                // Hapus UseCase yang terkait dengan semua menu ini
+                // Asumsi: use_cases.menu_id memiliki foreign key ke navmenu.menu_id dengan ON DELETE CASCADE
+                // Jika TIDAK, maka Anda perlu menghapus UseCase secara eksplisit:
+                UseCase::whereIn('menu_id', $allMenuIdsToDelete)->delete();
+
+                // Hapus entri NavMenu secara massal
+                NavMenu::whereIn('menu_id', $allMenuIdsToDelete)->delete();
+                // --- AKHIR PERUBAHAN KRITIS ---
+
+                Log::info('NavMenuController@destroy: Menu ID ' . $menuId . ' (' . $navMenu->menu_nama . ') dan semua turunannya berhasil dihapus dari DB.');
             });
 
+            // --- Logika redirect tetap sama seperti sebelumnya (sudah diperbaiki) ---
             $redirectUrl = route('docs.index');
 
-            $firstAvailableMenu = NavMenu::whereHas('category', function($query) use ($currentCategorySlug) {
-                                    $query->where('slug', $currentCategorySlug);
-                                })
-                                ->orderBy('menu_order')
-                                ->orderBy('menu_id')
-                                ->first();
+            if ($currentCategorySlug) {
+                $firstAvailableMenu = NavMenu::whereHas('category', function($query) use ($currentCategorySlug) {
+                                            $query->where('slug', $currentCategorySlug);
+                                        })
+                                        ->orderBy('menu_order')
+                                        ->orderBy('menu_id')
+                                        ->first();
 
-            if ($firstAvailableMenu) {
-                $redirectUrl = route('docs', [
-                    'category' => $currentCategorySlug,
-                    'page' => Str::slug($firstAvailableMenu->menu_nama)
-                ]);
-            } else {
-                $categoryExists = Category::where('slug', $currentCategorySlug)->exists();
-                if ($categoryExists) {
-                    $redirectUrl = route('docs', ['category' => $currentCategorySlug]);
+                if ($firstAvailableMenu) {
+                    $redirectUrl = route('docs', [
+                        'category' => $currentCategorySlug,
+                        'page' => Str::slug($firstAvailableMenu->menu_nama)
+                    ]);
+                    Log::info('NavMenuController@destroy: Redirect ke menu tersedia: ' . $redirectUrl);
+                } else {
+                    $categoryExists = Category::where('slug', $currentCategorySlug)->exists();
+                    if ($categoryExists) {
+                        $berandaSlug = Str::slug('Beranda ' . $deletedCategoryName);
+                        $berandaMenu = NavMenu::where('category_id', $navMenu->category->id)
+                                                ->where('menu_link', $berandaSlug)
+                                                ->first();
+
+                        if ($berandaMenu) {
+                             $redirectUrl = route('docs', ['category' => $currentCategorySlug, 'page' => $berandaSlug]);
+                             Log::info('NavMenuController@destroy: Redirect ke beranda kategori: ' . $redirectUrl);
+                        } else {
+                             $redirectUrl = route('docs', ['category' => $currentCategorySlug]);
+                             Log::info('NavMenuController@destroy: Redirect ke kategori tanpa menu spesifik: ' . $redirectUrl);
+                        }
+
+                    } else {
+                        $redirectUrl = route('docs.index');
+                        Log::info('NavMenuController@destroy: Kategori induk tidak ada, redirect ke docs.index');
+                    }
                 }
+            } else {
+                $redirectUrl = route('docs.index');
+                Log::info('NavMenuController@destroy: Category Slug NULL, redirect ke docs.index');
             }
 
             return response()->json([
@@ -261,5 +306,25 @@ class NavMenuController extends Controller
             Log::error('Gagal menghapus menu: ' . $e->getMessage());
             return response()->json(['message' => 'Terjadi kesalahan tidak terduga saat menghapus menu.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Helper untuk mengumpulkan semua ID menu, termasuk dirinya sendiri dan semua turunannya.
+     * Digunakan untuk penghapusan massal.
+     * @param int $menuId
+     * @return array
+     */
+    private function collectAllDescendantAndSelfIds(int $menuId): array
+    {
+        $ids = [$menuId]; // Mulai dengan ID menu saat ini
+
+        // Ambil semua anak langsung dari menu ini
+        $children = NavMenu::where('menu_child', $menuId)->pluck('menu_id')->toArray();
+
+        foreach ($children as $childId) {
+            // Rekursif panggil untuk setiap anak
+            $ids = array_merge($ids, $this->collectAllDescendantAndSelfIds($childId));
+        }
+        return array_unique($ids); // Pastikan ID unik
     }
 }
