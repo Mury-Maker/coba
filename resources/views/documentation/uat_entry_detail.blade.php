@@ -1,5 +1,3 @@
-{{-- resources/views/documentation/uat_entry_detail.blade.php --}}
-
 @section('action-buttons')
     <a href="{{ route('docs.use_case_detail', [
         'category' => $currentCategory,
@@ -13,7 +11,6 @@
     <div class="prose max-w-none">
         <h2 class="text-2xl font-bold mb-4">Detail Data UAT</h2>
 
-        {{-- PERUBAHAN DI SINI: Struktur Tabel --}}
         <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
             <table class="min-w-full bg-white divide-y divide-gray-200">
                 <tbody>
@@ -43,10 +40,25 @@
                 </tbody>
             </table>
         </div>
-        {{-- AKHIR PERUBAHAN STRUKTUR TABEL --}}
 
-        {{-- Bagian Gambar UAT tetap di bawah tabel --}}
-        <div class="md:col-span-2">
+        {{-- Bagian Dokumen UAT --}}
+        <div class="md:col-span-2 mt-8">
+            <p class="font-semibold text-gray-700">Dokumen UAT:</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+                @forelse($uatData->documents as $document)
+                    <li>
+                        <a href="{{ asset($document->path) }}" target="_blank" class="text-blue-600 hover:underline">
+                            <i class="fas fa-file-alt mr-2"></i> {{ $document->filename }}
+                        </a>
+                    </li>
+                @empty
+                    <p class="text-gray-500 italic">Tidak ada dokumen UAT.</p>
+                @endforelse
+            </ul>
+        </div>
+
+        {{-- Bagian Gambar UAT --}}
+        <div class="md:col-span-2 mt-8">
             <p class="font-semibold text-gray-700">Gambar UAT:</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mt-2 uat-image-gallery">
                 @forelse($uatData->images as $index => $image)
@@ -62,5 +74,4 @@
                 @endforelse
             </div>
         </div>
-
     </div>

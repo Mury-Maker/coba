@@ -1,5 +1,3 @@
-// public/js/documentation/useCase/useCaseDetailDisplay.js
-
 import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
@@ -7,25 +5,22 @@ import { APP_CONSTANTS } from '../../utils/constants.js';
 
 export function initUseCaseDetailDisplay() {
     const editSingleUseCaseBtn = domUtils.getElement('editSingleUseCaseBtn');
-    const useCaseListTableBody = domUtils.getElement('useCaseListTableBody'); // Untuk halaman daftar use case
+    const useCaseListTableBody = domUtils.getElement('useCaseListTableBody');
 
     // Inisialisasi dropdown di tabel use case (use_case_list.blade.php)
     if (useCaseListTableBody) {
         domUtils.addEventListener(useCaseListTableBody, 'click', (e) => {
-            // Handle Edit Use Case dari daftar
             const editBtn = e.target.closest('.edit-usecase-btn');
             if (editBtn) {
                 const useCaseId = parseInt(editBtn.dataset.id);
-                // Cari data use case dari window.APP_BLADE_DATA.useCases
                 const useCase = window.APP_BLADE_DATA.useCases.find(uc => uc.id === useCaseId);
                 if (useCase) {
-                    window.openUseCaseModal('edit', useCase); // Memanggil fungsi dari useCaseFormHandler.js
+                    window.openUseCaseModal('edit', useCase);
                 } else {
                     notificationManager.showNotification('Data tindakan tidak ditemukan.', 'error');
                 }
             }
 
-            // Handle Delete Use Case dari daftar
             const deleteBtn = e.target.closest('.delete-usecase-btn');
             if (deleteBtn) {
                 const useCaseId = parseInt(deleteBtn.dataset.id);
@@ -36,10 +31,9 @@ export function initUseCaseDetailDisplay() {
                         const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.USECASE.DESTROY}/${useCaseId}`, { method: 'DELETE' });
                         notificationManager.hideNotification(loadingNotif);
                         notificationManager.showCentralSuccessPopup(data.success);
-                        window.location.reload(); // Reload halaman untuk memperbarui daftar
+                        window.location.reload();
                     } catch (error) {
                         notificationManager.hideNotification(loadingNotif);
-                        // Error ditangani oleh apiClient
                     }
                 });
             }
@@ -49,9 +43,11 @@ export function initUseCaseDetailDisplay() {
     // Handle Edit Use Case dari halaman detail (use_case_detail.blade.php)
     if (editSingleUseCaseBtn) {
         domUtils.addEventListener(editSingleUseCaseBtn, 'click', () => {
-            const singleUseCaseData = window.APP_BLADE_DATA.singleUseCase; // Gunakan window.APP_BLADE_DATA
+            // PERBAIKAN: Pastikan data yang dikirim sudah lengkap dengan relasi yang dimuat dari backend.
+            // Data `window.APP_BLADE_DATA.singleUseCase` seharusnya sudah dimuat relasinya di controller.
+            const singleUseCaseData = window.APP_BLADE_DATA.singleUseCase;
             if (singleUseCaseData && singleUseCaseData.id) {
-                window.openUseCaseModal('edit', singleUseCaseData); // Memanggil fungsi dari useCaseFormHandler.js
+                window.openUseCaseModal('edit', singleUseCaseData);
             } else {
                 notificationManager.showNotification('Data use case tidak ditemukan.', 'error');
             }

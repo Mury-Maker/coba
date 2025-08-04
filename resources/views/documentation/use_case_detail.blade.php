@@ -1,5 +1,3 @@
-
-
 @section('action-buttons')
     {{-- Tombol Edit Detail Aksi (di kanan judul halaman) --}}
     @auth
@@ -13,7 +11,6 @@
     @endauth
 @endsection
 
-
     @php
         $hasUseCaseData = $singleUseCase && $singleUseCase->id;
     @endphp
@@ -22,7 +19,7 @@
     <div class="bg-white p-6 rounded-lg shadow-md">
         <div id="use-case-content-area">
             {{-- Bagian Detail Aksi --}}
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Detail Aksi</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Detail UseCase</h2>
 
             {{-- Struktur Tabel untuk Detail Aksi --}}
             <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
@@ -100,7 +97,7 @@
                     <div class="flex flex-col items-start mb-4">
                         @auth
                             @if(auth()->user()->role === 'admin')
-                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2"> {{-- Tombol Tambah & Print untuk Report --}}
+                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2">
                                     <button id="addReportDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
@@ -180,7 +177,7 @@
                     <div class="flex flex-col items-start mb-4">
                         @auth
                             @if(auth()->user()->role === 'admin')
-                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2"> {{-- Tombol Tambah & Print untuk Database --}}
+                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2">
                                     <button id="addDatabaseDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
@@ -258,7 +255,7 @@
                     <div class="flex flex-col items-start mb-4">
                         @auth
                             @if(auth()->user()->role === 'admin')
-                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2"> {{-- Tombol Tambah & Print untuk UAT --}}
+                                <div class="flex justify-start items-center gap-x-2 mt-1 mb-2">
                                     <button id="addUatDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
@@ -340,3 +337,4 @@
             @endif
         </div>
     </div>
+

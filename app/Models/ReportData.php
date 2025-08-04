@@ -10,7 +10,7 @@ class ReportData extends Model
     use HasFactory;
 
     protected $table = 'report_data';
-    protected $primaryKey = 'id_report'; // Kunci utama kustom
+    protected $primaryKey = 'id_report';
     public $incrementing = true;
     protected $keyType = 'int';
 
@@ -21,9 +21,19 @@ class ReportData extends Model
         'keterangan',
     ];
 
-    // Relasi: ReportData ini dimiliki oleh satu UseCase
     public function useCase()
     {
         return $this->belongsTo(UseCase::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ReportImage::class, 'report_data_id', 'id_report');
+    }
+
+    // Tambahkan relasi untuk dokumen
+    public function documents()
+    {
+        return $this->hasMany(ReportDocument::class, 'report_data_id', 'id_report');
     }
 }
