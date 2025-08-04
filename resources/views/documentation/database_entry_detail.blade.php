@@ -1,5 +1,3 @@
-{{-- resources/views/documentation/database_entry_detail.blade.php --}}
-
 @section('action-buttons')
     <a href="{{ route('docs.use_case_detail', [
         'category' => $currentCategory,
@@ -13,7 +11,6 @@
     <div class="prose max-w-none">
         <h2 class="text-2xl font-bold mb-4">Detail Data Database</h2>
 
-        {{-- PERUBAHAN DI SINI: Struktur Tabel --}}
         <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
             <table class="min-w-full bg-white divide-y divide-gray-200">
                 <tbody>
@@ -32,10 +29,25 @@
                 </tbody>
             </table>
         </div>
-        {{-- AKHIR PERUBAHAN STRUKTUR TABEL --}}
 
-        {{-- Bagian Gambar Database tetap di bawah tabel --}}
-        <div class="md:col-span-2">
+        {{-- Bagian Dokumen Database --}}
+        <div class="md:col-span-2 mt-8">
+            <p class="font-semibold text-gray-700">Dokumen Database:</p>
+            <ul class="list-disc list-inside mt-2 space-y-1">
+                @forelse($databaseData->documents as $document)
+                    <li>
+                        <a href="{{ asset($document->path) }}" target="_blank" class="text-blue-600 hover:underline">
+                            <i class="fas fa-file-alt mr-2"></i> {{ $document->filename }}
+                        </a>
+                    </li>
+                @empty
+                    <p class="text-gray-500 italic">Tidak ada dokumen Database.</p>
+                @endforelse
+            </ul>
+        </div>
+
+        {{-- Bagian Gambar Database --}}
+        <div class="md:col-span-2 mt-8">
             <p class="font-semibold text-gray-700">Gambar Database:</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mt-2 uat-image-gallery">
                 @forelse($databaseData->images as $index => $image)
@@ -51,5 +63,4 @@
                 @endforelse
             </div>
         </div>
-
     </div>

@@ -27,33 +27,23 @@ class DocumentationController extends Controller
     private function prepareCommonViewData($currentCategorySlug, $currentPageSlug, $selectedNavItem = null)
     {
         if (!Auth::check()) {
-            // Ini seharusnya tidak terpicu jika ada middleware auth, tapi sebagai fallback.
             abort(403, 'Akses Ditolak: Anda harus login.');
         }
 
-        // Ambil objek kategori berdasarkan slug. Jika tidak ditemukan, fallback ke 'epesantren'.
         $currentCategoryObject = Category::where('slug', $currentCategorySlug)->first();
 
-        // Jika kategori tidak ditemukan, defaultkan ke 'epesantren'
         if (!$currentCategoryObject) {
             $defaultCategorySlug = 'epesantren';
             $currentCategoryObject = Category::where('slug', $defaultCategorySlug)->firstOrFail();
-            // firstOrFail() di sini aman karena 'epesantren' diasumsikan selalu ada.
-            // Jika 'epesantren' juga tidak ada, itu adalah masalah setup database yang lebih serius.
         }
 
-        // Ambil semua menu untuk kategori yang aktif
         $allMenus = NavMenu::where('category_id', $currentCategoryObject->id)
                             ->orderBy('menu_order')
                             ->get();
 
-        // Bangun struktur pohon navigasi
         $navigation = NavMenu::buildTree($allMenus);
-
-        // Ambil semua kategori untuk dropdown di header/sidebar
         $allCategories = Category::all()->pluck('slug', 'name')->toArray();
 
-        // Temukan item navigasi yang sedang dipilih jika belum disediakan
         if (!$selectedNavItem && $currentPageSlug) {
             $selectedNavItem = $allMenus->first(function ($menu) use ($currentPageSlug) {
                 return Str::slug($menu->menu_nama) === $currentPageSlug;
@@ -63,7 +53,7 @@ class DocumentationController extends Controller
         return [
             'title'             => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategoryObject->name)) . ' - Dokumentasi',
             'navigation'        => $navigation,
-            'currentCategory'   => $currentCategoryObject->slug, // Tetap slug untuk URL
+            'currentCategory'   => $currentCategoryObject->slug,
             'currentCategoryId' => $currentCategoryObject->id,
             'currentPage'       => $currentPageSlug,
             'selectedNavItem'   => $selectedNavItem,
@@ -71,7 +61,7 @@ class DocumentationController extends Controller
             'categories'        => $allCategories,
             'userRole'          => Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest',
             'editorMode'        => (Auth::check() && (Auth::user()->role ?? '') === 'admin'),
-            'currentCategoryObject' => $currentCategoryObject, // Bisa digunakan di view untuk info kategori lengkap
+            'currentCategoryObject' => $currentCategoryObject,
         ];
     }
 
@@ -89,7 +79,6 @@ class DocumentationController extends Controller
         $defaultCategorySlug = 'epesantren';
         $defaultCategory = Category::where('slug', $defaultCategorySlug)->first();
 
-        // Jika kategori default tidak ada atau tidak memiliki menu, tampilkan halaman sambutan
         if (!$defaultCategory || !$defaultCategory->navMenus()->exists()) {
             $viewData = $this->prepareCommonViewData($defaultCategorySlug, 'homepage');
             $viewData['fallbackMessage'] = "<h3>Selamat Datang di Dokumentasi!</h3><p>Belum ada menu atau konten yang dibuat untuk kategori ini. Silakan login sebagai **Admin** untuk menambahkan kategori, menu, dan detail aksi.</p><p>Gunakan tombol **+ Tambah Menu Utama Baru** di sidebar atau tombol **+ Tambah Kategori** di dropdown kategori untuk memulai.</p>";
@@ -97,26 +86,22 @@ class DocumentationController extends Controller
             return view('documentation.index', $viewData);
         }
 
-        // Cari menu pertama dengan status 'konten' (1), jika ada
         $firstContentMenu = $defaultCategory->navMenus()
                                             ->where('menu_status', 1)
                                             ->orderBy('menu_order', 'asc')
                                             ->first();
 
         if ($firstContentMenu) {
-            // Redirect ke menu pertama yang memiliki konten
             return redirect()->route('docs', [
                 'category' => $defaultCategorySlug,
                 'page' => Str::slug($firstContentMenu->menu_nama),
             ]);
         } else {
-            // Jika tidak ada menu yang berstatus 'konten', coba redirect ke menu apapun (termasuk folder)
             $firstAnyMenu = $defaultCategory->navMenus()
                                             ->orderBy('menu_order', 'asc')
                                             ->first();
 
             if ($firstAnyMenu) {
-                // Redirect ke menu pertama yang ditemukan
                 return redirect()->route('docs', [
                     'category' => $defaultCategorySlug,
                     'page' => Str::slug($firstAnyMenu->menu_nama),
@@ -124,7 +109,6 @@ class DocumentationController extends Controller
             }
         }
 
-        // Fallback terakhir jika tidak ada menu sama sekali di kategori default
         $viewData = $this->prepareCommonViewData($defaultCategorySlug, 'homepage');
         $viewData['contentView'] = 'documentation.homepage';
         return view('documentation.index', $viewData);
@@ -143,33 +127,25 @@ class DocumentationController extends Controller
             return redirect()->route('login');
         }
 
-        // Ambil kategori. Jika tidak ada, redirect ke indeks default.
         $currentCategory = Category::where('slug', $categorySlug)->first();
-        if (!$currentCategory) {
-            return redirect()->route('docs.index');
-        }
+        if (!$currentCategory) { return redirect()->route('docs.index'); }
 
-        // Ambil semua menu di kategori ini
         $allMenusInCategory = NavMenu::where('category_id', $currentCategory->id)
-                                    ->orderBy('menu_order')
-                                    ->get();
+                                        ->orderBy('menu_order')
+                                        ->get();
 
-        // Coba temukan NavMenu berdasarkan pageSlug
         $selectedNavItem = $allMenusInCategory->first(function ($menu) use ($pageSlug) {
             return Str::slug($menu->menu_nama) === $pageSlug;
         });
 
-        // Jika pageSlug tidak cocok dengan menu manapun
         if (!$selectedNavItem) {
             $firstMenuInCategory = $allMenusInCategory->first();
             if ($firstMenuInCategory) {
-                // Redirect ke menu pertama di kategori tersebut
                 return redirect()->route('docs', [
                     'category' => $categorySlug,
                     'page' => Str::slug($firstMenuInCategory->menu_nama),
                 ]);
             } else {
-                // Jika tidak ada menu sama sekali di kategori ini
                 $viewData = $this->prepareCommonViewData($categorySlug, 'homepage');
                 $viewData['fallbackMessage'] = "<h3>Selamat Datang!</h3><p>Tidak ada menu yang ditemukan dalam kategori ini. Anda dapat menambahkan menu baru melalui panel admin.</p>";
                 $viewData['contentView'] = 'documentation.homepage';
@@ -177,16 +153,13 @@ class DocumentationController extends Controller
             }
         }
 
-        // Siapkan data umum view
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
 
-        // Tampilkan daftar Use Case jika menu berstatus 'konten' (1)
         if ($selectedNavItem->menu_status == 1) {
             $viewData['useCases'] = UseCase::where('menu_id', $selectedNavItem->menu_id)->orderBy('id', 'desc')->get();
             $viewData['contentView'] = 'documentation.use_case_list';
             return view('documentation.index', $viewData);
         } else {
-            // Jika menu adalah folder (status 0), tampilkan homepage fallback
             $viewData['contentView'] = 'documentation.homepage';
             return view('documentation.index', $viewData);
         }
@@ -206,32 +179,35 @@ class DocumentationController extends Controller
             return redirect()->route('login');
         }
 
-        // Pastikan kategori ada, jika tidak redirect
         $currentCategory = Category::where('slug', $categorySlug)->first();
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
-        // Pastikan NavMenu ada dan berstatus konten, jika tidak redirect
         $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)
-                                ->where('menu_status', 1)
-                                ->where(function($query) use ($pageSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]);
-                                })
-                                ->first();
+                                 ->where('menu_status', 1)
+                                 ->where(function($query) use ($pageSlug) {
+                                     $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]);
+                                 })
+                                 ->first();
         if (!$selectedNavItem) {
             return redirect()->route('docs', ['category' => $categorySlug]);
         }
 
-
-        // Ambil detail UseCase beserta data terkait (UAT, Report, Database)
-        $singleUseCase = UseCase::with(['uatData.images', 'reportData', 'databaseData.images'])
+        // PERBAIKAN PENTING: Muat relasi reportData dan databaseData beserta file-nya
+        $singleUseCase = UseCase::with([
+                                    'uatData.images',
+                                    'uatData.documents', // TAMBAH: Muat relasi dokumen UAT
+                                    'reportData.images',
+                                    'reportData.documents',
+                                    'databaseData.images',
+                                    'databaseData.documents' // TAMBAH: Muat relasi dokumen Database
+                                ])
                                 ->where('menu_id', $selectedNavItem->menu_id)
                                 ->where(function($query) use ($useCaseSlug) {
                                     $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('usecase_id', $useCaseSlug); // Memungkinkan pencarian berdasarkan usecase_id juga
+                                        ->orWhere('usecase_id', $useCaseSlug);
                                 })
                                 ->first();
 
-        // Jika UseCase tidak ditemukan, redirect ke halaman daftar Use Case
         if (!$singleUseCase) {
             return redirect()->route('docs', [
                 'category' => $categorySlug,
@@ -241,8 +217,9 @@ class DocumentationController extends Controller
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['singleUseCase'] = $singleUseCase;
-        $viewData['contentTypes'] = ['UAT', 'Report', 'Database']; // Tipe konten yang tersedia
+        $viewData['contentTypes'] = ['UAT', 'Report', 'Database'];
         $viewData['contentView'] = 'documentation.use_case_detail';
+
         return view('documentation.index', $viewData);
     }
 
@@ -259,7 +236,6 @@ class DocumentationController extends Controller
     {
         if (!Auth::check()) { return redirect()->route('login'); }
 
-        // Validasi dan ambil kategori, menu, dan use case induk
         $currentCategory = Category::where('slug', $categorySlug)->first();
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
@@ -267,10 +243,10 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
+        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
-        // Ambil data UAT spesifik
-        $uatData = UatData::with('images')->where('use_case_id', $parentUseCase->id)->where('id_uat', $uatId)->first();
+        // PERBAIKAN PENTING: Muat relasi images dan documents untuk uatData
+        $uatData = UatData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_uat', $uatId)->first();
         if (!$uatData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
@@ -293,7 +269,6 @@ class DocumentationController extends Controller
     {
         if (!Auth::check()) { return redirect()->route('login'); }
 
-        // Validasi dan ambil kategori, menu, dan use case induk
         $currentCategory = Category::where('slug', $categorySlug)->first();
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
@@ -301,10 +276,9 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
+        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
-        // Ambil data Report spesifik
-        $reportData = ReportData::where('use_case_id', $parentUseCase->id)->where('id_report', $reportId)->first();
+        $reportData = ReportData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_report', $reportId)->first();
         if (!$reportData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
@@ -327,7 +301,6 @@ class DocumentationController extends Controller
     {
         if (!Auth::check()) { return redirect()->route('login'); }
 
-        // Validasi dan ambil kategori, menu, dan use case induk
         $currentCategory = Category::where('slug', $categorySlug)->first();
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
@@ -335,10 +308,10 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
+        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
-        // Ambil data Database spesifik
-        $databaseData = DatabaseData::with('images')->where('use_case_id', $parentUseCase->id)->where('id_database', $databaseId)->first();
+        // PERBAIKAN PENTING: Muat relasi images dan documents untuk databaseData
+        $databaseData = DatabaseData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_database', $databaseId)->first();
         if (!$databaseData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
@@ -358,8 +331,6 @@ class DocumentationController extends Controller
      */
     private function renderNoContentFallback($categorySlug): View
     {
-        // Logika di sini sebagian besar sudah dipindahkan ke prepareCommonViewData, index, dan show.
-        // Anda mungkin bisa menghapus metode ini jika sudah tidak ada panggilan langsung ke sini.
         $currentCategory = Category::where('slug', $categorySlug)->first();
         $categoryName = $currentCategory ? Str::headline($currentCategory->name) : 'Dokumentasi';
         $fallbackMessage = "<h3>Selamat Datang di Dokumentasi!</h3><p>Belum ada menu atau konten yang dibuat untuk kategori ini. Silakan login sebagai **Admin** untuk menambahkan kategori, menu, dan detail aksi.</p><p>Gunakan tombol **+ Tambah Menu Utama Baru** di sidebar atau tombol **+ Tambah Kategori** di dropdown kategori untuk memulai.</p>";

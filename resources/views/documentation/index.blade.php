@@ -125,7 +125,7 @@
                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses)
                                     ]) }}" class="text-blue-600 font-semibold">
-                                        Detail - {{ $singleUseCase->nama_proses }}
+                                        Detail UseCase - {{ $singleUseCase->nama_proses }}
                                     </a>
                                 </div>
                             </li>

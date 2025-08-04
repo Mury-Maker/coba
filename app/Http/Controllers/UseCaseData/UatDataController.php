@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\UseCase;
 use App\Models\UatData;
 use App\Models\UatImage;
+use App\Models\UatDocument; // Tambah model dokumen
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -31,7 +32,8 @@ class UatDataController extends Controller
             'nama_proses_usecase' => 'required|string|max:255',
             'keterangan_uat' => 'nullable|string',
             'status_uat' => 'nullable|string|in:Passed,Failed,Pending',
-            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Mendukung multiple files
+            'new_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'new_documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:5120', // Tambah validasi
         ]);
 
         try {
@@ -39,29 +41,43 @@ class UatDataController extends Controller
             $uatData = null;
 
             $uatData = DB::transaction(function () use ($request, $useCase) {
-                $uatData = $useCase->uatData()->create([
+                $newUatData = $useCase->uatData()->create([
                     'nama_proses_usecase' => $request->nama_proses_usecase,
                     'keterangan_uat' => $request->keterangan_uat,
                     'status_uat' => $request->status_uat,
                 ]);
 
-                if ($request->hasFile('uat_images')) {
-                    foreach ($request->file('uat_images') as $imageFile) {
+                if ($request->hasFile('new_images')) {
+                    foreach ($request->file('new_images') as $imageFile) {
                         if ($imageFile->isValid()) {
                             $path = $imageFile->store('uat_images', 'public');
-                            $uatData->images()->create([
+                            $newUatData->images()->create([
                                 'path' => Storage::url($path),
                                 'filename' => $imageFile->getClientOriginalName(),
                             ]);
                         }
                     }
                 }
-                return $uatData;
+
+                // Tambah logika penyimpanan dokumen
+                if ($request->hasFile('new_documents')) {
+                    foreach ($request->file('new_documents') as $documentFile) {
+                        if ($documentFile->isValid()) {
+                            $path = $documentFile->store('uat_documents', 'public');
+                            $newUatData->documents()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $documentFile->getClientOriginalName(),
+                            ]);
+                        }
+                    }
+                }
+
+                return $newUatData;
             });
 
             return response()->json([
                 'success' => 'Data UAT berhasil ditambahkan!',
-                'uat_data' => $uatData->load('images')
+                'uat_data' => $uatData->load(['images', 'documents']) // Muat relasi dokumen
             ], 201);
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data UAT: ' . $e->getMessage());
@@ -77,34 +93,38 @@ class UatDataController extends Controller
             'nama_proses_usecase' => 'required|string|max:255',
             'keterangan_uat' => 'nullable|string',
             'status_uat' => 'nullable|string|in:Passed,Failed,Pending',
-            'uat_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'uat_images_current.*' => 'nullable|string',
+            'new_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'new_documents.*' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:5120', // Tambah validasi
+            'existing_images_kept.*' => 'nullable|integer',
+            'existing_documents_kept.*' => 'nullable|integer', // Tambah validasi
         ]);
 
         try {
-            // Tangkap objek yang dikembalikan dari transaksi
             $updatedUatData = DB::transaction(function () use ($request, $uatData) {
-                // Perbarui data dasar
                 $uatData->update($request->only([
                     'nama_proses_usecase',
                     'keterangan_uat',
                     'status_uat',
                 ]));
 
-                $keptImagePaths = $request->input('uat_images_current', []);
+                $keptImageIds = collect($request->input('existing_images_kept', []))->map(fn($id) => (int)$id)->toArray();
+                $keptDocumentIds = collect($request->input('existing_documents_kept', []))->map(fn($id) => (int)$id)->toArray();
 
                 // Hapus gambar yang tidak dipertahankan
-                foreach ($uatData->images as $image) {
-                    $storagePath = Str::after($image->path, '/storage/');
-                    if (!in_array($image->path, $keptImagePaths) && !in_array($storagePath, $keptImagePaths)) {
-                        Storage::disk('public')->delete($storagePath);
-                        $image->delete();
-                    }
-                }
+                $uatData->images()->whereNotIn('id', $keptImageIds)->get()->each(function ($image) {
+                    Storage::disk('public')->delete(Str::after($image->path, '/storage/'));
+                    $image->delete();
+                });
+
+                // Hapus dokumen yang tidak dipertahankan
+                $uatData->documents()->whereNotIn('id', $keptDocumentIds)->get()->each(function ($document) {
+                    Storage::disk('public')->delete(Str::after($document->path, '/storage/'));
+                    $document->delete();
+                });
 
                 // Tambahkan gambar baru
-                if ($request->hasFile('uat_images')) {
-                    foreach ($request->file('uat_images') as $imageFile) {
+                if ($request->hasFile('new_images')) {
+                    foreach ($request->file('new_images') as $imageFile) {
                         if ($imageFile->isValid()) {
                             $path = $imageFile->store('uat_images', 'public');
                             $uatData->images()->create([
@@ -115,14 +135,25 @@ class UatDataController extends Controller
                     }
                 }
 
-                // Kembalikan objek yang sudah diperbarui
+                // Tambah logika penyimpanan dokumen
+                if ($request->hasFile('new_documents')) {
+                    foreach ($request->file('new_documents') as $documentFile) {
+                        if ($documentFile->isValid()) {
+                            $path = $documentFile->store('uat_documents', 'public');
+                            $uatData->documents()->create([
+                                'path' => Storage::url($path),
+                                'filename' => $documentFile->getClientOriginalName(),
+                            ]);
+                        }
+                    }
+                }
+
                 return $uatData;
             });
 
             return response()->json([
                 'success' => 'Data UAT berhasil diperbarui!',
-                // Gunakan variabel yang baru
-                'uat_data' => $updatedUatData->load('images')
+                'uat_data' => $updatedUatData->load(['images', 'documents'])
             ]);
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data UAT: ' . $e->getMessage());
@@ -139,6 +170,11 @@ class UatDataController extends Controller
                 foreach ($uatData->images as $image) {
                     Storage::disk('public')->delete(Str::after($image->path, '/storage/'));
                     $image->delete();
+                }
+                // Hapus dokumen terkait
+                foreach ($uatData->documents as $document) {
+                    Storage::disk('public')->delete(Str::after($document->path, '/storage/'));
+                    $document->delete();
                 }
                 $uatData->delete();
             });
