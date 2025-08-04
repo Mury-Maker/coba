@@ -25,7 +25,7 @@ class UatData extends Model
     // Relasi: UatData ini dimiliki oleh satu UseCase
     public function useCase()
     {
-        return $this->belongsTo(UseCase::class);
+        return $this->belongsTo(UseCase::class, 'use_case_id', 'id');
     }
 
     // Relasi: Satu UatData memiliki banyak UatImage

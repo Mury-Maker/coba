@@ -1,10 +1,9 @@
-// public/js/documentation/useCase/uatDataManager.js
-
 import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
 import { APP_CONSTANTS } from '../../utils/constants.js';
-import { initImagePreviewer } from '../../utils/imagePreviewer.js';
+// Cukup satu kali import, dan pastikan 'selectedFilesMap' diimpor
+import { initImagePreviewer, selectedFilesMap } from '../../utils/imagePreviewer.js';
 
 export function initUatDataManager() {
     const uatDataModal = domUtils.getElement('uatDataModal');
@@ -53,7 +52,7 @@ export function initUatDataManager() {
             if (formUatImagesInput) formUatImagesInput.value = '';
         } else if (mode === 'edit' && uatData) {
             uatDataModalTitle.textContent = 'Edit Data UAT';
-            uatDataFormMethod.value = 'POST';
+            uatDataFormMethod.value = 'PUT';
             uatDataFormId.value = uatData.id_uat;
 
             formUatNamaProsesUsecase.value = uatData.nama_proses_usecase || '';
@@ -90,15 +89,12 @@ export function initUatDataManager() {
 
     if (uatDataTableBody) {
         domUtils.addEventListener(uatDataTableBody, 'click', async (e) => {
-            const viewBtn = e.target.closest('.btn-action.bg-blue-500'); // Tombol detail
+            const viewBtn = e.target.closest('.btn-action.bg-blue-500');
             const editBtn = e.target.closest('.edit-uat-btn');
             const deleteBtn = e.target.closest('.delete-uat-btn');
 
             if (viewBtn) {
-                // --- PENTING: BARIS INI TIDAK LAGI DIBUTUHKAN JIKA MENGGUNAKAN ONCLICK INLINE DI BLADE ---
-                // Karena onclick="window.populateAndOpenImageViewerFromHtml(this);" di Blade yang akan memicu viewer.
-                // Jika Anda ingin tetap menangani klik di sini, hapus onclick inline di Blade dan kumpulkan data di sini.
-                // Untuk saat ini, diasumsikan onclick inline di Blade sudah ada dan menanganinya.
+                // onclick inline di Blade sudah menangani ini
             } else if (editBtn) {
                 const uatId = parseInt(editBtn.dataset.id);
                 const uat = (window.APP_BLADE_DATA.singleUseCase?.uat_data || []).find(item => item.id_uat === uatId);
@@ -127,22 +123,37 @@ export function initUatDataManager() {
     domUtils.addEventListener(uatDataForm, 'submit', async (e) => {
         e.preventDefault();
 
+        // Validasi total file dihilangkan. Validasi sekarang hanya ada pada batch upload baru di `imagePreviewer.js`
+
         const loadingNotif = notificationManager.showNotification('Menyimpan data UAT...', 'loading');
         const uatId = uatDataFormId.value;
         const method = uatDataFormMethod.value;
-        let url = uatId ? `${APP_CONSTANTS.API_ROUTES.USECASE.UAT_UPDATE}/${uatId}` : APP_CONSTANTS.API_ROUTES.USECASE.UAT_STORE;
-        let httpMethod = 'POST';
+
+        let url = (method === 'PUT')
+            ? `${APP_CONSTANTS.API_ROUTES.USECASE.UAT_UPDATE}/${uatId}`
+            : APP_CONSTANTS.API_ROUTES.USECASE.UAT_STORE;
 
         const formData = new FormData(uatDataForm);
+        formData.append('_method', method);
+
+        // Ambil gambar lama yang dipertahankan
+        uatDataForm.querySelectorAll('.existing-image-preview').forEach(wrapper => {
+            const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+            if (hiddenInput) {
+                formData.append('uat_images_current[]', hiddenInput.value);
+            }
+        });
+
+        // Tambahkan file dari Map ke FormData (ini hanya berisi file-file baru yang diunggah)
+        selectedFilesMap.forEach((file) => {
+            formData.append('uat_images[]', file);
+        });
 
         try {
             const options = {
-                method: httpMethod,
+                method: 'POST', // Gunakan POST untuk mengirim FormData dengan file
                 body: formData,
             };
-            if (method === 'PUT') {
-                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
-            }
 
             const data = await apiClient.fetchAPI(url, options);
 
@@ -151,7 +162,7 @@ export function initUatDataManager() {
             closeUatDataModal();
             window.location.reload();
         } catch (error) {
-            Log.error('Gagal menyimpan/memperbarui data UAT: ' + error.message);
+            console.error('Gagal menyimpan/memperbarui data UAT: ' + error.message);
             notificationManager.hideNotification(loadingNotif);
         }
     });

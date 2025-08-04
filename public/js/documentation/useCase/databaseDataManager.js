@@ -1,10 +1,11 @@
-// public/js/documentation/useCase/databaseDataManager.js
-
 import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
 import { APP_CONSTANTS } from '../../utils/constants.js';
-import { initImagePreviewer } from '../../utils/imagePreviewer.js';
+// Import 'selectedFilesMap' di sini juga, karena file ini juga menggunakan fitur upload
+import { initImagePreviewer, selectedFilesMap } from '../../utils/imagePreviewer.js';
+// Perlu dipastikan nama aliasnya berbeda jika ada inisialisasi yang berbeda
+import { initImagePreviewer as initImagePreviewerForDatabase } from '../../utils/imagePreviewer.js';
 
 export function initDatabaseDataManager() {
     const databaseDataModal = domUtils.getElement('databaseDataModal');
@@ -28,7 +29,7 @@ export function initDatabaseDataManager() {
             return;
         }
 
-        initImagePreviewer(formDatabaseImagesInput, formDatabaseImagesPreview);
+        initImagePreviewerForDatabase(formDatabaseImagesInput, formDatabaseImagesPreview);
 
         databaseDataForm.reset();
         formDatabaseImagesPreview.innerHTML = '';
@@ -49,7 +50,7 @@ export function initDatabaseDataManager() {
             if (formDatabaseImagesInput) formDatabaseImagesInput.value = '';
         } else if (mode === 'edit' && databaseData) {
             databaseDataModalTitle.textContent = 'Edit Data Database';
-            databaseDataFormMethod.value = 'POST';
+            databaseDataFormMethod.value = 'PUT';
             databaseDataFormId.value = databaseData.id_database;
 
             formDatabaseKeterangan.value = databaseData.keterangan || '';
@@ -85,16 +86,12 @@ export function initDatabaseDataManager() {
 
     if (databaseDataTableBody) {
         domUtils.addEventListener(databaseDataTableBody, 'click', async (e) => {
-            const viewBtn = e.target.closest('.btn-action.bg-blue-500'); // Tombol detail
+            const viewBtn = e.target.closest('.btn-action.bg-blue-500');
             const editBtn = e.target.closest('.edit-database-btn');
             const deleteBtn = e.target.closest('.delete-database-btn');
 
             if (viewBtn) {
-                // --- PENTING: BARIS INI TIDAK LAGI DIBUTUHKAN.
-                // Klik sekarang ditangani oleh onclick inline di Blade yang memanggil populateAndOpenImageViewerFromHtml
-                // dan ini lebih robust.
-                // Saya menghapus kode sebelumnya yang mencoba redirect karena onclick inline sudah ada.
-                // Jika Anda tidak ingin onclick inline, maka kode di sini perlu mengumpulkan data dan memanggil populateAndOpenImageViewerFromHtml.
+                // ...
             } else if (editBtn) {
                 const databaseId = parseInt(editBtn.dataset.id);
                 const database = (window.APP_BLADE_DATA.singleUseCase?.database_data || []).find(item => item.id_database === databaseId);
@@ -123,22 +120,33 @@ export function initDatabaseDataManager() {
     domUtils.addEventListener(databaseDataForm, 'submit', async (e) => {
         e.preventDefault();
 
+        // Validasi total file dihilangkan. Validasi sekarang hanya ada pada batch upload baru di `imagePreviewer.js`
+
         const loadingNotif = notificationManager.showNotification('Menyimpan data Database...', 'loading');
         const databaseId = databaseDataFormId.value;
         const method = databaseDataFormMethod.value;
+
         let url = databaseId ? `${APP_CONSTANTS.API_ROUTES.USECASE.DATABASE_UPDATE}/${databaseId}` : APP_CONSTANTS.API_ROUTES.USECASE.DATABASE_STORE;
-        let httpMethod = 'POST';
 
         const formData = new FormData(databaseDataForm);
+        formData.append('_method', method);
+
+        databaseDataForm.querySelectorAll('.existing-image-preview').forEach(wrapper => {
+            const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+            if (hiddenInput) {
+                formData.append('database_images_current[]', hiddenInput.value);
+            }
+        });
+
+        selectedFilesMap.forEach((file) => {
+            formData.append('database_images[]', file);
+        });
 
         try {
             const options = {
-                method: httpMethod,
+                method: 'POST',
                 body: formData,
             };
-            if (method === 'PUT') {
-                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
-            }
 
             const data = await apiClient.fetchAPI(url, options);
 
@@ -147,7 +155,7 @@ export function initDatabaseDataManager() {
             closeDatabaseDataModal();
             window.location.reload();
         } catch (error) {
-            Log.error('Gagal menyimpan/memperbarui data Database: ' + error.message);
+            console.error('Gagal menyimpan/memperbarui data Database: ' + error.message);
             notificationManager.hideNotification(loadingNotif);
         }
     });

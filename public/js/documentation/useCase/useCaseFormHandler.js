@@ -42,7 +42,7 @@ export function initUseCaseFormHandler() {
             domUtils.getElement('form_tujuan').value = '';
             domUtils.getElement('form_kondisi_awal').value = '';
             domUtils.getElement('form_kondisi_akhir').value = '';
-            domUtils.getElement('form_aksi_reaksi').value = '';
+            domUtils.getElement('form_aksi_aktor').value = '';
             domUtils.getElement('form_reaksi_sistem').value = '';
         } else if (mode === 'edit' && useCase) {
             useCaseModalTitle.textContent = `Edit Tindakan: ${useCase.nama_proses}`;
@@ -57,7 +57,7 @@ export function initUseCaseFormHandler() {
             domUtils.getElement('form_tujuan').value = useCase.tujuan || '';
             domUtils.getElement('form_kondisi_awal').value = useCase.kondisi_awal || '';
             domUtils.getElement('form_kondisi_akhir').value = useCase.kondisi_akhir || '';
-            domUtils.getElement('form_aksi_reaksi').value = useCase.aksi_reaksi || '';
+            domUtils.getElement('form_aksi_aktor').value = useCase.aksi_aktor || '';
             domUtils.getElement('form_reaksi_sistem').value = useCase.reaksi_sistem || '';
         }
         domUtils.toggleModal(useCaseModal, true);

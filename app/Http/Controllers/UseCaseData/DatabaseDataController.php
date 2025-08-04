@@ -5,7 +5,7 @@ namespace App\Http\Controllers\UseCaseData;
 use App\Http\Controllers\Controller;
 use App\Models\UseCase;
 use App\Models\DatabaseData;
-use App\Models\DatabaseImage; // Pastikan model DatabaseImage di-import
+use App\Models\DatabaseImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,32 +29,33 @@ class DatabaseDataController extends Controller
         $request->validate([
             'use_case_id' => 'required|exists:use_cases,id',
             'keterangan' => 'nullable|string',
-            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Mendukung multiple files
+            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'relasi' => 'nullable|string',
-            // 'existing_database_images.*' tidak relevan untuk store
         ]);
 
         try {
             $useCase = UseCase::findOrFail($request->use_case_id);
             $databaseData = null;
 
-            DB::transaction(function () use ($request, $useCase, &$databaseData) {
-                $databaseData = $useCase->databaseData()->create([
+            // PERBAIKAN: Tangkap objek yang dikembalikan dari transaksi
+            $databaseData = DB::transaction(function () use ($request, $useCase) {
+                $newDatabaseData = $useCase->databaseData()->create([
                     'keterangan' => $request->keterangan,
                     'relasi' => $request->relasi,
                 ]);
 
                 if ($request->hasFile('database_images')) {
                     foreach ($request->file('database_images') as $imageFile) {
-                        if ($imageFile->isValid()) { // Pastikan file valid
+                        if ($imageFile->isValid()) {
                             $path = $imageFile->store('database_images', 'public');
-                            $databaseData->images()->create([
+                            $newDatabaseData->images()->create([
                                 'path' => Storage::url($path),
                                 'filename' => $imageFile->getClientOriginalName(),
                             ]);
                         }
                     }
                 }
+                return $newDatabaseData; // Kembalikan objek yang baru dibuat
             });
 
             return response()->json([
@@ -73,37 +74,32 @@ class DatabaseDataController extends Controller
 
         $request->validate([
             'keterangan' => 'nullable|string',
-            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Untuk file baru
+            'database_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'relasi' => 'nullable|string',
-            // Nama input hidden dari imagePreviewer.js adalah 'database_images_current[]'
-            'database_images_current.*' => 'nullable|string', // Validasi untuk path gambar yang tetap ada
+            'database_images_current.*' => 'nullable|string',
         ]);
 
         try {
-            DB::transaction(function () use ($request, $databaseData) {
+            // PERBAIKAN: Tangkap objek yang dikembalikan dari transaksi
+            $updatedDatabaseData = DB::transaction(function () use ($request, $databaseData) {
                 $databaseData->update($request->only([
                     'keterangan',
                     'relasi',
                 ]));
 
-                // Dapatkan path gambar yang harus dipertahankan dari request
-                // Jika tidak ada 'database_images_current', asumsikan semua gambar lama dihapus
                 $keptImagePaths = $request->input('database_images_current', []);
 
-                // Hapus gambar lama yang tidak ada dalam daftar 'keptImagePaths'
                 foreach ($databaseData->images as $image) {
-                    // Str::after untuk mengubah URL penuh menjadi path storage
                     $storagePath = Str::after($image->path, '/storage/');
                     if (!in_array($image->path, $keptImagePaths) && !in_array($storagePath, $keptImagePaths)) {
-                        Storage::disk('public')->delete($storagePath); // Hapus file fisik
-                        $image->delete(); // Hapus entri dari database
+                        Storage::disk('public')->delete($storagePath);
+                        $image->delete();
                     }
                 }
 
-                // Tambahkan gambar baru
                 if ($request->hasFile('database_images')) {
                     foreach ($request->file('database_images') as $imageFile) {
-                        if ($imageFile->isValid()) { // Pastikan file valid
+                        if ($imageFile->isValid()) {
                             $path = $imageFile->store('database_images', 'public');
                             $databaseData->images()->create([
                                 'path' => Storage::url($path),
@@ -112,11 +108,12 @@ class DatabaseDataController extends Controller
                         }
                     }
                 }
+                return $databaseData; // Kembalikan objek yang sudah diperbarui
             });
 
             return response()->json([
                 'success' => 'Data Database berhasil diperbarui!',
-                'database_data' => $databaseData->load('images')
+                'database_data' => $updatedDatabaseData->load('images')
             ]);
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data Database: ' . $e->getMessage());

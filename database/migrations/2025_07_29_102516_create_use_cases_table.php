@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('tujuan')->nullable();
             $table->text('kondisi_awal')->nullable();
             $table->text('kondisi_akhir')->nullable();
-            $table->text('aksi_reaksi')->nullable();
+            $table->text('aksi_aktor')->nullable();
             $table->text('reaksi_sistem')->nullable();
             $table->timestamps();
 

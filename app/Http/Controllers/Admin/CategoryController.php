@@ -39,7 +39,7 @@ class CategoryController extends Controller
 
         try {
             $newCategory = null;
-            DB::transaction(function () use ($request, &$newCategory) {
+            $newCategory = DB::transaction(function () use ($request) {
                 $category = Category::create([
                     'name' => $request->name,
                     'slug' => Str::slug($request->name),
@@ -64,11 +64,11 @@ class CategoryController extends Controller
                     'tujuan' => 'Memberikan gambaran umum kategori.',
                     'kondisi_awal' => 'Pengguna mengakses halaman beranda kategori.',
                     'kondisi_akhir' => 'Informasi umum ditampilkan.',
-                    'aksi_reaksi' => 'Pengguna membaca konten.',
+                    'aksi_aktor' => 'Pengguna membaca konten.',
                     'reaksi_sistem' => 'Sistem menyajikan informasi.',
                 ]);
 
-                $newCategory = $category;
+                return $category;
             });
 
             return response()->json([

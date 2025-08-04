@@ -67,7 +67,7 @@
                         <tr class="hover:bg-gray-50">
                             <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aksi Aktor:</td>
                             <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                                {!! $singleUseCase->aksi_reaksi ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
+                                {!! $singleUseCase->aksi_aktor ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50">
