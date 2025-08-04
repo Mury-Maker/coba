@@ -20,7 +20,7 @@ class UseCase extends Model
         'tujuan',
         'kondisi_awal',
         'kondisi_akhir',
-        'aksi_reaksi',
+        'aksi_aktor',
         'reaksi_sistem',
     ];
 

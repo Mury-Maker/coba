@@ -48,8 +48,8 @@
                     </div>
                     {{-- Aksi Reaksi (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
-                        <label for="form_aksi_reaksi" class="block text-gray-700 text-sm font-bold mb-2">Aksi Reaksi:</label>
-                        <textarea id="form_aksi_reaksi" name="aksi_reaksi" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <label for="form_aksi_aktor" class="block text-gray-700 text-sm font-bold mb-2">Aksi Reaksi:</label>
+                        <textarea id="form_aksi_aktor" name="aksi_aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
                     </div>
                     {{-- Reaksi Sistem (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">

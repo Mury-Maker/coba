@@ -21,18 +21,16 @@ window.closeModal = function() {
     if (modal) {
         domUtils.toggleClass(modal, 'show', false);
 
-        // Bersihkan konten dinamis dari kontainer statis
         const slidesContainer = modal.querySelector('#slidesContainer');
         const thumbnailRow = modal.querySelector('#thumbnailRow');
         const captionTextElement = modal.querySelector('#caption');
-        const numbertextElement = modal.querySelector('.numbertext'); // Masih perlu di sini untuk dibersihkan
+        const numbertextElement = modal.querySelector('.numbertext');
 
         if (slidesContainer) slidesContainer.innerHTML = '';
         if (thumbnailRow) thumbnailRow.innerHTML = '';
         if (captionTextElement) captionTextElement.innerHTML = '';
-        if (numbertextElement) numbertextElement.innerHTML = ''; // Membersihkan elemen numbertext jika ada
+        if (numbertextElement) numbertextElement.innerHTML = '';
 
-        // Sembunyikan tombol nav juga saat modal ditutup
         const prevBtn = modal.querySelector('.prev-w3');
         const nextBtn = modal.querySelector('.next-w3');
         if (prevBtn) domUtils.toggleClass(prevBtn, 'hidden', true);
@@ -41,64 +39,64 @@ window.closeModal = function() {
 }
 
 window.plusSlides = function(n) {
-  showSlides(slideIndex += n);
+    showSlides(slideIndex += n);
 }
 
 window.currentSlide = function(n) {
-  showSlides(slideIndex = n);
+    showSlides(slideIndex = n);
 }
 
 function showSlides(n) {
-  let i;
-  let slides = document.getElementsByClassName("mySlides");
-  let dots = document.getElementsByClassName("demo");
-  let numbertextElement = document.querySelector(".numbertext"); // <-- Di sini numbertext dicari setelah slide dibuat
-  let captionTextElement = document.getElementById("caption");
-  const modal = domUtils.getElement("myModal");
-  const prevBtn = modal.querySelector('.prev-w3');
-  const nextBtn = modal.querySelector('.next-w3');
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("demo");
+    let numbertextElement = document.querySelector(".numbertext");
+    let captionTextElement = document.getElementById("caption");
+    const modal = domUtils.getElement("myModal");
+    const prevBtn = modal.querySelector('.prev-w3');
+    const nextBtn = modal.querySelector('.next-w3');
 
-  if (slides.length === 0) {
-      if (prevBtn) domUtils.toggleClass(prevBtn, 'hidden', true);
-      if (nextBtn) domUtils.toggleClass(nextBtn, 'hidden', true);
-      if (numbertextElement) numbertextElement.innerHTML = '';
-      if (captionTextElement) captionTextElement.innerHTML = 'Tidak ada gambar.';
-      return;
-  }
+    if (slides.length === 0) {
+        if (prevBtn) domUtils.toggleClass(prevBtn, 'hidden', true);
+        if (nextBtn) domUtils.toggleClass(nextBtn, 'hidden', true);
+        if (numbertextElement) numbertextElement.innerHTML = '';
+        if (captionTextElement) captionTextElement.innerHTML = 'Tidak ada gambar.';
+        return;
+    }
 
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
 
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active-w3", "");
-  }
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active-w3", "");
+    }
 
-  if (slides[slideIndex-1]) {
-    slides[slideIndex-1].style.display = "block";
-  }
-  if (dots[slideIndex-1]) {
-    dots[slideIndex-1].className += " active-w3";
-  }
+    if (slides[slideIndex-1]) {
+        slides[slideIndex-1].style.display = "block";
+    }
+    if (dots[slideIndex-1]) {
+        dots[slideIndex-1].className += " active-w3";
+    }
 
-  if (numbertextElement) { // <-- Pengecekan tetap di sini
-    numbertextElement.innerHTML = `${slideIndex} / ${slides.length}`;
-  }
-  if (captionTextElement && dots[slideIndex-1]) {
-    captionTextElement.innerHTML = dots[slideIndex-1].alt;
-  }
+    if (numbertextElement) {
+        numbertextElement.innerHTML = `${slideIndex} / ${slides.length}`;
+    }
+    if (captionTextElement && dots[slideIndex-1]) {
+        captionTextElement.innerHTML = dots[slideIndex-1].alt;
+    }
 
-  if (prevBtn && nextBtn) {
-      if (slides.length <= 1) {
-          domUtils.toggleClass(prevBtn, 'hidden', true);
-          domUtils.toggleClass(nextBtn, 'hidden', true);
-      } else {
-          domUtils.toggleClass(prevBtn, 'hidden', false);
-          domUtils.toggleClass(nextBtn, 'hidden', false);
-      }
-  }
+    if (prevBtn && nextBtn) {
+        if (slides.length <= 1) {
+            domUtils.toggleClass(prevBtn, 'hidden', true);
+            domUtils.toggleClass(nextBtn, 'hidden', true);
+        } else {
+            domUtils.toggleClass(prevBtn, 'hidden', false);
+            domUtils.toggleClass(nextBtn, 'hidden', false);
+        }
+    }
 }
 
 export function initImageViewerManual() {
@@ -163,18 +161,14 @@ function populateModalContentInternal(imagesData, clickedIndex) {
     const slidesContainer = modal.querySelector('#slidesContainer');
     const captionTextElement = modal.querySelector('#caption');
     const thumbnailRow = modal.querySelector('#thumbnailRow');
-    // const numbertextElement = modal.querySelector('.numbertext'); // <-- HAPUS PENCARIAN DI SINI
 
     if (!slidesContainer) { console.error('slidesContainer not found in modal!'); return; }
     if (!captionTextElement) { console.error('captionTextElement not found in modal!'); return; }
     if (!thumbnailRow) { console.error('thumbnailRow not found in modal!'); return; }
-    // if (!numbertextElement) { console.error('numbertextElement not found in modal!'); return; } // <-- HAPUS VALIDASI DI SINI
 
-    // Bersihkan konten dinamis dari kontainer yang sudah ada
     slidesContainer.innerHTML = '';
     captionTextElement.innerHTML = '';
     thumbnailRow.innerHTML = '';
-    // numbertextElement.innerHTML = ''; // <-- HAPUS PEMBERSIHAN DI SINI
 
     imagesData.forEach((imageData, index) => {
         // Slide item

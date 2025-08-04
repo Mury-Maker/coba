@@ -2,6 +2,10 @@
 
 <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
     <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="judul-halaman">
+                    <h1 id="main-content-title"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
+                    @yield('action-buttons')
+                </div>
         <h2 class="text-2xl font-bold mb-4 text-gray-800">Daftar Use Case</h2>
 
         @auth
@@ -113,4 +117,4 @@
             }
         });
     });
-</script>   
+</script>

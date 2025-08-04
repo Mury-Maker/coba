@@ -182,10 +182,7 @@
                         @endif
                     </ol>
                 </nav>
-                <div class="judul-halaman">
-                    <h1 id="main-content-title"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
-                    @yield('action-buttons')
-                </div>
+
                 {{-- Kondisi untuk menampilkan konten spesifik halaman --}}
                 @if(isset($contentView) && $contentView === 'documentation.use_case_list')
                     @include('documentation.use_case_list')

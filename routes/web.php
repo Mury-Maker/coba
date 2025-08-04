@@ -67,7 +67,7 @@ Route::prefix('api/usecase')->group(function () {
 
     // --- Rute API untuk UAT Data ---
     Route::post('/uat', [UatDataController::class, 'store'])->name('api.usecase.uat.store');
-    Route::post('/uat/{uatData}', [UatDataController::class, 'update'])->name('api.usecase.uat.update'); // Update dengan POST + _method override
+    Route::put('/uat/{uatData}', [UatDataController::class, 'update'])->name('api.usecase.uat.update');
     Route::delete('/uat/{uatData}', [UatDataController::class, 'destroy'])->name('api.usecase.uat.destroy');
 
     // --- Rute API untuk Report Data ---
@@ -77,6 +77,6 @@ Route::prefix('api/usecase')->group(function () {
 
     // --- Rute API untuk Database Data ---
     Route::post('/database', [DatabaseDataController::class, 'store'])->name('api.usecase.database.store');
-    Route::post('/database/{databaseData}', [DatabaseDataController::class, 'update'])->name('api.usecase.database.update');
+    Route::put('/database/{databaseData}', [DatabaseDataController::class, 'update'])->name('api.usecase.database.update');
     Route::delete('/database/{databaseData}', [DatabaseDataController::class, 'destroy'])->name('api.usecase.database.destroy');
 });

@@ -33,13 +33,13 @@ class UseCaseController extends Controller
             'tujuan' => 'nullable|string',
             'kondisi_awal' => 'nullable|string',
             'kondisi_akhir' => 'nullable|string',
-            'aksi_reaksi' => 'nullable|string',
+            'aksi_aktor' => 'nullable|string',
             'reaksi_sistem' => 'nullable|string',
         ]);
 
         try {
             $useCase = null;
-            DB::transaction(function () use ($request, &$useCase) {
+            $useCase = DB::transaction(function () use ($request) {
                 $lastUseCaseForMenu = UseCase::where('menu_id', $request->menu_id)
                                              ->orderBy('id', 'desc')
                                              ->first();
@@ -63,9 +63,10 @@ class UseCaseController extends Controller
                     'tujuan' => $request->tujuan,
                     'kondisi_awal' => $request->kondisi_awal,
                     'kondisi_akhir' => $request->kondisi_akhir,
-                    'aksi_reaksi' => $request->aksi_reaksi,
+                    'aksi_aktor' => $request->aksi_aktor,
                     'reaksi_sistem' => $request->reaksi_sistem,
                 ]);
+                return $useCase;
             });
 
             return response()->json([
@@ -90,7 +91,7 @@ class UseCaseController extends Controller
             'tujuan' => 'nullable|string',
             'kondisi_awal' => 'nullable|string',
             'kondisi_akhir' => 'nullable|string',
-            'aksi_reaksi' => 'nullable|string',
+            'aksi_aktor' => 'nullable|string',
             'reaksi_sistem' => 'nullable|string',
         ]);
 

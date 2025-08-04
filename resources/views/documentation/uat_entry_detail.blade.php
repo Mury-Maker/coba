@@ -48,14 +48,14 @@
         {{-- Bagian Gambar UAT tetap di bawah tabel --}}
         <div class="md:col-span-2">
             <p class="font-semibold text-gray-700">Gambar UAT:</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 uat-image-gallery">
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mt-2 uat-image-gallery">
                 @forelse($uatData->images as $index => $image)
-                    <a href="{{ asset($image->path) }}" class="border rounded-lg overflow-hidden shadow-sm w-full gallery-item"
+                    <a href="{{ asset($image->path) }}" class="block h-40 overflow-hidden rounded-lg border shadow-sm gallery-item"
                        data-full-src="{{ asset($image->path) }}"
                        data-caption="{{ $image->filename }}"
                        data-gallery-index="{{ $index }}"
                        onclick="event.preventDefault(); window.populateAndOpenImageViewerFromHtml(this);">
-                        <img src="{{ asset($image->path) }}" alt="{{ $image->filename }}" class="w-full h-auto object-cover">
+                        <img src="{{ asset($image->path) }}" alt="{{ $image->filename }}" class="w-full h-full object-cover">
                     </a>
                 @empty
                     <p class="text-gray-500 italic">Tidak ada gambar UAT.</p>

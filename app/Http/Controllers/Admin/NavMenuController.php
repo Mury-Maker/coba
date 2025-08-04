@@ -123,7 +123,7 @@ class NavMenuController extends Controller
 
         try {
             $newlyCreatedMenu = null;
-            DB::transaction(function () use ($request, &$newlyCreatedMenu) {
+            $newlyCreatedMenu = DB::transaction(function () use ($request) {
                 $menu = NavMenu::create([
                     'category_id' => $request->category_id,
                     'menu_nama' => $request->menu_nama,
@@ -132,7 +132,7 @@ class NavMenuController extends Controller
                     'menu_order' => $request->menu_order ?? 0,
                     'menu_status' => $request->boolean('menu_status'),
                 ]);
-                $newlyCreatedMenu = $menu;
+                return $menu;
             });
 
             return response()->json([
