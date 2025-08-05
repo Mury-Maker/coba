@@ -126,7 +126,7 @@
                                         <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">{{ $report->aktor }}</td>
                                         <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">{{ $report->nama_report }}</td>
                                         <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $report->keterangan !!}</td>
-                                        <td class="py-2 px-4 whitespace-nowrap text-center text-sm font-medium flex justify-center items-center space-x-2">
+                                        <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                             @auth
                                                 @if(auth()->user()->role === 'admin')
                                                     {{-- Detail (Mata): Biru dengan ikon putih --}}
@@ -135,15 +135,15 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'reportId' => $report->id_report
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
-                                                    <button class="edit-report-btn btn-action bg-yellow-400 text-black" data-id="{{ $report->id_report }}" title="Edit">
+                                                    <button class="edit-report-btn btn-action btn-action--icon bg-yellow-400 text-black" data-id="{{ $report->id_report }}" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     {{-- Hapus (Sampah): Merah dengan ikon putih --}}
-                                                    <button class="delete-report-btn btn-action bg-red-600 text-white" data-id="{{ $report->id_report }}" title="Hapus">
+                                                    <button class="delete-report-btn btn-action btn-action--icon bg-red-600 text-white" data-id="{{ $report->id_report }}" title="Hapus">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 @else
@@ -153,8 +153,9 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'reportId' => $report->id_report
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
-                                                        <i class="fas fa-eye"></i>
+                                                    ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
+                                                        <span>Lihat</span>
+                                                        <i class="fas fa-eye ml-2"></i>
                                                     </a>
                                                 @endif
                                             @endauth
@@ -204,7 +205,7 @@
                                         <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration }}</td>
                                         <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $database->keterangan !!}</td>
                                         <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $database->relasi !!}</td>
-                                        <td class="py-2 px-4 whitespace-nowrap text-center text-sm font-medium flex justify-center items-center space-x-2">
+                                        <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                             @auth
                                                 @if(auth()->user()->role === 'admin')
                                                     {{-- Detail (Mata): Biru dengan ikon putih --}}
@@ -213,15 +214,15 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'databaseId' => $database->id_database
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
-                                                    <button class="edit-database-btn btn-action bg-yellow-400 text-black" data-id="{{ $database->id_database }}" title="Edit">
+                                                    <button class="edit-database-btn btn-action btn-action--icon bg-yellow-400 text-black" data-id="{{ $database->id_database }}" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     {{-- Hapus (Sampah): Merah dengan ikon putih --}}
-                                                    <button class="delete-database-btn btn-action bg-red-600 text-white" data-id="{{ $database->id_database }}" title="Hapus">
+                                                    <button class="delete-database-btn btn-action btn-action--icon bg-red-600 text-white" data-id="{{ $database->id_database }}" title="Hapus">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 @else
@@ -231,8 +232,9 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'databaseId' => $database->id_database
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
-                                                        <i class="fas fa-eye"></i>
+                                                    ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
+                                                        <span>Lihat</span>
+                                                        <i class="fas fa-eye ml-2"></i>
                                                     </a>
                                                 @endif
                                             @endauth
@@ -284,14 +286,18 @@
                                         <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">{{ $uat->nama_proses_usecase }}</td>
                                         <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $uat->keterangan_uat !!}</td>
                                         <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                @if($uat->status_uat === 'Passed') bg-green-100 text-green-800
-                                                @elseif($uat->status_uat === 'Failed') bg-red-100 text-red-800
-                                                @else bg-gray-100 text-gray-800 @endif">
+                                            @php
+                                                $badgeClass = match($uat->status_uat) {
+                                                    'Passed' => 'bg-green-100 text-green-800',
+                                                    'Failed' => 'bg-red-100 text-red-800',
+                                                    default => 'bg-gray-100 text-gray-800',
+                                                };
+                                            @endphp
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badgeClass }}">
                                                 {{ $uat->status_uat }}
                                             </span>
                                         </td>
-                                        <td class="py-2 px-4 whitespace-nowrap text-center text-sm font-medium flex justify-center items-center space-x-2">
+                                        <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                             @auth
                                                 @if(auth()->user()->role === 'admin')
                                                     {{-- Detail (Mata): Biru dengan ikon putih --}}
@@ -300,15 +306,15 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'uatId' => $uat->id_uat
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
-                                                    <button class="edit-uat-btn btn-action bg-yellow-400 text-black" data-id="{{ $uat->id_uat }}" title="Edit">
+                                                    <button class="edit-uat-btn btn-action btn-action--icon bg-yellow-400 text-black" data-id="{{ $uat->id_uat }}" title="Edit">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     {{-- Hapus (Sampah): Merah dengan ikon putih --}}
-                                                    <button class="delete-uat-btn btn-action bg-red-600 text-white" data-id="{{ $uat->id_uat }}" title="Hapus">
+                                                    <button class="delete-uat-btn btn-action btn-action--icon bg-red-600 text-white" data-id="{{ $uat->id_uat }}" title="Hapus">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 @else
@@ -318,8 +324,9 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'uatId' => $uat->id_uat
-                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
-                                                        <i class="fas fa-eye"></i>
+                                                    ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
+                                                        <span>Lihat</span>
+                                                        <i class="fas fa-eye ml-2"></i>
                                                     </a>
                                                 @endif
                                             @endauth

@@ -302,6 +302,20 @@ body {
     flex-shrink: 0; /* Pastikan tidak menyusut di dalam flex container */
 }
 
+/* Tombol icon-only (admin) */
+.btn-action--icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+/* Tombol dengan teks + icon (anggota) */
+.btn-action--full {
+    padding: 0.25rem 0.75rem; /* px-3 py-1 */
+    height: auto;
+    width: auto;
+}
+
 .btn-action:hover {
     transform: translateY(-1px) scale(1.05); /* Sedikit naik dan membesar saat hover */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.12); /* Bayangan lebih jelas saat hover */
