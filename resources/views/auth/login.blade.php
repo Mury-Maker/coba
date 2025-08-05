@@ -4,23 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - E-Docs</title>
-    {{-- Jika Anda tidak menggunakan kompilasi aset (npm), Anda bisa menggunakan CDN --}}
-    {{-- <script src="https://cdn.tailwindcss.com"></script> --}}
 
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}"> {{-- Jika ada styling global --}}
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Tambahan agar semua elemen mengikuti box-sizing border-box */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <div id="login-card" class="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 m-4">
+    <div id="login-card" class="bg-white rounded-2xl shadow-lg p-8 m-4 mx-auto">
 
         <div class="text-center mb-8">
             <div class="logo">
-                <img src="{{ asset('img/indoweb.png')}}" alt="Logo E-Docs">
+                <img src="{{ asset('img/indoweb.png') }}" alt="Logo E-Docs">
             </div>
             <h1 class="text-3xl font-bold text-gray-800">E - Docs</h1>
             <p class="text-gray-500 mt-2">Silakan masukkan email dan password Anda</p>
@@ -44,7 +47,7 @@
                     required
                     autocomplete="email"
                     placeholder="you@example.com"
-                    class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-300"
+                    class="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-300"
                     value="{{ old('email') }}"
                 >
             </div>
@@ -63,7 +66,7 @@
                     required
                     autocomplete="current-password"
                     placeholder="••••••••"
-                    class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-300"
+                    class="w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition duration-300"
                 >
             </div>
 

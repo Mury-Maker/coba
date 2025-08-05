@@ -44,7 +44,7 @@
                                         </button>
                                         @if($slug !== 'epesantren')
                                             <button type="button" data-action="delete-category" data-slug="{{ $slug }}" data-name="{{ $name }}" title="Hapus Kategori" class="text-red-500 hover:text-red-700 p-1">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         @endif
                                     </div>

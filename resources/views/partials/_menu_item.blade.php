@@ -79,7 +79,7 @@
                                 type="button"
                                 data-action="add-child-menu"
                                 data-parent-id="{{ $item->menu_id }}"
-                                class="text-green-500 hover:text-green-700 p-1"
+                                class="text-blue-500 hover:text-blue-700 p-1"
                                 title="Tambah Sub Menu"
                                 aria-label="Tambah Sub Menu">
                                 <i class="fa-solid fa-plus-circle"></i>
@@ -88,10 +88,10 @@
                         <button
                             data-action="edit-menu"
                             data-menu-id="{{ $item->menu_id }}"
-                            class="text-blue-500 hover:text-blue-700 p-1"
+                            class="text-yellow-500 hover:text-yellow-700 p-1"
                             title="Edit Menu"
                             aria-label="Edit Menu">
-                            <i class="fa-solid fa-pencil"></i>
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button
                             data-action="delete-menu"
@@ -100,7 +100,7 @@
                             class="text-red-500 hover:text-red-700 p-1"
                             title="Hapus Menu"
                             aria-label="Hapus Menu {{ $item->menu_nama }}">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 @endif

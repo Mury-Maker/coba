@@ -135,7 +135,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'reportId' => $report->id_report
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
@@ -153,7 +153,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'reportId' => $report->id_report
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 @endif
@@ -213,7 +213,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'databaseId' => $database->id_database
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
@@ -231,7 +231,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'databaseId' => $database->id_database
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 @endif
@@ -300,7 +300,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'uatId' => $uat->id_uat
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     {{-- Edit (Pensil): Kuning dengan ikon hitam --}}
@@ -318,7 +318,7 @@
                                                         'page' => Str::slug($selectedNavItem->menu_nama),
                                                         'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
                                                         'uatId' => $uat->id_uat
-                                                    ]) }}" class="btn-action bg-blue-500 text-white" title="Detail">
+                                                    ]) }}" class="btn-action bg-green-500 text-white" title="Detail">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 @endif

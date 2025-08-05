@@ -141,6 +141,20 @@ export function initImageViewerManual() {
             populateModalContentInternal(currentGalleryImages, initialSlideIndex);
         }
     });
+    domUtils.addEventListener(document, 'keydown', (e) => {
+        const modal = domUtils.getElement("myModal");
+        
+        // Pastikan modal sedang terbuka
+        if (modal && modal.classList.contains('show')) {
+            if (e.key === "ArrowRight") {
+                // Tombol Panah Kanan ditekan
+                plusSlides(1);
+            } else if (e.key === "ArrowLeft") {
+                // Tombol Panah Kiri ditekan
+                plusSlides(-1);
+            }
+        }
+    });
 }
 
 function populateModalContentInternal(imagesData, clickedIndex) {
