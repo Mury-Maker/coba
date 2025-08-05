@@ -13,7 +13,6 @@ class UseCase extends Model
     protected $table = 'use_cases';
     protected $fillable = [
         'menu_id',
-        'usecase_id',
         'nama_proses',
         'deskripsi_aksi',
         'aktor',

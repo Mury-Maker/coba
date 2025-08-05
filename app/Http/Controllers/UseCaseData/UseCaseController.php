@@ -44,19 +44,8 @@ class UseCaseController extends Controller
                                              ->orderBy('id', 'desc')
                                              ->first();
 
-                $newIdNumber = 1;
-                if ($lastUseCaseForMenu) {
-                    if (preg_match('/-(\d+)$/', $lastUseCaseForMenu->usecase_id, $matches)) {
-                        $lastIdNumber = (int)$matches[1];
-                        $newIdNumber = $lastIdNumber + 1;
-                    }
-                }
-
-                $generatedUsecaseId = 'UC-' . $request->menu_id . '-' . str_pad($newIdNumber, 3, '0', STR_PAD_LEFT);
-
                 $useCase = UseCase::create([
                     'menu_id' => $request->menu_id,
-                    'usecase_id' => $generatedUsecaseId,
                     'nama_proses' => $request->nama_proses,
                     'deskripsi_aksi' => $request->deskripsi_aksi,
                     'aktor' => $request->aktor,

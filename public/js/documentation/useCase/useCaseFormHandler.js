@@ -28,7 +28,6 @@ export function initUseCaseFormHandler() {
             useCaseModalTitle.textContent = 'Tambah Tindakan Baru';
             useCaseFormMethod.value = 'POST';
             useCaseFormUseCaseId.value = '';
-            domUtils.getElement('form_usecase_id').value = '';
             domUtils.getElement('form_nama_proses').value = ''; // Pastikan ini juga direset
             domUtils.getElement('form_aktor').value = ''; // Pastikan ini juga direset
             domUtils.getElement('form_deskripsi_aksi').value = '';
@@ -43,7 +42,6 @@ export function initUseCaseFormHandler() {
             useCaseFormUseCaseId.value = useCase.id;
 
             // PERBAIKAN: Gunakan operator '|| '' untuk memastikan nilai tidak null
-            domUtils.getElement('form_usecase_id').value = useCase.usecase_id || '';
             domUtils.getElement('form_nama_proses').value = useCase.nama_proses || '';
             domUtils.getElement('form_aktor').value = useCase.aktor || '';
             domUtils.getElement('form_deskripsi_aksi').value = useCase.deskripsi_aksi || '';

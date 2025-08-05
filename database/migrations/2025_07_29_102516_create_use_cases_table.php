@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('use_cases', function (Blueprint $table) {
             $table->id(); // Primary key default 'id'
             $table->unsignedInteger('menu_id'); // Foreign key ke navmenu (sesuaikan tipe data dengan menu_id di navmenu)
-            $table->string('usecase_id')->nullable()->comment('ID UseCase seperti di video, misal: UC-TAMBAH-SISWA');
             $table->string('nama_proses');
             $table->text('deskripsi_aksi')->nullable();
             $table->string('aktor')->nullable();
