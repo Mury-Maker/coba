@@ -48,41 +48,49 @@
                             <td class="py-2 px-4 border-r border-b">{!! $useCase->kondisi_akhir !!}</td>
                             <td class="py-2 px-4 border-b text-center align-middle w-36 max-w-[9rem]">
                                 @auth
-                                    <div class="relative inline-block text-left" id="dropdown-wrapper-{{ $useCase->id }}">
-                                        <button onclick="toggleDropdown({{ $useCase->id }})"
-                                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md min-w-[100px] w-full flex items-center justify-between gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
-                                            Pilih Aksi
-                                            <i class="fas fa-chevron-down text-xs"></i>
-                                        </button>
-                                        <div id="dropdown-menu-{{ $useCase->id }}"
-                                            class="hidden absolute z-10 mt-2 w-[105px] origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none text-sm text-left">
-                                            <ul class="py-1">
-                                                <li>
-                                                    {{-- Link Detail Use Case itu sendiri --}}
-                                                    <a href="{{ route('docs.use_case_detail', ['category' => $currentCategory, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($useCase->nama_proses)]) }}"
-                                                       class="block px-4 py-2 text-green-600 hover:bg-gray-100">
-                                                        <i class="fas fa-eye mr-2"></i> Detail
-                                                    </a>
-                                                </li>
-                                                @if(auth()->user()->role === 'admin')
+                                    @if(auth()->user()->role === 'admin')
+                                        {{-- Admin: pakai dropdown --}}
+                                        <div class="relative inline-block text-left" id="dropdown-wrapper-{{ $useCase->id }}">
+                                            <button onclick="toggleDropdown({{ $useCase->id }})"
+                                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md min-w-[100px] w-full flex items-center justify-between gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                Pilih Aksi
+                                                <i class="fas fa-chevron-down text-xs"></i>
+                                            </button>
+                                            <div id="dropdown-menu-{{ $useCase->id }}"
+                                                class="hidden absolute z-10 mt-2 w-[105px] origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none text-sm text-left">
+                                                <ul class="py-1">
                                                     <li>
-                                                        <button class="block w-full text-left px-4 py-2 text-yellow-600 hover:bg-gray-100 edit-usecase-btn"
+                                                        <a href="{{ route('docs.use_case_detail', ['category' => $currentCategory, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($useCase->nama_proses)]) }}"
+                                                            class="block px-4 py-2 text-green-600 hover:bg-gray-100">
+                                                            <i class="fas fa-eye mr-2"></i> Detail
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <button class="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100 edit-usecase-index-btn"
                                                             data-id="{{ $useCase->id }}" data-menu-id="{{ $menu_id }}">
                                                             <i class="fas fa-edit mr-2"></i> Edit
                                                         </button>
                                                     </li>
                                                     <li>
-                                                        <button class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 delete-usecase-btn"
+                                                        <button class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 delete-usecase-index-btn"
                                                             data-id="{{ $useCase->id }}" data-nama="{{ $useCase->nama_proses }}">
                                                             <i class="fas fa-trash-alt mr-2"></i> Hapus
                                                         </button>
                                                     </li>
-                                                @endif
-                                            </ul>
+                                                </ul>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        {{-- Anggota: hanya icon detail --}}
+                                        <a href="{{ route('docs.use_case_detail', ['category' => $currentCategory, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($useCase->nama_proses)]) }}"
+                                            class="inline-flex items-center justify-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm"
+                                            title="Lihat Detail">
+                                            <span>Lihat</span>
+                                            <i class="fas fa-eye ml-2"></i>
+                                        </a>
+                                    @endif
                                 @endauth
-                            </td>
+                            </td>                                                                                                                         
                         </tr>
                     @empty
                         <tr>
