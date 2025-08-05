@@ -13,7 +13,7 @@
         </a>
         @if($editorMode)
             {{-- PERBAIKAN DI SINI: Gunakan data-action="add-parent-menu" --}}
-            <button type="button" data-action="add-parent-menu" class="bg-blue-500 text-white w-8 h-8 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors" title="Tambah Menu Utama Baru">
+            <button type="button" data-action="add-parent-menu" class="bg-blue-500 text-white w-10 h-11 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors mb-3" title="Tambah Menu Utama Baru">
                 <i class="fa fa-plus"></i>
             </button>
         @endif

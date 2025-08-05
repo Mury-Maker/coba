@@ -67,6 +67,7 @@ export function initSidebar() {
     // Fungsi untuk mengelola dropdown submenu sidebar (klik panah)
     function handleSubmenuToggle(event) {
         const sidebarElement = domUtils.getElement('docs-sidebar');
+        // Jika sidebar sedang collapsed dan di desktop, abaikan toggle submenu
         if (sidebarElement && sidebarElement.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
             console.log('Submenu toggle ignored in collapsed desktop mode.'); // DEBUG
             return;
@@ -105,6 +106,29 @@ export function initSidebar() {
             }
         } else {
             console.log('Submenu element not found for toggle:', submenuId); // DEBUG
+        }
+    }
+
+    // Fungsi untuk mengelola klik pada parent menu saat sidebar minimize
+    // Ini adalah fungsi baru yang ditambahkan
+    function handleParentMenuClick(event) {
+        const sidebarElement = domUtils.getElement('docs-sidebar');
+        const parentMenuLink = event.target.closest('.sidebar-menu-parent-link');
+        const submenuToggleBtn = event.target.closest('[data-toggle^="submenu-"]');
+
+        // Jika sidebar sedang collapsed dan di desktop
+        if (sidebarElement && sidebarElement.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
+            // Jika yang diklik adalah tombol toggle, abaikan. Kita tidak ingin membuka submenu.
+            if (submenuToggleBtn) {
+                return;
+            }
+
+            // Jika yang diklik adalah link parent menu itu sendiri
+            if (parentMenuLink) {
+                event.stopPropagation(); // Hentikan event menyebar
+                // Biarkan aksi default (navigasi ke href) terjadi
+                console.log('Navigating to parent menu:', parentMenuLink.href);
+            }
         }
     }
 
@@ -148,6 +172,13 @@ export function initSidebar() {
         submenuTriggers.forEach(trigger => {
             domUtils.removeEventListener(trigger, handleSubmenuToggle); // Clean up old listeners
             domUtils.addEventListener(trigger, 'click', handleSubmenuToggle);
+        });
+
+        // Attach event listener baru untuk klik parent menu saat sidebar minimize
+        const parentLinks = document.querySelectorAll('.sidebar-menu-parent-link');
+        parentLinks.forEach(link => {
+            domUtils.removeEventListener(link, 'click', handleParentMenuClick); // Clean up old listeners
+            domUtils.addEventListener(link, 'click', handleParentMenuClick);
         });
     }
 

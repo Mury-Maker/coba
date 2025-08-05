@@ -112,6 +112,7 @@
   z-index: 10000;
   background-color: rgba(0,0,0,0.5);
   border-bottom-right-radius: 5px;
+  display: none;
 }
 
 /* Caption text (Teks keterangan gambar) */
@@ -129,17 +130,19 @@
 
 /* Thumbnails container (Kontainer thumbnail) */
 #thumbnailRow.row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 10px;
-    padding: 0 8px;
-    width: 100%;
-    overflow-x: auto;
-    background-color: #222;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    flex-shrink: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start; /* UBAH DARI 'center' ke 'flex-start' */
+  margin-top: 10px;
+  padding: 0 8px;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  background-color: #222;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .column {
@@ -148,6 +151,7 @@
     margin: 0 4px;
     opacity: 0.6;
     transition: opacity 0.3s;
+    min-width: 100px;
 }
 .column img {
     width: 100%;
