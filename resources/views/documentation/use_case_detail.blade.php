@@ -27,7 +27,7 @@
                     <tbody>
                         <tr class="hover:bg-gray-50">
                             <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Usecase:</td>
-                            <td class="py-2 px-4 text-gray-900">{{ $singleUseCase->usecase_id ?? 'N/A' }}</td>
+                            <td class="py-2 px-4 text-gray-900">UC - {{ $singleUseCase->id ?? 'N/A' }}</td>
                         </tr>
                         <tr class="hover:bg-gray-50">
                             <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Nama Proses:</td>

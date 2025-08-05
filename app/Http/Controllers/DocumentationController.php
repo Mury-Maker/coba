@@ -204,7 +204,7 @@ class DocumentationController extends Controller
                                 ->where('menu_id', $selectedNavItem->menu_id)
                                 ->where(function($query) use ($useCaseSlug) {
                                     $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('usecase_id', $useCaseSlug);
+                                        ->orWhere('id', $useCaseSlug);
                                 })
                                 ->first();
 
@@ -242,7 +242,7 @@ class DocumentationController extends Controller
         $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->first();
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
         if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         // PERBAIKAN PENTING: Muat relasi images dan documents untuk uatData
@@ -275,7 +275,7 @@ class DocumentationController extends Controller
         $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->first();
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
         if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         $reportData = ReportData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_report', $reportId)->first();
@@ -307,7 +307,7 @@ class DocumentationController extends Controller
         $selectedNavItem = NavMenu::where('category_id', $currentCategory->id)->where(function($query) use ($pageSlug) { $query->whereRaw('LOWER(REPLACE(menu_nama, " ", "-")) = ?', [strtolower($pageSlug)]); })->first();
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
-        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('usecase_id', $useCaseSlug); })->first();
+        $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
         if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
         // PERBAIKAN PENTING: Muat relasi images dan documents untuk databaseData

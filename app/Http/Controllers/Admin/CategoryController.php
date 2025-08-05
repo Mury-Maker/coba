@@ -57,7 +57,6 @@ class CategoryController extends Controller
 
                 UseCase::create([
                     'menu_id' => $homeMenu->menu_id,
-                    'usecase_id' => 'INFO-BERANDA',
                     'nama_proses' => 'Informasi Umum',
                     'deskripsi_aksi' => 'Informasi pengantar untuk kategori ' . Str::headline($category->name) . '.',
                     'aktor' => 'Sistem',
@@ -118,7 +117,7 @@ class CategoryController extends Controller
                         'menu_link' => Str::slug('Beranda ' . $newCategoryName),
                     ]);
 
-                    $infoUseCase = $homeMenu->useCases()->where('usecase_id', 'INFO-BERANDA')->first();
+                    $infoUseCase = $homeMenu->useCases()->where('id', 'INFO-BERANDA')->first();
                     if ($infoUseCase) {
                         $infoUseCase->update([
                             'nama_proses' => 'Informasi Umum Kategori ' . Str::headline($newCategoryName),

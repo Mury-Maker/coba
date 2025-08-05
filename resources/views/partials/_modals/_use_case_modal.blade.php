@@ -10,11 +10,7 @@
 
                 {{-- Grid Kontainer Utama --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {{-- ID Usecase (Sekarang Readonly) --}}
-                    <div class="mb-4">
-                        <label for="form_usecase_id" class="block text-gray-700 text-sm font-bold mb-2">ID Usecase:</label>
-                        <input type="text" id="form_usecase_id" name="usecase_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100" readonly>
-                    </div>
+
                     <div class="mb-4">
                         <label for="form_nama_proses" class="block text-gray-700 text-sm font-bold mb-2">Nama Proses:</label>
                         <input type="text" id="form_nama_proses" name="nama_proses" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
