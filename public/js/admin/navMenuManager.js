@@ -6,7 +6,10 @@ import { notificationManager } from '../core/notificationManager.js';
 import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initNavMenuManager() {
-    console.log('initNavMenuManager dipanggil.'); // DEBUG: Confirm initialization
+    if (window.__navMenuManagerInitialized) return;
+    window.__navMenuManagerInitialized = true;
+    console.log('initNavMenuManager dipanggil.');
+
     const adminNavMenuModal = domUtils.getElement('adminNavMenuModal');
     const adminNavMenuModalTitle = domUtils.getElement('adminNavMenuModalTitle');
     const adminNavMenuForm = domUtils.getElement('adminNavMenuForm');
@@ -17,51 +20,44 @@ export function initNavMenuManager() {
     const formNavMenuChild = domUtils.getElement('form_navmenu_child');
     const formNavMenuOrder = domUtils.getElement('form_navmenu_order');
     const formNavMenuStatus = domUtils.getElement('form_navmenu_status');
-    const formNavMenuCategoryId = domUtils.getElement('form_navmenu_category_id'); // Hidden input untuk category_id
+    const formNavMenuCategoryId = domUtils.getElement('form_navmenu_category_id');
     const cancelAdminNavMenuFormBtn = domUtils.getElement('cancelAdminNavMenuFormBtn');
 
-    /**
-     * Membuka modal menu untuk tambah atau edit.
-     * @param {'create' | 'edit'} mode - Mode operasi.
-     * @param {object} [menuData=null] - Objek data menu untuk mode edit.
-     * @param {number} [parentId=0] - ID parent untuk mode create (jika tambah sub-menu).
-     */
     window.openAdminNavMenuModal = async (mode, menuData = null, parentId = 0) => {
-        console.log('openAdminNavMenuModal dipanggil. Mode:', mode, 'Menu Data Awal:', menuData, 'Parent ID:', parentId); // DEBUG
-        if (!adminNavMenuForm || !adminNavMenuModalTitle || !formNavMenuCategoryId) { // Pastikan formNavMenuCategoryId ada
+        console.log('[Modal] openAdminNavMenuModal:', { mode, menuData, parentId });
+        if (!adminNavMenuForm || !adminNavMenuModalTitle || !formNavMenuCategoryId) {
             notificationManager.showNotification('Elemen modal menu tidak ditemukan.', 'error');
-            console.error('NavMenu modal elements are missing.'); // DEBUG
+            console.error('[Modal] Elemen tidak ditemukan.');
             return;
         }
 
         adminNavMenuForm.reset();
         formNavMenuId.value = '';
         formNavMenuMethod.value = 'POST';
-        // Saat membuat, category_id diambil dari kategori aktif di Blade (numerik)
         formNavMenuCategoryId.value = window.APP_BLADE_DATA.currentCategoryId;
 
-        const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug; // Slug tetap dibutuhkan untuk API parents
-
-        // Muat daftar parent menu
-        formNavMenuChild.innerHTML = '<option value="0">Tidak Ada (Menu Utama)</option>'; // Reset options
+        const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug;
+        formNavMenuChild.innerHTML = '<option value="0">Tidak Ada (Menu Utama)</option>';
         let parentApiUrl = `${APP_CONSTANTS.API_ROUTES.NAVMENU.PARENTS}/${currentCategorySlug}`;
         if (mode === 'edit' && menuData) {
             parentApiUrl += `?editing_menu_id=${menuData.menu_id}`;
         }
-        console.log('Fetching parent menus from:', parentApiUrl); // DEBUG
 
         try {
             const parents = await apiClient.fetchAPI(parentApiUrl);
+            const existingIds = new Set();
             parents.forEach(parent => {
-                const option = document.createElement('option');
-                option.value = parent.menu_id;
-                option.textContent = parent.menu_nama;
-                formNavMenuChild.appendChild(option);
+                if (!existingIds.has(parent.menu_id)) {
+                    const option = document.createElement('option');
+                    option.value = parent.menu_id;
+                    option.textContent = parent.menu_nama;
+                    formNavMenuChild.appendChild(option);
+                    existingIds.add(parent.menu_id);
+                }
             });
-            console.log('Parent menus loaded:', parents); // DEBUG
         } catch (error) {
             notificationManager.showNotification('Gagal memuat daftar parent menu.', 'error');
-            console.error('Failed to load parent menus:', error); // DEBUG
+            console.error('[Modal] Gagal muat parent menu:', error);
             domUtils.toggleModal(adminNavMenuModal, false);
             return;
         }
@@ -71,7 +67,7 @@ export function initNavMenuManager() {
             formNavMenuNama.value = '';
             formNavMenuIcon.value = '';
             formNavMenuOrder.value = '0';
-            formNavMenuChild.value = parentId; // Set parentId jika ini sub-menu
+            formNavMenuChild.value = parentId;
             formNavMenuStatus.checked = false;
         } else if (mode === 'edit' && menuData) {
             adminNavMenuModalTitle.textContent = `Edit Menu: ${menuData.menu_nama}`;
@@ -82,34 +78,40 @@ export function initNavMenuManager() {
             formNavMenuChild.value = menuData.menu_child;
             formNavMenuOrder.value = menuData.menu_order || '0';
             formNavMenuStatus.checked = menuData.menu_status == 1;
-
             formNavMenuCategoryId.value = menuData.category_id;
-            console.log('Edit mode: Setting form values. menu_id:', menuData.menu_id, 'category_id (from menuData):', menuData.category_id); // DEBUG
+            console.log('[Modal] Edit mode data set:', menuData);
         }
+
         domUtils.toggleModal(adminNavMenuModal, true);
-        console.log('NavMenu modal toggled to show.'); // DEBUG
     };
 
-    /**
-     * Menutup modal menu.
-     */
     function closeAdminNavMenuModal() {
         domUtils.toggleModal(adminNavMenuModal, false);
         adminNavMenuForm.reset();
-        console.log('NavMenu modal closed and form reset.'); // DEBUG
+        console.log('[Modal] Ditutup dan form direset');
     }
 
     domUtils.addEventListener(cancelAdminNavMenuFormBtn, 'click', closeAdminNavMenuModal);
 
+    // Tutup modal jika klik di luar form/modal-content
+    document.addEventListener('click', function (e) {
+        if (adminNavMenuModal.classList.contains('show')) {
+            const isClickInside = adminNavMenuModal.querySelector('.modal-content')?.contains(e.target);
+            if (!isClickInside) {
+                closeAdminNavMenuModal();
+            }
+        }
+    });
+
     domUtils.addEventListener(adminNavMenuForm, 'submit', async (e) => {
         e.preventDefault();
-        console.log('Form NavMenu disubmit.'); // DEBUG
+        console.log('[Form] Submit form nav menu');
 
         const loadingNotif = notificationManager.showNotification('Menyimpan menu...', 'loading');
 
         const method = formNavMenuMethod.value;
         const menuId = formNavMenuId.value;
-        const categoryId = formNavMenuCategoryId.value; // Ambil category_id dari hidden input (ini harus numerik)
+        const categoryId = formNavMenuCategoryId.value;
 
         let url = APP_CONSTANTS.API_ROUTES.NAVMENU.STORE;
         let httpMethod = 'POST';
@@ -124,148 +126,26 @@ export function initNavMenuManager() {
             menu_nama: formNavMenuNama.value,
             menu_icon: formNavMenuIcon.value,
             menu_child: formNavMenuChild.value,
-            // Perhatikan: menu_order bisa null dari request jika tidak diisi,
-            // backend akan default ke 0
             menu_order: formNavMenuOrder.value,
             menu_status: formNavMenuStatus.checked,
         };
 
-        console.log('Sending API request:', url, 'Method:', httpMethod, 'Data:', formData); // DEBUG
-
         try {
-            const options = {
-                method: httpMethod,
-                body: formData,
-            };
-            if (method === 'PUT') {
-                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
-            }
+            const options = { method: httpMethod, body: formData };
+            if (method === 'PUT') options.headers = { 'X-HTTP-Method-Override': 'PUT' };
 
             const data = await apiClient.fetchAPI(url, options);
 
-            console.log('API request berhasil. Respons:', data); // DEBUG
             notificationManager.hideNotification(loadingNotif);
             notificationManager.showCentralSuccessPopup(data.success);
             closeAdminNavMenuModal();
 
-            // Auto-refresh halaman setelah operasi sukses
-            const newMenuLink = data.new_menu_link;
-            const currentCategorySlug = data.current_category_slug;
-            let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${newMenuLink}`;
-
+            const redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${data.current_category_slug}/${data.new_menu_link}`;
             window.location.href = redirectUrl;
 
         } catch (error) {
-            console.error('API request GAGAL:', error); // DEBUG
+            console.error('[Form] Gagal simpan:', error);
             notificationManager.hideNotification(loadingNotif);
-            // Error sudah ditangani oleh apiClient
-        }
-    });
-
-    /**
-     * Mengkonfirmasi penghapusan menu.
-     * @param {number} menuId - ID menu yang akan dihapus.
-     * @param {string} menuNama - Nama menu untuk pesan konfirmasi.
-     */
-    window.confirmDeleteMenu = (menuId, menuNama) => {
-        console.log('confirmDeleteMenu dipanggil untuk:', menuNama, 'ID:', menuId); // DEBUG
-        notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus menu "${menuNama}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua sub-menu terkait, serta seluruh konten (Aksi, UAT, Report, Database) di dalamnya.`, async () => {
-            console.log('Konfirmasi Hapus disetujui untuk:', menuId); // DEBUG
-            const loadingNotif = notificationManager.showNotification('Menghapus menu...', 'loading');
-            try {
-                const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.NAVMENU.DESTROY}/${menuId}`, {
-                    method: 'DELETE'
-                });
-                console.log('Delete API berhasil. Respons:', data); // DEBUG
-                notificationManager.hideNotification(loadingNotif);
-                notificationManager.showCentralSuccessPopup(data.success);
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    window.location.reload();
-                }
-            } catch (error) {
-                console.error('Delete API GAGAL:', error); // DEBUG
-                notificationManager.hideNotification(loadingNotif);
-                // Error ditangani oleh apiClient
-            }
-        });
-    };
-
-    // Delegasi event untuk tombol add child, edit, delete menu di sidebar
-    domUtils.addEventListener(document, 'click', (e) => {
-        // Tombol "+" di sidebar utama (Tambah Menu Utama Baru)
-        const addParentMenuBtn = e.target.closest('[data-action="add-parent-menu"]');
-
-        // Tombol "+" di samping item menu (Tambah Sub Menu)
-        const addChildMenuBtn = e.target.closest('[data-action="add-child-menu"]');
-
-        const editNavMenuBtn = e.target.closest('[data-action="edit-menu"]');
-        const deleteNavMenuBtn = e.target.closest('[data-action="delete-menu"]');
-        const toggleSubmenuBtn = e.target.closest('[data-toggle^="submenu-"]');
-
-        if (addParentMenuBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('--- Tombol "Tambah Menu Utama Baru" di Sidebar diklik. ---'); // DEBUG
-            const parentId = parseInt(addParentMenuBtn.dataset.parentId || '0');
-            notificationManager.openAdminNavMenuModal('create', null, parentId);
-        } else if (addChildMenuBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('--- Tombol "Tambah Sub Menu" diklik. ---'); // DEBUG
-            const parentId = parseInt(addChildMenuBtn.dataset.parentId || '0');
-            notificationManager.openAdminNavMenuModal('create', null, parentId);
-        } else if (editNavMenuBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Edit NavMenu button clicked.'); // DEBUG
-            const menuId = parseInt(editNavMenuBtn.dataset.menuId);
-            apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.NAVMENU.GET}/${menuId}`)
-                .then(menuData => {
-                    // PERBAIKAN: Pastikan menuData valid sebelum membuka modal edit
-                    if (menuData && menuData.menu_id) {
-                        notificationManager.openAdminNavMenuModal('edit', menuData);
-                    } else {
-                        notificationManager.showNotification('Data menu untuk diedit tidak ditemukan atau tidak valid.', 'error');
-                        console.error('Fetched menu data is invalid or empty:', menuData);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching NavMenu data for edit:', error); // DEBUG
-                    notificationManager.showNotification('Gagal memuat data menu.', 'error');
-                });
-        } else if (deleteNavMenuBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Delete NavMenu button clicked.'); // DEBUG
-            const menuId = parseInt(deleteNavMenuBtn.dataset.menuId);
-            const menuNama = deleteNavMenuBtn.dataset.menuNama;
-            notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus menu "${menuNama}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua sub-menu terkait, serta seluruh konten (Aksi, UAT, Report, Database) di dalamnya.`, async () => {
-                console.log('Konfirmasi Hapus disetujui untuk:', menuId); // DEBUG
-                const loadingNotif = notificationManager.showNotification('Menghapus menu...', 'loading');
-                try {
-                    // MENGIRIM menuId BUKAN objek navMenu agar tidak ada Route Model Binding error saat delete
-                    const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.NAVMENU.DESTROY}/${menuId}`, {
-                        method: 'DELETE'
-                    });
-                    console.log('Delete API berhasil. Respons:', data); // DEBUG
-                    notificationManager.hideNotification(loadingNotif);
-                    notificationManager.showCentralSuccessPopup(data.success);
-                    if (data.redirect_url) {
-                        window.location.href = data.redirect_url;
-                    } else {
-                        window.location.reload();
-                    }
-                } catch (error) {
-                    console.error('Delete API GAGAL:', error); // DEBUG
-                    notificationManager.hideNotification(loadingNotif);
-                    // Error sudah ditangani oleh apiClient
-                }
-            });
-        } else if (toggleSubmenuBtn) {
-            // Ini adalah penanganan untuk panah toggle submenu, yang sudah ditangani oleh handleSubmenuToggle
-            // Tidak perlu memanggil fungsi lain di sini karena event sudah ditangkap oleh listener lain
         }
     });
 }

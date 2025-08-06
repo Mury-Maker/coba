@@ -305,6 +305,14 @@ export function initDatabaseDataManager() {
         selectedDatabaseImageFilesMap.clear();
         selectedDatabaseDocumentFilesMap.clear();
     }
+    
+    // Menambahkan event listener untuk menutup modal saat klik di luar form
+    domUtils.addEventListener(document, 'click', (e) => {
+        // Memeriksa apakah target klik berada di luar modal, tapi masih di dalam 'overlay' modal
+        if (e.target === databaseDataModal) {
+            closeDatabaseDataModal();
+        }
+    });
 
     domUtils.addEventListener(cancelDatabaseDataFormBtn, 'click', closeDatabaseDataModal);
     if (addDatabaseDataBtn) {
@@ -336,6 +344,7 @@ export function initDatabaseDataManager() {
                         notificationManager.showCentralSuccessPopup(data.success);
                         window.location.reload();
                     } catch (error) {
+                        console.error('API request GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
@@ -377,6 +386,9 @@ export function initDatabaseDataManager() {
                 method: 'POST',
                 body: formData,
             };
+            if (method === 'PUT') {
+                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
+            }
 
             const data = await apiClient.fetchAPI(url, options);
 
