@@ -1,11 +1,10 @@
 {{-- resources/views/documentation/use_case_list.blade.php --}}
-
+<h1 id="main-content-title" class="text-2xl font-bold"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
 <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
     <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="judul-halaman">
-                    <h1 id="main-content-title"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
-                    @yield('action-buttons')
-                </div>
+        <div class="judul-halaman">
+            @yield('action-buttons')
+        </div>
         <h2 class="text-2xl font-bold mb-4 text-gray-800">Daftar Use Case</h2>
 
         @auth
@@ -16,10 +15,10 @@
                         data-menu-id="{{ $menu_id }}">
                         <i class="fa fa-plus-circle mr-2"></i>Tambah Data
                     </button>
-                    <button class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black mr-1 text-sm font-medium rounded-md shadow transition">
+                    <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white mr-1 text-sm font-medium rounded-md shadow transition">
                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                     </button>
-                    <button class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-md shadow transition">
+                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white text-sm font-medium rounded-md shadow transition">
                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF only Usecase
                     </button>
                 </div>
@@ -66,13 +65,13 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <button class="block w-full text-left px-4 py-2 text-blue-600 hover:bg-gray-100 edit-usecase-index-btn"
+                                                        <button class="block w-full text-left px-4 py-2 text-yellow-500 hover:bg-gray-100 edit-usecase-btn"
                                                             data-id="{{ $useCase->id }}" data-menu-id="{{ $menu_id }}">
                                                             <i class="fas fa-edit mr-2"></i> Edit
                                                         </button>
                                                     </li>
                                                     <li>
-                                                        <button class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 delete-usecase-index-btn"
+                                                        <button class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 delete-usecase-btn"
                                                             data-id="{{ $useCase->id }}" data-nama="{{ $useCase->nama_proses }}">
                                                             <i class="fas fa-trash-alt mr-2"></i> Hapus
                                                         </button>

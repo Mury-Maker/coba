@@ -313,6 +313,14 @@ export function initReportDataManager() {
         selectedImageFilesMap.clear();
         selectedDocumentFilesMap.clear();
     }
+    
+    // Menambahkan event listener untuk menutup modal saat klik di luar form
+    domUtils.addEventListener(document, 'click', (e) => {
+        // Memeriksa apakah target klik berada di luar modal, tapi masih di dalam 'overlay' modal
+        if (e.target === reportDataModal) {
+            closeReportDataModal();
+        }
+    });
 
     domUtils.addEventListener(cancelReportDataFormBtn, 'click', closeReportDataModal);
     if (addReportDataBtn) {
@@ -326,7 +334,7 @@ export function initReportDataManager() {
 
             if (editBtn) {
                 const reportId = parseInt(editBtn.dataset.id);
-                const report = (window.APP_BLADE_DATA.singleUseCase?.report_data || []).find(item => item.id_report === reportId);
+                const report = (window.APP_BLADE_DATA.singleUseCase?.reportData || []).find(item => item.id_report === reportId);
                 if (report) {
                     openReportDataModal('edit', report);
                 } else {
@@ -342,6 +350,7 @@ export function initReportDataManager() {
                         notificationManager.showCentralSuccessPopup(data.success);
                         window.location.reload();
                     } catch (error) {
+                        console.error('API request GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
@@ -385,6 +394,9 @@ export function initReportDataManager() {
                 method: 'POST',
                 body: formData,
             };
+            if (method === 'PUT') {
+                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
+            }
 
             const data = await apiClient.fetchAPI(url, options);
 
