@@ -61,10 +61,7 @@ export function initUseCaseFormHandler() {
     }
 
     domUtils.addEventListener(cancelUseCaseFormBtn, 'click', closeUseCaseModal);
-
-    // Menambahkan event listener untuk menutup modal saat klik di luar form
     domUtils.addEventListener(document, 'click', (e) => {
-        // Memeriksa apakah yang diklik adalah modal itu sendiri, bukan konten di dalamnya
         if (e.target === useCaseModal) {
             closeUseCaseModal();
         }
@@ -82,8 +79,6 @@ export function initUseCaseFormHandler() {
 
         const formData = new FormData(useCaseForm);
 
-        console.log('Sending API request:', url, 'Method:', httpMethod, 'Data:', Object.fromEntries(formData));
-
         try {
             const options = {
                 method: httpMethod,
@@ -94,31 +89,58 @@ export function initUseCaseFormHandler() {
             }
 
             const data = await apiClient.fetchAPI(url, options);
-
-            console.log('API request berhasil. Respons:', data);
             notificationManager.hideNotification(loadingNotif);
             notificationManager.showCentralSuccessPopup(data.success);
             closeUseCaseModal();
-
-            const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug || 'epesantren';
-            const currentPageSlug = window.APP_BLADE_DATA.currentPage || 'beranda-epesantren';
-
-            let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}`;
-
-            if (data.use_case_slug) {
-                redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}/${data.use_case_slug}`;
-            }
-
-            console.log('Redirecting to:', redirectUrl);
-            window.location.href = redirectUrl;
+            window.location.reload();
 
         } catch (error) {
             console.error('API request GAGAL:', error);
             notificationManager.hideNotification(loadingNotif);
+            notificationManager.showNotification('Gagal menyimpan tindakan.', 'error');
         }
     });
 
+    // Menangani tombol edit di halaman list (.edit-usecase-btn)
+    const useCaseListTableBody = domUtils.getElement('useCaseListTableBody');
+    if (useCaseListTableBody) {
+        domUtils.addEventListener(useCaseListTableBody, 'click', (e) => {
+            const editBtn = e.target.closest('.edit-usecase-btn');
+            if (editBtn) {
+                const useCaseId = parseInt(editBtn.dataset.id);
+                const useCase = window.APP_BLADE_DATA.useCases.find(uc => uc.id === useCaseId);
+                if (useCase) {
+                    window.openUseCaseModal('edit', useCase);
+                } else {
+                    notificationManager.showNotification('Data tindakan tidak ditemukan.', 'error');
+                }
+            }
+        });
+    }
+
+    // Kode untuk tombol edit di halaman detail (#editSingleUseCaseBtn) sudah dihapus.
+
+    // Event listener untuk tombol Add dan Hapus
     domUtils.addEventListener(document, 'click', (e) => {
+        const deleteBtn = e.target.closest('.delete-usecase-btn');
+        if (deleteBtn) {
+            const useCaseId = parseInt(deleteBtn.dataset.id);
+            const useCaseNama = deleteBtn.dataset.nama;
+            window.openCommonConfirmModal(`Yakin ingin menghapus tindakan "${useCaseNama}"? Semua data UAT, Report, dan Database terkait akan ikut terhapus. Tindakan ini tidak dapat dibatalkan!`, async () => {
+                const loadingNotif = notificationManager.showNotification('Menghapus tindakan...', 'loading');
+                try {
+                    const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.USECASE.DESTROY}/${useCaseId}`, { method: 'DELETE' });
+                    notificationManager.hideNotification(loadingNotif);
+                    notificationManager.showCentralSuccessPopup(data.success);
+                    window.location.reload();
+                } catch (error) {
+                    notificationManager.hideNotification(loadingNotif);
+                    notificationManager.showNotification('Gagal menghapus tindakan.', 'error');
+                }
+            });
+            return;
+        }
+
         const addUseCaseBtn = e.target.closest('#addUseCaseBtn');
         if (addUseCaseBtn) {
             console.log('Add Use Case button clicked.');
