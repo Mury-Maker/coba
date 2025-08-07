@@ -164,8 +164,12 @@ class DocumentationController extends Controller
 
         // Uji Coba fitur ekstrak sql
         $sqlFile = DocSqlFile::where('navmenu_id', $selectedNavItem->menu_id)->first();
-        $fullPath = Storage::disk('public')->path('sql_files/' . $sqlFile->file_name);
-        $sqlPath = $fullPath;
+
+        if ($sqlFile){
+            $fullPath = Storage::disk('public')->path('sql_files/' . $sqlFile->file_name);
+        }
+
+        $sqlPath = $fullPath ?? 'Tidak ada FileSql';
 
         $sentence = $selectedNavItem->menu_link;
         $word = "daftar-tabel";
