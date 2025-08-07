@@ -34,6 +34,11 @@ Route::get('/docs/{category}/{page}/{useCaseSlug}/uat/{uatId}', [DocumentationCo
 Route::get('/docs/{category}/{page}/{useCaseSlug}/report/{reportId}', [DocumentationController::class, 'showReportDetailPage'])->name('docs.use_case_report_detail_page');
 Route::get('/docs/{category}/{page}/{useCaseSlug}/database/{databaseId}', [DocumentationController::class, 'showDatabaseDetailPage'])->name('docs.use_case_database_detail_page');
 
+// Form Import File Sql
+Route::post('/sql-upload', [DocumentationController::class, 'uploadSQL'])->name('sql.upload');
+Route::post('/sql-parse/{navmenuId}', [DocumentationController::class, 'parse'])->name('sql.parse');
+Route::delete('/sql/delete/{navmenuId}', [DocumentationController::class, 'destroySQl'])->name('sql.delete');
+
 // --- Rute API (Sekarang di web.php) ---
 // Autentikasi & Otorisasi akan ditangani di dalam Controller methods masing-masing.
 // Tidak ada middleware 'api' atau 'auth:sanctum' di sini, hanya middleware 'web' default.

@@ -2,7 +2,7 @@
 
 <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
     <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="judul-halaman">
+                <div class="judul-halaman">
                     <h1 id="main-content-title"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
                     @yield('action-buttons')
                 </div>

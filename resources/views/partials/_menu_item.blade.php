@@ -85,6 +85,7 @@
                                 <i class="fa-solid fa-plus-circle"></i>
                             </button>
                         @endif
+                        @if (str_contains($item->menu_link, 'daftar-tabel') != true )
                         <button
                             data-action="edit-menu"
                             data-menu-id="{{ $item->menu_id }}"
@@ -102,6 +103,7 @@
                             aria-label="Hapus Menu {{ $item->menu_nama }}">
                             <i class="fas fa-trash-alt"></i>
                         </button>
+                        @endif
                     </div>
                 @endif
 

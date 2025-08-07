@@ -188,6 +188,8 @@
                     @include('documentation.use_case_list')
                 @elseif(isset($contentView) && $contentView === 'documentation.use_case_detail')
                     @include('documentation.use_case_detail')
+                @elseif(isset($contentView) && $contentView === 'documentation.tables_list')
+                    @include('documentation.tables_list')
                 @elseif(isset($contentView) && $contentView === 'documentation.homepage')
                     @include('documentation.homepage')
                 @elseif(isset($contentView) && $contentView === 'documentation.uat_entry_detail')

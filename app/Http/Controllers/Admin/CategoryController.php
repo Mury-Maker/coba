@@ -55,6 +55,17 @@ class CategoryController extends Controller
                     'menu_status' => 1,
                 ]);
 
+                NavMenu::create([
+                    'category_id' => $category->id,
+                    'menu_nama' => 'Daftar Tabel ' . Str::headline($category->name),
+                    'menu_link' => Str::slug('Daftar Tabel ' . $category->name),
+                    'menu_icon' => 'fa-solid fa-table',
+                    'menu_child' => 0,
+                    'menu_order' => 1,
+                    'menu_status' => 1,
+                ]);
+
+
                 UseCase::create([
                     'menu_id' => $homeMenu->menu_id,
                     'nama_proses' => 'Informasi Umum',

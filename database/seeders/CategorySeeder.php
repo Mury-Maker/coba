@@ -124,7 +124,8 @@ class CategorySeeder extends Seeder
                     'Manajemen Pengguna',
                     'Logs Transaksi'
                 ]
-            ]
+            ],
+            'Daftar Tabel Epesantren' => ['icon' => 'fa-solid fa-table', 'children' => []],
         ];
 
         $this->seedMenus($epesantrenCategory->id, $menus);

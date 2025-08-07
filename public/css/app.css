@@ -3,8 +3,33 @@
 /* --- Umum --- */
 body {
     font-family: 'Inter', sans-serif;
+    
 }
 
+body::-webkit-scrollbar {
+    display: none;
+}
+
+#docs-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+#myDiagramDiv::-webkit-scrollbar{
+    display: none;
+}
+
+.erd::-webkit-scrollbar{
+    display: none;
+}
+
+div::-webkit-scrollbar{
+    display: none;
+}
+
+
+
+
+}
 /* --- Gaya Prosa (CKEditor) --- */
 .prose h1 {
     font-size: 1.875rem;
@@ -327,6 +352,11 @@ body {
 }
 
 /* --- Dropdown Header & Sidebar --- */
+
+#docs-sidebar{
+    padding: 0 18px;
+}
+
 .submenu-container {
     max-height: 0;
     overflow: hidden;
@@ -394,9 +424,13 @@ body {
     justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
-
+    padding: 10px;
     flex-direction: row; /* Default: Horizontal layout for open sidebar */
     gap: 12px;
+    border-bottom:3px solid rgb(196, 196, 196) ;
+    margin-top:0;
+    margin-bottom: 38px;
+
 }
 #main-category-title {
     display: inline-flex;
@@ -439,6 +473,7 @@ body {
     border: 1px solid #e5e7eb;
     padding: 4px 0;
 }
+
 .header-dropdown-menu.open {
     display: block;
 }
@@ -758,3 +793,9 @@ aside {
         margin: unset !important;
     }
 }
+
+
+#myDiagramDiv{
+    background-color: white;
+}
+

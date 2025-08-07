@@ -39,10 +39,11 @@
                                 </a>
                                 @if ($userRole === 'admin')
                                     <div class="flex-shrink-0 flex items-center space-x-1 pr-2">
+                                        @if($slug !== 'epesantren')
                                         <button type="button" data-action="edit-category" data-slug="{{ $slug }}" data-name="{{ $name }}" title="Edit Kategori" class="text-yellow-500 hover:text-yellow-700 p-1">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        @if($slug !== 'epesantren')
+
                                             <button type="button" data-action="delete-category" data-slug="{{ $slug }}" data-name="{{ $name }}" title="Hapus Kategori" class="text-red-500 hover:text-red-700 p-1">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
