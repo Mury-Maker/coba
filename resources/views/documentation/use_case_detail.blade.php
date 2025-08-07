@@ -1,14 +1,5 @@
 @section('action-buttons')
-    {{-- Tombol Edit Detail Aksi (di kanan judul halaman) --}}
-    @auth
-        @if(auth()->user()->role === 'admin')
-            <button id="editSingleUseCaseBtn"
-                class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm transition"
-                data-usecase-id="{{ $singleUseCase->id }}">
-                <i class="fa-solid fa-file-pen mr-2"></i> Edit Detail Aksi
-            </button>
-        @endif
-    @endauth
+
 @endsection
 
     @php
@@ -19,8 +10,21 @@
     <div class="bg-white p-6 rounded-lg shadow-md">
         <div id="use-case-content-area">
             {{-- Bagian Detail Aksi --}}
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Detail UseCase</h2>
-
+            {{-- Gabungkan judul dan tombol edit dalam satu div flex --}}
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">Detail UseCase</h2>
+                {{-- Tombol Edit Detail Aksi (di kanan judul halaman) --}}
+                @auth
+                    @if(auth()->user()->role === 'admin')
+                        <button id="editSingleUseCaseBtn"
+                            class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-600 text-black text-sm font-medium rounded-md shadow-sm transition"
+                            data-usecase-id="{{ $singleUseCase->id }}">
+                            <i class="fas fa-edit mr-2"></i> Edit Detail Aksi
+                        </button>
+                    @endif
+                @endauth
+            </div>
+            
             {{-- Struktur Tabel untuk Detail Aksi --}}
             <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
                 <table class="min-w-full bg-white divide-y divide-gray-200">
@@ -77,12 +81,13 @@
                 </table>
             </div>
 
-            {{-- Tombol Print / Cetak (di bawah Detail Aksi) --}}
             <div class="flex justify-start items-center gap-3 mt-4 mb-8">
-                <button class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-medium rounded-md shadow transition">
+                {{-- Tombol pertama: Abu-abu --}}
+                <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                     <i class="fas fa-print mr-2"></i> Only Data Usecase
                 </button>
-                <button class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
+                {{-- Tombol kedua: Ungu --}}
+                <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow transition">
                     <i class="fas fa-print mr-2"></i> Semua Data (All table)
                 </button>
             </div>
@@ -101,7 +106,7 @@
                                     <button id="addReportDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
-                                    <button class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-medium rounded-md shadow transition">
+                                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
                                 </div>
@@ -182,7 +187,7 @@
                                     <button id="addDatabaseDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
-                                    <button class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-medium rounded-md shadow transition">
+                                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
                                 </div>
@@ -261,7 +266,7 @@
                                     <button id="addUatDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fa fa-plus-circle mr-2"></i>Tambah
                                     </button>
-                                    <button class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-medium rounded-md shadow transition">
+                                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
                                 </div>
@@ -344,4 +349,3 @@
             @endif
         </div>
     </div>
-

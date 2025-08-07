@@ -282,7 +282,7 @@ export function initUatDataManager() {
             if (uatData.documents && Array.isArray(uatData.documents) && uatData.documents.length > 0) {
                 documentPreviewContainer.innerHTML = '';
                 uatData.documents.forEach(document => {
-                    createExistingDocumentPreviewElement(document, documentPreviewContainer);
+                    documentPreviewContainer.appendChild(createExistingDocumentPreviewElement(document));
                 });
             } else {
                 documentPreviewContainer.innerHTML = '<span class="text-gray-500 text-sm">Tidak ada dokumen yang diunggah.</span>';
@@ -290,7 +290,7 @@ export function initUatDataManager() {
             if (uatData.images && Array.isArray(uatData.images) && uatData.images.length > 0) {
                 imagePreviewContainer.innerHTML = '';
                 uatData.images.forEach(image => {
-                    createExistingImagePreviewElement(image, imagePreviewContainer);
+                    imagePreviewContainer.appendChild(createExistingImagePreviewElement(image));
                 });
             } else {
                 imagePreviewContainer.innerHTML = '<span class="text-gray-500 text-sm">Tidak ada gambar yang diunggah.</span>';
@@ -308,6 +308,14 @@ export function initUatDataManager() {
         selectedUatDocumentFilesMap.clear();
     }
 
+    // Menambahkan event listener untuk menutup modal saat klik di luar form
+    domUtils.addEventListener(document, 'click', (e) => {
+        // Memeriksa apakah target klik berada di luar modal, tapi masih di dalam 'overlay' modal
+        if (e.target === uatDataModal) {
+            closeUatDataModal();
+        }
+    });
+
     domUtils.addEventListener(cancelUatDataFormBtn, 'click', closeUatDataModal);
     if (addUatDataBtn) {
         domUtils.addEventListener(addUatDataBtn, 'click', () => {
@@ -322,7 +330,7 @@ export function initUatDataManager() {
 
             if (editBtn) {
                 const uatId = parseInt(editBtn.dataset.id);
-                const uat = (window.APP_BLADE_DATA.singleUseCase?.uat_data || []).find(item => item.id_uat === uatId);
+                const uat = (window.APP_BLADE_DATA.singleUseCase?.uatData || []).find(item => item.id_uat === uatId);
                 if (uat) {
                     openUatDataModal('edit', uat);
                 } else {
@@ -338,6 +346,7 @@ export function initUatDataManager() {
                         notificationManager.showCentralSuccessPopup(data.success);
                         window.location.reload();
                     } catch (error) {
+                        console.error('API request GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
@@ -382,6 +391,9 @@ export function initUatDataManager() {
                 method: 'POST',
                 body: formData,
             };
+            if (method === 'PUT') {
+                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
+            }
 
             const data = await apiClient.fetchAPI(url, options);
 
@@ -394,4 +406,7 @@ export function initUatDataManager() {
             notificationManager.hideNotification(loadingNotif);
         }
     });
+
+    // Tambahan untuk memastikan fungsi ini bisa diakses secara global jika diperlukan
+    // window.openUatDataModal = openUatDataModal;
 }

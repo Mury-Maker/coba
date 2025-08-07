@@ -43,8 +43,6 @@ export function initUseCaseDetailDisplay() {
     // Handle Edit Use Case dari halaman detail (use_case_detail.blade.php)
     if (editSingleUseCaseBtn) {
         domUtils.addEventListener(editSingleUseCaseBtn, 'click', () => {
-            // PERBAIKAN: Pastikan data yang dikirim sudah lengkap dengan relasi yang dimuat dari backend.
-            // Data `window.APP_BLADE_DATA.singleUseCase` seharusnya sudah dimuat relasinya di controller.
             const singleUseCaseData = window.APP_BLADE_DATA.singleUseCase;
             if (singleUseCaseData && singleUseCaseData.id) {
                 window.openUseCaseModal('edit', singleUseCaseData);

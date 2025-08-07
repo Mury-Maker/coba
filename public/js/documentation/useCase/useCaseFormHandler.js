@@ -28,8 +28,8 @@ export function initUseCaseFormHandler() {
             useCaseModalTitle.textContent = 'Tambah Tindakan Baru';
             useCaseFormMethod.value = 'POST';
             useCaseFormUseCaseId.value = '';
-            domUtils.getElement('form_nama_proses').value = ''; // Pastikan ini juga direset
-            domUtils.getElement('form_aktor').value = ''; // Pastikan ini juga direset
+            domUtils.getElement('form_nama_proses').value = '';
+            domUtils.getElement('form_aktor').value = '';
             domUtils.getElement('form_deskripsi_aksi').value = '';
             domUtils.getElement('form_tujuan').value = '';
             domUtils.getElement('form_kondisi_awal').value = '';
@@ -41,7 +41,6 @@ export function initUseCaseFormHandler() {
             useCaseFormMethod.value = 'PUT';
             useCaseFormUseCaseId.value = useCase.id;
 
-            // PERBAIKAN: Gunakan operator '|| '' untuk memastikan nilai tidak null
             domUtils.getElement('form_nama_proses').value = useCase.nama_proses || '';
             domUtils.getElement('form_aktor').value = useCase.aktor || '';
             domUtils.getElement('form_deskripsi_aksi').value = useCase.deskripsi_aksi || '';
@@ -62,6 +61,14 @@ export function initUseCaseFormHandler() {
     }
 
     domUtils.addEventListener(cancelUseCaseFormBtn, 'click', closeUseCaseModal);
+
+    // Menambahkan event listener untuk menutup modal saat klik di luar form
+    domUtils.addEventListener(document, 'click', (e) => {
+        // Memeriksa apakah yang diklik adalah modal itu sendiri, bukan konten di dalamnya
+        if (e.target === useCaseModal) {
+            closeUseCaseModal();
+        }
+    });
 
     domUtils.addEventListener(useCaseForm, 'submit', async (e) => {
         e.preventDefault();
@@ -98,7 +105,6 @@ export function initUseCaseFormHandler() {
 
             let redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}`;
 
-            // Redirect ke halaman detail use case yang baru dibuat/diedit jika slug tersedia
             if (data.use_case_slug) {
                 redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}/${data.use_case_slug}`;
             }
