@@ -1,7 +1,8 @@
 {{-- resources/views/documentation/use_case_list.blade.php --}}
-<h1 id="main-content-title" class="text-2xl font-bold"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
+<h1 id="main-content-title" class="text-3xl font-bold mb-2"> {!! ucfirst(Str::headline($currentPage)) !!}</h1>
 <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
-    <div class="bg-white rounded-lg shadow-md p-6">
+    {{-- Tambahkan border-t-4 dan border-blue-500 di sini --}}
+    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-gray-200">
         <div class="judul-halaman">
             @yield('action-buttons')
         </div>
@@ -15,11 +16,11 @@
                         data-menu-id="{{ $menu_id }}">
                         <i class="fa fa-plus-circle mr-2"></i>Tambah Data
                     </button>
-                    <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white mr-1 text-sm font-medium rounded-md shadow transition">
-                        <i class="fas fa-print mr-2"></i> Print / Cetak PDF
-                    </button>
                     <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white text-sm font-medium rounded-md shadow transition">
                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF only Usecase
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white mr-1 text-sm font-medium rounded-md shadow transition">
+                        <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                     </button>
                 </div>
             @endif
@@ -89,7 +90,7 @@
                                         </a>
                                     @endif
                                 @endauth
-                            </td>                                                                                                                         
+                            </td>
                         </tr>
                     @empty
                         <tr>

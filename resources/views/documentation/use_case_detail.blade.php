@@ -7,7 +7,7 @@
     @endphp
 
     {{-- Container utama untuk konten detail aksi dan report --}}
-    <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-gray-200">
         <div id="use-case-content-area">
             {{-- Bagian Detail Aksi --}}
             {{-- Gabungkan judul dan tombol edit dalam satu div flex --}}

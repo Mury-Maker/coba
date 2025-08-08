@@ -119,6 +119,39 @@ export function initReportDataManager() {
     const combinedFileInput = domUtils.getElement('combinedFileInput');
     const imagePreviewContainer = domUtils.getElement('imagePreviewContainer');
     const documentPreviewContainer = domUtils.getElement('documentPreviewContainer');
+    
+    // START: Drag and Drop Logic
+    // Fungsi untuk mencegah perilaku default
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Fungsi untuk menambahkan kelas highlight dan mengubah warna latar belakang
+    function highlight() {
+        dropArea.classList.add('bg-blue-100', 'border-blue-500'); // Tambahkan kelas untuk warna latar belakang dan border
+    }
+
+    // Fungsi untuk menghapus kelas highlight dan mengembalikan warna latar belakang
+    function unhighlight() {
+        dropArea.classList.remove('bg-blue-100', 'border-blue-500'); // Hapus kelas untuk mengembalikan warna
+    }
+
+    // Mencegah perilaku default browser pada area drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Menambahkan kelas 'drag-over' saat file masuk ke area drop
+    ['dragenter', 'dragover'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, highlight, false);
+    });
+
+    // Menghapus kelas 'drag-over' saat file keluar dari area drop
+    ['dragleave', 'drop'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, unhighlight, false);
+    });
+    // END: Drag and Drop Logic
 
     function handleFileSelection(files) {
         let totalImageUpload = 0;
@@ -215,18 +248,7 @@ export function initReportDataManager() {
         }
     });
 
-    domUtils.addEventListener(dropArea, 'dragover', (e) => {
-        e.preventDefault();
-        dropArea.classList.add('border-blue-500');
-    });
-
-    domUtils.addEventListener(dropArea, 'dragleave', () => {
-        dropArea.classList.remove('border-blue-500');
-    });
-
     domUtils.addEventListener(dropArea, 'drop', (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('border-blue-500');
         const files = e.dataTransfer.files;
         handleFileSelection(files);
     });
@@ -313,7 +335,7 @@ export function initReportDataManager() {
         selectedImageFilesMap.clear();
         selectedDocumentFilesMap.clear();
     }
-    
+
     // Menambahkan event listener untuk menutup modal saat klik di luar form
     domUtils.addEventListener(document, 'click', (e) => {
         // Memeriksa apakah target klik berada di luar modal, tapi masih di dalam 'overlay' modal
@@ -334,7 +356,7 @@ export function initReportDataManager() {
 
             if (editBtn) {
                 const reportId = parseInt(editBtn.dataset.id);
-                const report = (window.APP_BLADE_DATA.singleUseCase?.reportData || []).find(item => item.id_report === reportId);
+                const report = (window.APP_BLADE_DATA.singleUseCase?.report_data || []).find(item => item.id_report === reportId);
                 if (report) {
                     openReportDataModal('edit', report);
                 } else {
@@ -350,7 +372,6 @@ export function initReportDataManager() {
                         notificationManager.showCentralSuccessPopup(data.success);
                         window.location.reload();
                     } catch (error) {
-                        console.error('API request GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
@@ -394,9 +415,6 @@ export function initReportDataManager() {
                 method: 'POST',
                 body: formData,
             };
-            if (method === 'PUT') {
-                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
-            }
 
             const data = await apiClient.fetchAPI(url, options);
 

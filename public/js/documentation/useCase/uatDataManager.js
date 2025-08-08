@@ -118,11 +118,58 @@ export function initUatDataManager() {
     const fileInputBtn = domUtils.getElement('uatFileInputBtn');
     const combinedFileInput = domUtils.getElement('uatCombinedFileInput');
     const imagePreviewContainer = domUtils.getElement('uatImagePreviewContainer');
-    const documentPreviewContainer = domUtils.getElement('uatDocumentPreviewContainer'); // Tambah kontainer dokumen
+    const documentPreviewContainer = domUtils.getElement('uatDocumentPreviewContainer');
+
+    // START: Drag and Drop Logic
+    // Fungsi untuk mencegah perilaku default
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Fungsi untuk menambahkan kelas highlight
+    function highlight() {
+        dropArea.classList.add('drag-over');
+    }
+
+    // Fungsi untuk menghapus kelas highlight
+    function unhighlight() {
+        dropArea.classList.remove('drag-over');
+    }
+
+    // Mencegah perilaku default browser pada area drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Menambahkan kelas 'drag-over' saat file masuk ke area drop
+    ['dragenter', 'dragover'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, highlight, false);
+    });
+
+    // Menghapus kelas 'drag-over' saat file keluar dari area drop
+    ['dragleave', 'drop'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, unhighlight, false);
+    });
+    // END: Drag and Drop Logic
 
     function handleFileSelection(files) {
-        if (files.length > MAX_IMAGES_PER_SESSION) {
-            notificationManager.showNotification(`Maksimal ${MAX_IMAGES_PER_SESSION} file per sesi upload.`, 'error');
+        let totalImageUpload = 0;
+        let totalDocumentUpload = 0;
+
+        Array.from(files).forEach(file => {
+            const isImage = file.type.startsWith('image/');
+            const isDocument = file.type.includes('pdf') || file.type.includes('msword') || file.type.includes('wordprocessingml') || file.type.includes('excel') || file.type.includes('spreadsheetml');
+
+            if (isImage) {
+                totalImageUpload++;
+            } else if (isDocument) {
+                totalDocumentUpload++;
+            }
+        });
+
+        if (totalImageUpload > MAX_IMAGES_PER_SESSION || totalDocumentUpload > MAX_DOCUMENTS_PER_SESSION) {
+            notificationManager.showNotification(`Maksimal ${MAX_IMAGES_PER_SESSION} gambar dan ${MAX_DOCUMENTS_PER_SESSION} dokumen per sesi upload.`, 'error');
             return;
         }
 
@@ -152,8 +199,8 @@ export function initUatDataManager() {
                 if (noImageSpan && noImageSpan.textContent.includes('Tidak ada gambar')) {
                     noImageSpan.remove();
                 }
-            } else if (isDocument) { // Tambah logika dokumen
-                 const existingDocumentsCount = documentPreviewContainer.querySelectorAll('.existing-file-preview').length;
+            } else if (isDocument) {
+                const existingDocumentsCount = documentPreviewContainer.querySelectorAll('.existing-file-preview').length;
                 const newDocumentsCount = selectedUatDocumentFilesMap.size;
                 if (existingDocumentsCount + newDocumentsCount >= MAX_DOCUMENTS_PER_SESSION) {
                     notificationManager.showNotification(`Maksimal ${MAX_DOCUMENTS_PER_SESSION} file dokumen yang bisa diunggah.`, 'error');
@@ -213,18 +260,7 @@ export function initUatDataManager() {
         }
     });
 
-    domUtils.addEventListener(dropArea, 'dragover', (e) => {
-        e.preventDefault();
-        dropArea.classList.add('border-blue-500');
-    });
-
-    domUtils.addEventListener(dropArea, 'dragleave', () => {
-        dropArea.classList.remove('border-blue-500');
-    });
-
     domUtils.addEventListener(dropArea, 'drop', (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('border-blue-500');
         const files = e.dataTransfer.files;
         handleFileSelection(files);
     });
@@ -330,7 +366,7 @@ export function initUatDataManager() {
 
             if (editBtn) {
                 const uatId = parseInt(editBtn.dataset.id);
-                const uat = (window.APP_BLADE_DATA.singleUseCase?.uatData || []).find(item => item.id_uat === uatId);
+                const uat = (window.APP_BLADE_DATA.singleUseCase?.uat_data || []).find(item => item.id_uat === uatId);
                 if (uat) {
                     openUatDataModal('edit', uat);
                 } else {
@@ -346,7 +382,6 @@ export function initUatDataManager() {
                         notificationManager.showCentralSuccessPopup(data.success);
                         window.location.reload();
                     } catch (error) {
-                        console.error('API request GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
@@ -391,9 +426,6 @@ export function initUatDataManager() {
                 method: 'POST',
                 body: formData,
             };
-            if (method === 'PUT') {
-                options.headers = { 'X-HTTP-Method-Override': 'PUT' };
-            }
 
             const data = await apiClient.fetchAPI(url, options);
 
@@ -406,7 +438,4 @@ export function initUatDataManager() {
             notificationManager.hideNotification(loadingNotif);
         }
     });
-
-    // Tambahan untuk memastikan fungsi ini bisa diakses secara global jika diperlukan
-    // window.openUatDataModal = openUatDataModal;
 }

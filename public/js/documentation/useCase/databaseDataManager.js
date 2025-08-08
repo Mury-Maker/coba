@@ -117,11 +117,58 @@ export function initDatabaseDataManager() {
     const fileInputBtn = domUtils.getElement('databaseFileInputBtn');
     const combinedFileInput = domUtils.getElement('databaseCombinedFileInput');
     const imagePreviewContainer = domUtils.getElement('databaseImagePreviewContainer');
-    const documentPreviewContainer = domUtils.getElement('databaseDocumentPreviewContainer'); // Tambah kontainer dokumen
+    const documentPreviewContainer = domUtils.getElement('databaseDocumentPreviewContainer');
+
+    // START: Drag and Drop Logic
+    // Mencegah perilaku default browser pada area drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Menambahkan kelas 'drag-over' saat file masuk ke area drop
+    ['dragenter', 'dragover'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, highlight, false);
+    });
+
+    // Menghapus kelas 'drag-over' saat file keluar dari area drop
+    ['dragleave', 'drop'].forEach(eventName => {
+        domUtils.addEventListener(dropArea, eventName, unhighlight, false);
+    });
+    
+    // Fungsi untuk mencegah perilaku default
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Fungsi untuk menambahkan kelas highlight
+    function highlight() {
+        dropArea.classList.add('drag-over');
+    }
+
+    // Fungsi untuk menghapus kelas highlight
+    function unhighlight() {
+        dropArea.classList.remove('drag-over');
+    }
+    // END: Drag and Drop Logic
 
     function handleFileSelection(files) {
-        if (files.length > MAX_IMAGES_PER_SESSION) {
-            notificationManager.showNotification(`Maksimal ${MAX_IMAGES_PER_SESSION} file gambar per sesi upload.`, 'error');
+        let totalImageUpload = 0;
+        let totalDocumentUpload = 0;
+
+        Array.from(files).forEach(file => {
+            const isImage = file.type.startsWith('image/');
+            const isDocument = file.type.includes('pdf') || file.type.includes('msword') || file.type.includes('wordprocessingml') || file.type.includes('excel') || file.type.includes('spreadsheetml');
+
+            if (isImage) {
+                totalImageUpload++;
+            } else if (isDocument) {
+                totalDocumentUpload++;
+            }
+        });
+
+        if (totalImageUpload > MAX_IMAGES_PER_SESSION || totalDocumentUpload > MAX_DOCUMENTS_PER_SESSION) {
+            notificationManager.showNotification(`Maksimal ${MAX_IMAGES_PER_SESSION} gambar dan ${MAX_DOCUMENTS_PER_SESSION} dokumen per sesi upload.`, 'error');
             return;
         }
 
@@ -151,8 +198,8 @@ export function initDatabaseDataManager() {
                 if (noImageSpan && noImageSpan.textContent.includes('Tidak ada gambar')) {
                     noImageSpan.remove();
                 }
-            } else if (isDocument) { // Tambah logika dokumen
-                 const existingDocumentsCount = documentPreviewContainer.querySelectorAll('.existing-file-preview').length;
+            } else if (isDocument) {
+                const existingDocumentsCount = documentPreviewContainer.querySelectorAll('.existing-file-preview').length;
                 const newDocumentsCount = selectedDatabaseDocumentFilesMap.size;
                 if (existingDocumentsCount + newDocumentsCount >= MAX_DOCUMENTS_PER_SESSION) {
                     notificationManager.showNotification(`Maksimal ${MAX_DOCUMENTS_PER_SESSION} file dokumen yang bisa diunggah.`, 'error');
@@ -211,18 +258,7 @@ export function initDatabaseDataManager() {
         }
     });
 
-    domUtils.addEventListener(dropArea, 'dragover', (e) => {
-        e.preventDefault();
-        dropArea.classList.add('border-blue-500');
-    });
-
-    domUtils.addEventListener(dropArea, 'dragleave', () => {
-        dropArea.classList.remove('border-blue-500');
-    });
-
     domUtils.addEventListener(dropArea, 'drop', (e) => {
-        e.preventDefault();
-        dropArea.classList.remove('border-blue-500');
         const files = e.dataTransfer.files;
         handleFileSelection(files);
     });
@@ -245,9 +281,9 @@ export function initDatabaseDataManager() {
 
         databaseDataForm.reset();
         imagePreviewContainer.innerHTML = '';
-        documentPreviewContainer.innerHTML = ''; // Reset kontainer dokumen
+        documentPreviewContainer.innerHTML = '';
         selectedDatabaseImageFilesMap.clear();
-        selectedDatabaseDocumentFilesMap.clear(); // Clear map dokumen
+        selectedDatabaseDocumentFilesMap.clear();
 
         const useCaseId = window.APP_BLADE_DATA.singleUseCase ? window.APP_BLADE_DATA.singleUseCase.id : null;
         if (!useCaseId) {
