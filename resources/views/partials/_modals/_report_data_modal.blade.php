@@ -31,7 +31,7 @@
                 <div class="mt-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Unggah File (Gambar & Dokumen):</label>
                     {{-- Tambahkan kelas bg-gray-100 sebagai warna default yang lebih terang --}}
-                    <div class="border-2 border-dashed border-gray-400 p-6 rounded-lg text-center transition-colors bg-gray-100" id="dropArea">
+                    <div class="border-2 border-dashed border-gray-400 p-6 rounded-lg text-center transition-colors bg-white-100" id="dropArea">
                         <p class="text-gray-600 mb-2">Seret & lepas file di sini atau <button type="button" class="text-blue-600 hover:underline" id="fileInputBtn">pilih file</button></p>
                         <p class="text-xs text-gray-500">
                             Gambar (max 25 file, @ 5MB): JPG, PNG, GIF. <br>
@@ -72,40 +72,4 @@
         </div>
     </div>
 @endif
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropArea = document.getElementById('dropArea');
 
-        // Mencegah perilaku default browser
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        // Menambahkan kelas 'drag-over' saat file masuk ke area drop
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-
-        // Menghapus kelas 'drag-over' saat file keluar dari area drop
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        // Fungsi untuk mencegah perilaku default
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        // Fungsi untuk menambahkan kelas highlight
-        function highlight(e) {
-            dropArea.classList.add('drag-over');
-        }
-
-        // Fungsi untuk menghapus kelas highlight
-        function unhighlight(e) {
-            dropArea.classList.remove('drag-over');
-        }
-    });
-</script>
