@@ -83,9 +83,11 @@
 
             <div class="flex justify-start items-center gap-3 mt-4 mb-8">
                 {{-- Tombol pertama: Abu-abu --}}
-                <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
-                    <i class="fas fa-print mr-2"></i> Only Data Usecase
-                </button>
+                <a href="{{ route('usecase.cetak', $menu_id) }}" target="_blank">
+                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
+                        <i class="fas fa-print mr-2"></i> Cetak Usecase PDF
+                    </button>
+                </a>  
                 {{-- Tombol kedua: Ungu --}}
                 <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow transition">
                     <i class="fas fa-print mr-2"></i> Semua Data (All table)

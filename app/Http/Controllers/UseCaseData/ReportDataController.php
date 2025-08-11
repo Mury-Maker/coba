@@ -186,8 +186,24 @@ class ReportDataController extends Controller
 
     public function cetakPdf($usecase_id)
     {
-        $usecase = UseCase::with(['reportData', 'uatData', 'databaseData'])->findOrFail($usecase_id);
-        $pdf = Pdf::loadView('pdf.report', compact('usecase'));
+        $this->ensureAdminAccess(); // biar aman
+    
+        $usecase = UseCase::with([
+            'uatData.images',
+            'reportData.images',
+            'databaseData.images'
+        ])->findOrFail($usecase_id);
+    
+        // Pastikan setiap gambar punya path absolut yang bisa dibaca DomPDF
+        foreach ($usecase->reportData as $report) {
+            foreach ($report->images as $img) {
+                $img->full_path = public_path('storage/' . $img->path);
+            }
+        }
+    
+        $pdf = Pdf::loadView('pdf.report', compact('usecase'))
+                  ->setPaper('A4', 'portrait');
+    
         return $pdf->stream('Report.pdf');
     }
 }

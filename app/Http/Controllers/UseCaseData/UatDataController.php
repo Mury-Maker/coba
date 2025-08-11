@@ -188,13 +188,36 @@ class UatDataController extends Controller
 
     public function cetakPdf($usecase_id)
     {
+        $this->ensureAdminAccess(); // biar aman
+    
         $usecase = UseCase::with([
             'uatData.images',
             'reportData.images',
             'databaseData.images'
         ])->findOrFail($usecase_id);
     
-        $pdf = Pdf::loadView('pdf.uat', compact('usecase'));
+        // Pastikan setiap gambar punya path absolut yang bisa dibaca DomPDF
+        foreach ($usecase->uatData as $uat) {
+            foreach ($uat->images as $img) {
+                $img->full_path = public_path('storage/' . $img->path);
+            }
+        }
+    
+        foreach ($usecase->reportData as $report) {
+            foreach ($report->images as $img) {
+                $img->full_path = public_path('storage/' . $img->path);
+            }
+        }
+    
+        foreach ($usecase->databaseData as $db) {
+            foreach ($db->images as $img) {
+                $img->full_path = public_path('storage/' . $img->path);
+            }
+        }
+    
+        $pdf = Pdf::loadView('pdf.uat', compact('usecase'))
+                  ->setPaper('A4', 'portrait');
+    
         return $pdf->stream('UAT.pdf');
-    } 
+    }
 }
