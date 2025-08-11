@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportDataController extends Controller
 {
@@ -181,5 +182,12 @@ class ReportDataController extends Controller
             Log::error('Gagal menghapus data Report: ' . $e->getMessage());
             return response()->json(['message' => 'Gagal menghapus data Report.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function cetakPdf($usecase_id)
+    {
+        $usecase = UseCase::with(['reportData', 'uatData', 'databaseData'])->findOrFail($usecase_id);
+        $pdf = Pdf::loadView('pdf.report', compact('usecase'));
+        return $pdf->stream('Report.pdf');
     }
 }

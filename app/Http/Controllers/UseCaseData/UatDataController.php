@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UatDataController extends Controller
 {
@@ -184,4 +185,16 @@ class UatDataController extends Controller
             return response()->json(['message' => 'Gagal menghapus data UAT.', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function cetakPdf($usecase_id)
+    {
+        $usecase = UseCase::with([
+            'uatData.images',
+            'reportData.images',
+            'databaseData.images'
+        ])->findOrFail($usecase_id);
+    
+        $pdf = Pdf::loadView('pdf.uat', compact('usecase'));
+        return $pdf->stream('UAT.pdf');
+    } 
 }

@@ -80,3 +80,8 @@ Route::prefix('api/usecase')->group(function () {
     Route::put('/database/{databaseData}', [DatabaseDataController::class, 'update'])->name('api.usecase.database.update');
     Route::delete('/database/{databaseData}', [DatabaseDataController::class, 'destroy'])->name('api.usecase.database.destroy');
 });
+
+Route::get('/admin/usecase/cetak/{menu_id}', [UseCaseController::class, 'cetakPDF'])->name('usecase.cetak');
+Route::get('/uat/cetak/{usecase_id}', [UatDataController::class, 'cetakPdf'])->name('uat.cetak');
+Route::get('/report/cetak/{usecase_id}', [ReportDataController::class, 'cetakPdf'])->name('report.cetak');
+Route::get('/database/cetak/{usecase_id}', [DatabaseDataController::class, 'cetakPdf'])->name('database.cetak');

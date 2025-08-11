@@ -16,9 +16,11 @@
                         data-menu-id="{{ $menu_id }}">
                         <i class="fa fa-plus-circle mr-2"></i>Tambah Data
                     </button>
-                    <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-600 text-white text-sm font-medium rounded-md shadow transition">
-                        <i class="fas fa-print mr-2"></i> Print / Cetak PDF only Usecase
-                    </button>
+                    <a href="{{ route('usecase.cetak', $menu_id) }}" target="_blank">
+                        <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
+                            <i class="fas fa-print mr-2"></i> Cetak Usecase PDF
+                        </button>
+                    </a>  
                     <button class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white mr-1 text-sm font-medium rounded-md shadow transition">
                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                     </button>
