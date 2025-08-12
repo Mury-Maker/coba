@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>UAT Report</title>
+    <title>Data UAT</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 14px; margin: 20px; }
         h1 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
@@ -24,11 +24,13 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            padding: 5px;
+            padding-top: 25px; /* jarak dari garis */
+            padding-bottom: 25px;
         }
+
         .image-gallery img {
-            width: 150px; 
-            height: 150px;
+            max-width: 80%;
+            height: auto;
             object-fit: cover;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -39,7 +41,7 @@
 </head>
 <body>
 
-<h1>UAT Report: {{ $usecase->nama_proses ?? '-' }}</h1>
+<h1>UAT: {{ $usecase->nama_proses ?? '-' }}</h1>
 
 {{-- Bagian Tabel Utama --}}
 <h2>Data UAT</h2>
@@ -68,7 +70,8 @@
 @foreach($usecase->uatData as $uat)
     @if($uat->images->count() > 0)
         <div class="page-break"></div>
-        <h2>Lampiran Gambar - ID {{ $uat->id }} ({{ $uat->nama_proses_usecase ?? '-' }})</h2>
+        <h2>Lampiran Gambar - ID {{ $uat->id_uat }} ({{ $uat->nama_proses_usecase ?? '-' }})</h2>
+        
         <div class="image-gallery">
             @foreach($uat->images as $image)
                 @php

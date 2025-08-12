@@ -16,20 +16,26 @@
         <thead>
             <tr>
                 <th>Nama Proses</th>
+                <th>Deskripsi Aksi</th>
                 <th>Aktor</th>
                 <th>Tujuan</th>
                 <th>Kondisi Awal</th>
                 <th>Kondisi Akhir</th>
+                <th>Aksi Aktor</th>
+                <th>Reaksi Sistem</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($useCases as $uc)
                 <tr>
                     <td>{{ $uc->nama_proses }}</td>
+                    <td>{{ $uc->deskripsi_aksi }}</td>
                     <td>{{ $uc->aktor }}</td>
                     <td>{{ $uc->tujuan }}</td>
                     <td>{{ $uc->kondisi_awal }}</td>
                     <td>{{ $uc->kondisi_akhir }}</td>
+                    <td>{{ $uc->aksi_aktor }}</td>
+                    <td>{{ $uc->reaksi_sistem }}</td>
                 </tr>
             @endforeach
         </tbody>

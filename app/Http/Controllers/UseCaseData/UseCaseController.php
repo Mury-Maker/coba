@@ -127,4 +127,16 @@ class UseCaseController extends Controller
 
         return $pdf->stream('Usecase_' . Str::slug($menu->menu_nama) . '.pdf');
     }
+    
+    public function printSingle($id)
+    {
+        $singleUseCase = Usecase::findOrFail($id);
+
+        // Buat PDF
+        $pdf = Pdf::loadView('pdf.print-single-usecase', compact('singleUseCase'))
+                ->setPaper('A4', 'portrait');
+
+        // Tampilkan langsung di browser
+        return $pdf->stream('usecase-'.$singleUseCase->id.'.pdf');
+    }
 }

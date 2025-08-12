@@ -59,7 +59,15 @@
                     {{-- Ikon --}}
                     <div class="w-4 flex-shrink-0 text-center">
                         @if($item->menu_icon)
-                            <i class="{{ $item->menu_icon }}"></i>
+                            @php
+                                $iconFile = resource_path('svg/' . $item->menu_icon . '.svg');
+                            @endphp
+
+                            @if(file_exists($iconFile))
+                                {!! file_get_contents($iconFile) !!}
+                            @else
+                                <i class="{{ $item->menu_icon }}"></i> {{-- fallback ke Font Awesome --}}
+                            @endif
                         @endif
                     </div>
                     {{-- Nama Menu --}}

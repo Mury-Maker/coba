@@ -85,3 +85,4 @@ Route::get('/admin/usecase/cetak/{menu_id}', [UseCaseController::class, 'cetakPD
 Route::get('/uat/cetak/{usecase_id}', [UatDataController::class, 'cetakPdf'])->name('uat.cetak');
 Route::get('/report/cetak/{usecase_id}', [ReportDataController::class, 'cetakPdf'])->name('report.cetak');
 Route::get('/database/cetak/{usecase_id}', [DatabaseDataController::class, 'cetakPdf'])->name('database.cetak');
+Route::get('/usecase/print/{id}', [UsecaseController::class, 'printSingle'])->name('usecase.print.single');
