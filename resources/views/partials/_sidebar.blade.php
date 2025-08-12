@@ -11,17 +11,15 @@
             title="{!! ucwords(str_replace('-',' ',$currentCategorySlug)) !!}">
             <span class="truncate-text">Dokumentasi</span>
         </a>
-        @if($editorMode)
-            {{-- PERBAIKAN DI SINI: Gunakan data-action="add-parent-menu" --}}
-            <button type="button" data-action="add-parent-menu"
-                class="bg-blue-500 text-white h-11 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors mb-3"
-                title="Tambah Menu Utama Baru">
-                <i class="fa fa-plus"></i>
-            </button>
-        
-        
-        @endif
     </div>
+    @if($editorMode)
+        {{-- PERBAIKAN DI SINI: Gunakan data-action="add-parent-menu" --}}
+        <button type="button" data-action="add-parent-menu"
+            class="bg-blue-500 text-white h-11 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors mb-3"
+            title="Tambah Menu Utama Baru">
+            <i class="fa fa-plus"></i>
+        </button>
+    @endif
 
     {{-- Sidebar Tambahan Mobile (akan tampil saat responsif) --}}
     <div class="block md:hidden space-y-4 mb-6">

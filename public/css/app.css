@@ -3,7 +3,7 @@
 /* --- Umum --- */
 body {
     font-family: 'Inter', sans-serif;
-    
+
 }
 
 body::-webkit-scrollbar {
@@ -27,10 +27,6 @@ div::-webkit-scrollbar{
 }
 
 
-
-
-}
-/* --- Gaya Prosa (CKEditor) --- */
 .prose h1 {
     font-size: 1.875rem;
     font-weight: 700;
@@ -424,12 +420,12 @@ div::-webkit-scrollbar{
     justify-content: space-around;
     align-items: center;
     flex-wrap: wrap;
-    padding: 10px;
+    padding-bottom: 12px;
     flex-direction: row; /* Default: Horizontal layout for open sidebar */
-    gap: 12px;
+    gap: 8px;
     border-bottom:3px solid rgb(196, 196, 196) ;
-    margin-top:0;
-    margin-bottom: 38px;
+    margin-top:12px;
+    margin-bottom: 12px;
 
 }
 #main-category-title {
