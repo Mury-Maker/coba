@@ -111,24 +111,55 @@ export function initSidebar() {
 
     // Fungsi untuk mengelola klik pada parent menu saat sidebar minimize
     // Ini adalah fungsi baru yang ditambahkan
-    function handleParentMenuClick(event) {
+    function handleSubmenuToggle(event) {
         const sidebarElement = domUtils.getElement('docs-sidebar');
-        const parentMenuLink = event.target.closest('.sidebar-menu-parent-link');
-        const submenuToggleBtn = event.target.closest('[data-toggle^="submenu-"]');
-
-        // Jika sidebar sedang collapsed dan di desktop
         if (sidebarElement && sidebarElement.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
-            // Jika yang diklik adalah tombol toggle, abaikan. Kita tidak ingin membuka submenu.
-            if (submenuToggleBtn) {
-                return;
+            return;
+        }
+    
+        event.preventDefault();
+        event.stopPropagation();
+    
+        // Dapatkan elemen item menu (elemen <li>)
+        const menuItemElement = event.currentTarget.closest('li');
+    
+        if (!menuItemElement) {
+            console.error('Could not find parent <li> for the clicked item.');
+            return;
+        }
+    
+        const submenuId = event.currentTarget.dataset.toggle;
+        const submenu = domUtils.getElement(submenuId);
+        const arrowIcon = menuItemElement.querySelector('.menu-arrow-icon i'); // <-- Perubahan di sini!
+    
+        if (submenu) {
+            const isCurrentlyOpen = submenu.classList.contains('open');
+            console.log('Submenu toggled:', submenuId, 'Currently open:', isCurrentlyOpen);
+    
+            // Tutup submenu saudara (seperti logika yang sudah Anda buat)
+            const siblingSubmenus = menuItemElement.parentElement.querySelectorAll('.submenu-container.open');
+            siblingSubmenus.forEach(siblingSubmenu => {
+                if (siblingSubmenu !== submenu && !submenu.contains(siblingSubmenu)) {
+                    domUtils.toggleClass(siblingSubmenu, 'open', false);
+                    const siblingTrigger = siblingSubmenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
+                    if (siblingTrigger) {
+                        siblingTrigger.setAttribute('aria-expanded', 'false');
+                        const siblingIcon = siblingTrigger.closest('li').querySelector('.menu-arrow-icon i'); // Cari ikon di parent <li>
+                        if (siblingIcon) {
+                            domUtils.toggleClass(siblingIcon, 'open', false);
+                        }
+                    }
+                }
+            });
+    
+            // Ubah status submenu dan ikon panah
+            domUtils.toggleClass(submenu, 'open', !isCurrentlyOpen);
+            event.currentTarget.setAttribute('aria-expanded', !isCurrentlyOpen);
+            if (arrowIcon) {
+                domUtils.toggleClass(arrowIcon, 'open', !isCurrentlyOpen); // Ikon panah diubah
             }
-
-            // Jika yang diklik adalah link parent menu itu sendiri
-            if (parentMenuLink) {
-                event.stopPropagation(); // Hentikan event menyebar
-                // Biarkan aksi default (navigasi ke href) terjadi
-                console.log('Navigating to parent menu:', parentMenuLink.href);
-            }
+        } else {
+            console.log('Submenu element not found for toggle:', submenuId);
         }
     }
 

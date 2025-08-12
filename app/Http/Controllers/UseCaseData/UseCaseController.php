@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use PDF; // Panggil facade PDF
 
 class UseCaseController extends Controller
 {
@@ -110,5 +111,32 @@ class UseCaseController extends Controller
             Log::error('Gagal menghapus tindakan: ' . $e->getMessage());
             return response()->json(['message' => 'Gagal menghapus data tindakan.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function cetakPDF($menu_id)
+    {
+        $this->ensureAdminAccess();
+
+        $useCases = UseCase::where('menu_id', $menu_id)->get();
+        $menu = NavMenu::where('menu_id', $menu_id)->first();
+
+        $pdf = PDF::loadView('pdf.usecase', [
+            'useCases' => $useCases,
+            'menu' => $menu,
+        ]);
+
+        return $pdf->stream('Usecase_' . Str::slug($menu->menu_nama) . '.pdf');
+    }
+    
+    public function printSingle($id)
+    {
+        $singleUseCase = Usecase::findOrFail($id);
+
+        // Buat PDF
+        $pdf = Pdf::loadView('pdf.print-single-usecase', compact('singleUseCase'))
+                ->setPaper('A4', 'portrait');
+
+        // Tampilkan langsung di browser
+        return $pdf->stream('usecase-'.$singleUseCase->id.'.pdf');
     }
 }

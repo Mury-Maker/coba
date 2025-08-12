@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportDataController extends Controller
 {
@@ -181,5 +182,28 @@ class ReportDataController extends Controller
             Log::error('Gagal menghapus data Report: ' . $e->getMessage());
             return response()->json(['message' => 'Gagal menghapus data Report.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function cetakPdf($usecase_id)
+    {
+        $this->ensureAdminAccess(); // biar aman
+    
+        $usecase = UseCase::with([
+            'uatData.images',
+            'reportData.images',
+            'databaseData.images'
+        ])->findOrFail($usecase_id);
+    
+        // Pastikan setiap gambar punya path absolut yang bisa dibaca DomPDF
+        foreach ($usecase->reportData as $report) {
+            foreach ($report->images as $img) {
+                $img->full_path = public_path('storage/' . $img->path);
+            }
+        }
+    
+        $pdf = Pdf::loadView('pdf.report', compact('usecase'))
+                  ->setPaper('A4', 'portrait');
+    
+        return $pdf->stream('Report.pdf');
     }
 }
