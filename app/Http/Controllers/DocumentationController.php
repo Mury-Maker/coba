@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category; // Import Model Kategori 
-use App\Models\NavMenu; // Import Model NavMenu
-use App\Models\UseCase; // Import Model UseCase
-use App\Models\UatData; // Import Model UAT
-use App\Models\ReportData; // Import Model Report
-use App\Models\DatabaseData; // Import Model Database
-use App\Models\DocTables; // Digunakan untuk menambahkan nama tabel saat parsing
-use App\Models\DocColumns; // Digunakan untuk menambahkan nama kolom saat parsing
-use App\Models\DocSqlFile; // Digunakan untuk menambahkan file sql
+use App\Models\Category;
+use App\Models\NavMenu;
+use App\Models\UseCase;
+use App\Models\UatData;
+use App\Models\ReportData;
+use App\Models\DatabaseData;
+use App\Models\DocTables;
+use App\Models\DocColumns;
+use App\Models\DocSqlFile;
 use App\Models\DocRelations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -44,8 +44,8 @@ class DocumentationController extends Controller
         }
 
         $allMenus = NavMenu::where('category_id', $currentCategoryObject->id)
-                            ->orderBy('menu_order')
-                            ->get();
+                           ->orderBy('menu_order')
+                           ->get();
 
         $navigation = NavMenu::buildTree($allMenus);
         $allCategories = Category::all()->pluck('slug', 'name')->toArray();
@@ -57,16 +57,16 @@ class DocumentationController extends Controller
         }
 
         return [
-            'title'             => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategoryObject->name)) . ' - Dokumentasi',
-            'navigation'        => $navigation,
-            'currentCategory'   => $currentCategoryObject->slug,
-            'currentCategoryId' => $currentCategoryObject->id,
-            'currentPage'       => $currentPageSlug,
-            'selectedNavItem'   => $selectedNavItem,
-            'menu_id'           => $selectedNavItem ? $selectedNavItem->menu_id : null,
-            'categories'        => $allCategories,
-            'userRole'          => Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest',
-            'editorMode'        => (Auth::check() && (Auth::user()->role ?? '') === 'admin'),
+            'title'                 => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategoryObject->name)) . ' - Dokumentasi',
+            'navigation'            => $navigation,
+            'currentCategory'       => $currentCategoryObject->slug,
+            'currentCategoryId'     => $currentCategoryObject->id,
+            'currentPage'           => $currentPageSlug,
+            'selectedNavItem'       => $selectedNavItem,
+            'menu_id'               => $selectedNavItem ? $selectedNavItem->menu_id : null,
+            'categories'            => $allCategories,
+            'userRole'              => Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest',
+            'editorMode'            => (Auth::check() && (Auth::user()->role ?? '') === 'admin'),
             'currentCategoryObject' => $currentCategoryObject,
         ];
     }
@@ -93,9 +93,9 @@ class DocumentationController extends Controller
         }
 
         $firstContentMenu = $defaultCategory->navMenus()
-                                            ->where('menu_status', 1)
-                                            ->orderBy('menu_order', 'asc')
-                                            ->first();
+                                               ->where('menu_status', 1)
+                                               ->orderBy('menu_order', 'asc')
+                                               ->first();
 
         if ($firstContentMenu) {
             return redirect()->route('docs', [
@@ -104,8 +104,8 @@ class DocumentationController extends Controller
             ]);
         } else {
             $firstAnyMenu = $defaultCategory->navMenus()
-                                            ->orderBy('menu_order', 'asc')
-                                            ->first();
+                                               ->orderBy('menu_order', 'asc')
+                                               ->first();
 
             if ($firstAnyMenu) {
                 return redirect()->route('docs', [
@@ -123,11 +123,12 @@ class DocumentationController extends Controller
     /**
      * Menampilkan halaman dokumentasi untuk kategori dan halaman tertentu.
      *
+     * @param Request $request
      * @param string $categorySlug
      * @param string|null $pageSlug
      * @return View|RedirectResponse
      */
-    public function show($categorySlug, $pageSlug = null): View|RedirectResponse
+    public function show(Request $request, $categorySlug, $pageSlug = null): View|RedirectResponse
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -137,8 +138,8 @@ class DocumentationController extends Controller
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
         $allMenusInCategory = NavMenu::where('category_id', $currentCategory->id)
-                                        ->orderBy('menu_order')
-                                        ->get();
+                                         ->orderBy('menu_order')
+                                         ->get();
 
         $selectedNavItem = $allMenusInCategory->first(function ($menu) use ($pageSlug) {
             return Str::slug($menu->menu_nama) === $pageSlug;
@@ -160,33 +161,39 @@ class DocumentationController extends Controller
         }
 
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
-        
 
-        // Uji Coba fitur ekstrak sql
-        $sqlFile = DocSqlFile::where('navmenu_id', $selectedNavItem->menu_id)->first();
-
-        if ($sqlFile){
-            $fullPath = Storage::disk('public')->path('sql_files/' . $sqlFile->file_name);
-        }
-
-        $sqlPath = $fullPath ?? 'Tidak ada FileSql';
-
-        $sentence = $selectedNavItem->menu_link;
-        $word = "daftar-tabel";
+        $perPage = $request->input('per_page', 10);
+        $searchTerm = $request->input('search', '');
 
         if ($selectedNavItem->menu_status == 1) {
-
-            if (str_contains($sentence, $word)){
+            $word = "daftar-tabel";
+            if (Str::contains($selectedNavItem->menu_link, $word)) {
+                $sqlFile = DocSqlFile::where('navmenu_id', $selectedNavItem->menu_id)->first();
+                $fullPath = $sqlFile ? Storage::disk('public')->path('sql_files/' . $sqlFile->file_name) : null;
                 $viewData['contentView'] = 'documentation.tables_list';
                 $viewData['sqlFile'] = $sqlFile;
-                $viewData['sqlPath'] = $sqlPath;
+                $viewData['sqlPath'] = $fullPath ?? 'Tidak ada FileSql';
                 return view('documentation.index', $viewData);
             } else {
-                $viewData['useCases'] = UseCase::where('menu_id', $selectedNavItem->menu_id)->orderBy('id', 'desc')->get();
+                $query = UseCase::where('menu_id', $selectedNavItem->menu_id)->orderBy('id', 'desc');
+
+                if ($searchTerm) {
+                    $query->where(function($q) use ($searchTerm) {
+                        $q->where('nama_proses', 'like', "%{$searchTerm}%")
+                          ->orWhere('aktor', 'like', "%{$searchTerm}%")
+                          ->orWhere('kondisi_awal', 'like', "%{$searchTerm}%")
+                          ->orWhere('kondisi_akhir', 'like', "%{$searchTerm}%");
+                    });
+                }
+
+                $useCases = $query->paginate($perPage)->withQueryString();
+
+                $viewData['useCases'] = $useCases;
                 $viewData['contentView'] = 'documentation.use_case_list';
+                $viewData['per_page'] = (int) $perPage;
+                $viewData['search_term'] = $searchTerm;
                 return view('documentation.index', $viewData);
             }
-
         } else {
             $viewData['contentView'] = 'documentation.homepage';
             return view('documentation.index', $viewData);
@@ -196,12 +203,13 @@ class DocumentationController extends Controller
     /**
      * Menampilkan detail Use Case (Aksi).
      *
+     * @param Request $request
      * @param string $categorySlug
      * @param string $pageSlug
      * @param string $useCaseSlug
      * @return View|RedirectResponse
      */
-    public function showUseCaseDetail($categorySlug, $pageSlug, $useCaseSlug): View|RedirectResponse
+    public function showUseCaseDetail(Request $request, string $categorySlug, string $pageSlug, string $useCaseSlug): View|RedirectResponse
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -220,21 +228,12 @@ class DocumentationController extends Controller
             return redirect()->route('docs', ['category' => $categorySlug]);
         }
 
-        // PERBAIKAN PENTING: Muat relasi reportData dan databaseData beserta file-nya
-        $singleUseCase = UseCase::with([
-                                    'uatData.images',
-                                    'uatData.documents', // TAMBAH: Muat relasi dokumen UAT
-                                    'reportData.images',
-                                    'reportData.documents',
-                                    'databaseData.images',
-                                    'databaseData.documents' // TAMBAH: Muat relasi dokumen Database
-                                ])
-                                ->where('menu_id', $selectedNavItem->menu_id)
-                                ->where(function($query) use ($useCaseSlug) {
-                                    $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                        ->orWhere('id', $useCaseSlug);
-                                })
-                                ->first();
+        $singleUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)
+                               ->where(function($query) use ($useCaseSlug) {
+                                   $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
+                                         ->orWhere('id', $useCaseSlug);
+                               })
+                               ->first();
 
         if (!$singleUseCase) {
             return redirect()->route('docs', [
@@ -243,23 +242,47 @@ class DocumentationController extends Controller
             ]);
         }
 
+        // Ambil data untuk setiap tabel dengan paginasi dan pencarian
+        $perPageReport = $request->input('report_per_page', 5);
+        $searchReport = $request->input('report_search');
+        $reportDataQuery = ReportData::where('use_case_id', $singleUseCase->id);
+        if ($searchReport) {
+            $reportDataQuery->where('nama_report', 'like', "%{$searchReport}%")
+                            ->orWhere('aktor', 'like', "%{$searchReport}%")
+                            ->orWhere('keterangan', 'like', "%{$searchReport}%");
+        }
+        $reportDataPaginated = $reportDataQuery->paginate($perPageReport, ['*'], 'report_page')->withQueryString();
+
+        $perPageDatabase = $request->input('database_per_page', 5);
+        $searchDatabase = $request->input('database_search');
+        $databaseDataQuery = DatabaseData::where('use_case_id', $singleUseCase->id);
+        if ($searchDatabase) {
+            $databaseDataQuery->where('keterangan', 'like', "%{$searchDatabase}%")
+                              ->orWhere('relasi', 'like', "%{$searchDatabase}%");
+        }
+        $databaseDataPaginated = $databaseDataQuery->paginate($perPageDatabase, ['*'], 'database_page')->withQueryString();
+
+        $perPageUat = $request->input('uat_per_page', 5);
+        $searchUat = $request->input('uat_search');
+        $uatDataQuery = UatData::where('use_case_id', $singleUseCase->id);
+        if ($searchUat) {
+            $uatDataQuery->where('nama_proses_usecase', 'like', "%{$searchUat}%")
+                         ->orWhere('keterangan_uat', 'like', "%{$searchUat}%")
+                         ->orWhere('status_uat', 'like', "%{$searchUat}%");
+        }
+        $uatDataPaginated = $uatDataQuery->paginate($perPageUat, ['*'], 'uat_page')->withQueryString();
+
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['singleUseCase'] = $singleUseCase;
         $viewData['contentTypes'] = ['UAT', 'Report', 'Database'];
         $viewData['contentView'] = 'documentation.use_case_detail';
+        $viewData['reportDataPaginated'] = $reportDataPaginated;
+        $viewData['databaseDataPaginated'] = $databaseDataPaginated;
+        $viewData['uatDataPaginated'] = $uatDataPaginated;
 
         return view('documentation.index', $viewData);
     }
 
-    /**
-     * Menampilkan detail entri UAT.
-     *
-     * @param string $categorySlug
-     * @param string $pageSlug
-     * @param string $useCaseSlug
-     * @param int $uatId
-     * @return View|RedirectResponse
-     */
     public function showUatDetailPage($categorySlug, $pageSlug, $useCaseSlug, $uatId): View|RedirectResponse
     {
         if (!Auth::check()) { return redirect()->route('login'); }
@@ -271,9 +294,8 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
+        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
 
-        // PERBAIKAN PENTING: Muat relasi images dan documents untuk uatData
         $uatData = UatData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_uat', $uatId)->first();
         if (!$uatData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
@@ -284,15 +306,6 @@ class DocumentationController extends Controller
         return view('documentation.index', $viewData);
     }
 
-    /**
-     * Menampilkan detail entri Report.
-     *
-     * @param string $categorySlug
-     * @param string $pageSlug
-     * @param string $useCaseSlug
-     * @param int $reportId
-     * @return View|RedirectResponse
-     */
     public function showReportDetailPage($categorySlug, $pageSlug, $useCaseSlug, $reportId): View|RedirectResponse
     {
         if (!Auth::check()) { return redirect()->route('login'); }
@@ -304,7 +317,7 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
+        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
 
         $reportData = ReportData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_report', $reportId)->first();
         if (!$reportData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
@@ -316,15 +329,6 @@ class DocumentationController extends Controller
         return view('documentation.index', $viewData);
     }
 
-    /**
-     * Menampilkan detail entri Database.
-     *
-     * @param string $categorySlug
-     * @param string $pageSlug
-     * @param string $useCaseSlug
-     * @param int $databaseId
-     * @return View|RedirectResponse
-     */
     public function showDatabaseDetailPage($categorySlug, $pageSlug, $useCaseSlug, $databaseId): View|RedirectResponse
     {
         if (!Auth::check()) { return redirect()->route('login'); }
@@ -336,9 +340,8 @@ class DocumentationController extends Controller
         if (!$selectedNavItem) { return redirect()->route('docs', ['category' => $categorySlug]); }
 
         $parentUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)->where(function($query) use ($useCaseSlug) { $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])->orWhere('id', $useCaseSlug); })->first();
-        if (!$parentUseCase) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
+        if (!$parentUseCase) { return redirect()->route('docs', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama)]); }
 
-        // PERBAIKAN PENTING: Muat relasi images dan documents untuk databaseData
         $databaseData = DatabaseData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_database', $databaseId)->first();
         if (!$databaseData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
@@ -349,14 +352,6 @@ class DocumentationController extends Controller
         return view('documentation.index', $viewData);
     }
 
-    /**
-     * Menampilkan fallback konten ketika tidak ada menu/konten yang ditemukan.
-     * Metode ini sepertinya tidak lagi digunakan secara langsung karena logikanya
-     * sudah terintegrasi ke dalam metode show() dan index().
-     *
-     * @param string $categorySlug
-     * @return View
-     */
     private function renderNoContentFallback($categorySlug): View
     {
         $currentCategory = Category::where('slug', $categorySlug)->first();
@@ -381,10 +376,8 @@ class DocumentationController extends Controller
 
         $filename = $request->sql_file->getClientOriginalName();
 
-        // Simpan ke disk 'public' → storage/app/public/sql_files/...
         $path = $uploadedFile->storeAs('sql_files', $filename, 'public');
 
-        // Simpan metadata file
         DocSqlFile::updateOrCreate(
             ['navmenu_id' => $navmenuId],
             ['file_name' => $filename, 'file_path' => 'public/' . $path]
@@ -396,9 +389,8 @@ class DocumentationController extends Controller
         Log::info("Upload SQL berhasil untuk navmenu_id: {$navmenuId}, file: {$filename}");
 
         return redirect()->back();
-        }
+    }
 
-    // Function parsing untuk data awal erd
     public function parse($navmenuId)
     {
         $sqlFile = DocSqlFile::where('navmenu_id', $navmenuId)->first();
@@ -413,7 +405,6 @@ class DocumentationController extends Controller
 
         Log::info("Mulai parsing HeidiSQL: {$sqlFile->file_name}");
 
-        // Hapus data lama
         $oldTables = DocTables::where('menu_id', $navmenuId)->get();
         foreach ($oldTables as $tbl) {
             DocColumns::where('table_id', $tbl->id)->delete();
@@ -421,11 +412,10 @@ class DocumentationController extends Controller
         }
         DocTables::where('menu_id', $navmenuId)->delete();
 
-        // Parsing struktur tabel
         preg_match_all('/CREATE TABLE(?: IF NOT EXISTS)? `(.*?)`\s*\((.*?)\)\s*(ENGINE|TYPE)=/si', $sqlContent, $matches, PREG_SET_ORDER);
 
-        $tableMap = [];    // nama_tabel => DocTables
-        $columnMap = [];   // nama_tabel.nama_kolom => DocColumns
+        $tableMap = [];
+        $columnMap = [];
 
         foreach ($matches as $match) {
             $tableName = $match[1];
@@ -437,17 +427,14 @@ class DocumentationController extends Controller
             ]);
             $tableMap[$tableName] = $table;
 
-            // Primary key
             preg_match_all('/PRIMARY KEY\s+\(`(.*?)`\)/i', $rawColumns, $pkMatches);
             $primaryKeys = isset($pkMatches[1][0]) ? explode('`,`', $pkMatches[1][0]) : [];
 
-            // Columns
             preg_match_all('/`([^`]+)`\s+((?:(?!,\n).)*)(?:,|\n)/i', $rawColumns, $columnMatches, PREG_SET_ORDER);
             foreach ($columnMatches as $col) {
                 $name = $col[1];
                 $type = trim($col[2]);
 
-                // Skip jika bukan kolom nyata (contoh: FOREIGN KEY constraint)
                 if (strtoupper($type) === 'FOREIGN') {
                     continue;
                 }
@@ -463,14 +450,13 @@ class DocumentationController extends Controller
                     'is_primary' => $isPrimary,
                     'is_nullable' => $isNullable,
                     'is_unique' => $isUnique,
-                    'is_foreign' => false, // default
+                    'is_foreign' => false,
                 ]);
 
                 $columnMap["$tableName.$name"] = $column;
             }
         }
 
-        // Parsing FOREIGN KEY (relasi)
         foreach ($matches as $match) {
             $tableName = $match[1];
             $rawColumns = $match[2];
@@ -497,73 +483,69 @@ class DocumentationController extends Controller
             }
         }
 
-        // Generate GoJS ERD data
         $erdData = $this->generateGoJsData($navmenuId);
         session(['erd' => $erdData]);
-        // dd(session('erd')); // Hanya untuk debugging
 
         return redirect()->back()->with('success', 'ERD berhasil digenerate.');
     }
-public function generateGoJsData($navmenuId)
-{
-    $tables = DocTables::with(['columns', 'relations'])->where('menu_id', $navmenuId)->get();
+    public function generateGoJsData($navmenuId)
+    {
+        $tables = DocTables::with(['columns', 'relations'])->where('menu_id', $navmenuId)->get();
 
-    $nodes = [];
-    $links = [];
+        $nodes = [];
+        $links = [];
 
-    foreach ($tables as $table) {
-        $fields = [];
+        foreach ($tables as $table) {
+            $fields = [];
 
-        foreach ($table->columns as $col) {
-            $tipe = trim($col->tipe);
+            foreach ($table->columns as $col) {
+                $tipe = trim($col->tipe);
 
-            // Abaikan jika tipe dimulai dengan tanda kurung
-            if (ltrim($tipe)[0] === '(') {
-                continue;
+                if (ltrim($tipe)[0] === '(') {
+                    continue;
+                }
+
+                if (stripos($tipe, 'foreign key') !== false) {
+                    continue;
+                }
+
+                $fields[] = [
+                    'name' => $col->nama_kolom,
+                    'type' => strtok($col->tipe, " "),
+                    'suffix' => trim(
+                        ($col->is_primary ? 'PK' : '') .
+                        ($col->is_unique ? ' UK' : '') .
+                        ($col->is_foreign ? ' FK' : '')
+                    )
+                ];
             }
 
-            // Abaikan jika tipe mengandung FOREIGN KEY
-            if (stripos($tipe, 'foreign key') !== false) {
-                continue;
-            }
-
-            $fields[] = [
-                'name' => $col->nama_kolom,
-                'type' => strtok($col->tipe, " "),
-                'suffix' => trim(
-                    ($col->is_primary ? 'PK' : '') .
-                    ($col->is_unique ? ' UK' : '') .
-                    ($col->is_foreign ? ' FK' : '')
-                )
+            $nodes[] = [
+                'key' => $table->nama_tabel,
+                'fields' => $fields,
             ];
         }
 
-        $nodes[] = [
-            'key' => $table->nama_tabel,
-            'fields' => $fields,
-        ];
-    }
+        $relations = DocRelations::with(['fromColumn.table', 'toColumn.table'])
+            ->whereIn('from_tableid', $tables->pluck('id'))
+            ->orWhereIn('to_tableid', $tables->pluck('id'))
+            ->get();
 
-    $relations = DocRelations::with(['fromColumn.table', 'toColumn.table'])
-        ->whereIn('from_tableid', $tables->pluck('id'))
-        ->orWhereIn('to_tableid', $tables->pluck('id'))
-        ->get();
+        foreach ($relations as $rel) {
+            $fromTable = $rel->fromColumn->table->nama_tabel ?? null;
+            $toTable = $rel->toColumn->table->nama_tabel ?? null;
 
-    foreach ($relations as $rel) {
-        $fromTable = $rel->fromColumn->table->nama_tabel ?? null;
-        $toTable = $rel->toColumn->table->nama_tabel ?? null;
-
-        if ($fromTable && $toTable) {
-            $links[] = [
-                'from' => $fromTable,
-                'to' => $toTable,
-                'relationship' => "{$rel->fromColumn->nama_kolom} → {$rel->toColumn->nama_kolom}"
-            ];
+            if ($fromTable && $toTable) {
+                $links[] = [
+                    'from' => $fromTable,
+                    'to' => $toTable,
+                    'relationship' => "{$rel->fromColumn->nama_kolom} → {$rel->toColumn->nama_kolom}"
+                ];
+            }
         }
-    }
 
-    return ['nodes' => $nodes, 'links' => $links];
-}
+        return ['nodes' => $nodes, 'links' => $links];
+    }
 
 
 
@@ -595,6 +577,4 @@ public function generateGoJsData($navmenuId)
 
         return back()->with('success', 'File SQL dan datanya berhasil dihapus.');
     }
-
-    
 }

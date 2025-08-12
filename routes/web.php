@@ -39,11 +39,6 @@ Route::post('/sql-upload', [DocumentationController::class, 'uploadSQL'])->name(
 Route::post('/sql-parse/{navmenuId}', [DocumentationController::class, 'parse'])->name('sql.parse');
 Route::delete('/sql/delete/{navmenuId}', [DocumentationController::class, 'destroySQl'])->name('sql.delete');
 
-// --- Rute API (Sekarang di web.php) ---
-// Autentikasi & Otorisasi akan ditangani di dalam Controller methods masing-masing.
-// Tidak ada middleware 'api' atau 'auth:sanctum' di sini, hanya middleware 'web' default.
-
-// Rute API untuk Pencarian
 Route::get('/api/search', [SearchController::class, 'search'])->name('api.search');
 
 // --- Rute API untuk Kategori (CRUD) ---
