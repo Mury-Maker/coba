@@ -8,6 +8,9 @@
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         th, td { border: 1px solid #ccc; padding: 6px 10px; }
         th { background: #eee; }
+        @page {
+            margin: 20mm;
+        }
     </style>
 </head>
 <body>
