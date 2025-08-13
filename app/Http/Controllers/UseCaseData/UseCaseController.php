@@ -5,12 +5,15 @@ namespace App\Http\Controllers\UseCaseData;
 use App\Http\Controllers\Controller;
 use App\Models\UseCase;
 use App\Models\NavMenu;
+use App\Models\Report; // Tambahkan ini
+use App\Models\Database; // Tambahkan ini
+use App\Models\Uat; // Tambahkan ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
-use PDF; // Panggil facade PDF
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UseCaseController extends Controller
 {
@@ -116,15 +119,15 @@ class UseCaseController extends Controller
     public function cetakPDF($menu_id)
     {
         $this->ensureAdminAccess();
-
+    
         $useCases = UseCase::where('menu_id', $menu_id)->get();
         $menu = NavMenu::where('menu_id', $menu_id)->first();
-
+    
         $pdf = PDF::loadView('pdf.usecase', [
             'useCases' => $useCases,
             'menu' => $menu,
-        ]);
-
+        ])->setPaper('a4', 'landscape'); // Tambahkan ini
+    
         return $pdf->stream('Usecase_' . Str::slug($menu->menu_nama) . '.pdf');
     }
     
@@ -134,9 +137,52 @@ class UseCaseController extends Controller
 
         // Buat PDF
         $pdf = Pdf::loadView('pdf.print-single-usecase', compact('singleUseCase'))
-                ->setPaper('A4', 'portrait');
+                  ->setPaper('A4', 'portrait');
 
         // Tampilkan langsung di browser
         return $pdf->stream('usecase-'.$singleUseCase->id.'.pdf');
+    }
+
+    public function printSingleComplete($id)
+    {
+        $this->ensureAdminAccess();
+
+        // Ambil data use case berdasarkan ID, dengan memuat data relasi
+        $singleUseCase = UseCase::with(['reportData', 'databaseData', 'uatData'])
+                                ->findOrFail($id);
+
+        // Load view 'pdf.print-single-complete' dengan data yang sudah diambil
+        $pdf = PDF::loadView('pdf.print-single-complete', [
+            'singleUseCase' => $singleUseCase,
+        ]);
+
+        return $pdf->stream('Usecase_Detail_' . Str::slug($singleUseCase->nama_proses) . '.pdf');
+    }
+
+    /**
+     * Mencetak PDF untuk semua use case dan data yang berelasi (reports, databases, uats).
+     *
+     * @param int $menu_id
+     * @return \Illuminate\Http\Response
+     */
+    public function cetakPDFComplete($menu_id)
+    {
+        $this->ensureAdminAccess();
+    
+        // Ambil data use case beserta relasinya
+        // Gunakan nama relasi yang benar: 'reportData', 'databaseData', 'uatData'
+        $useCases = UseCase::with(['reportData', 'databaseData', 'uatData'])
+                           ->where('menu_id', $menu_id)
+                           ->get();
+        
+        $menu = NavMenu::where('menu_id', $menu_id)->firstOrFail();
+    
+        // Load view 'pdf.usecase_complete' dengan data yang sudah diambil
+        $pdf = PDF::loadView('pdf.usecase-complete', [
+            'useCases' => $useCases,
+            'menu' => $menu,
+        ]);
+    
+        return $pdf->stream('Usecase_Lengkap_' . Str::slug($menu->menu_nama) . '.pdf');
     }
 }
