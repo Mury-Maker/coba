@@ -119,14 +119,14 @@ export function initReportDataManager() {
     const combinedFileInput = domUtils.getElement('combinedFileInput');
     const imagePreviewContainer = domUtils.getElement('imagePreviewContainer');
     const documentPreviewContainer = domUtils.getElement('documentPreviewContainer');
-    
+
     // START: Drag and Drop Logic
     // Fungsi untuk mencegah perilaku default
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
-    
+
     // Fungsi untuk menambahkan kelas highlight dan mengubah warna latar belakang
     function highlight() {
         dropArea.classList.add('bg-blue-100', 'border-blue-500'); // Tambahkan kelas untuk warna latar belakang dan border
@@ -427,4 +427,7 @@ export function initReportDataManager() {
             notificationManager.hideNotification(loadingNotif);
         }
     });
+
+    window.openReportDataModal = openReportDataModal; // Tambahkan baris ini!
+
 }

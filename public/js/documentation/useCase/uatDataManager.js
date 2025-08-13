@@ -126,7 +126,7 @@ export function initUatDataManager() {
         e.preventDefault();
         e.stopPropagation();
     }
-    
+
     // Fungsi untuk menambahkan kelas highlight
     function highlight() {
         dropArea.classList.add('drag-over');
@@ -334,6 +334,7 @@ export function initUatDataManager() {
         }
         domUtils.toggleModal(uatDataModal, true);
     }
+    window.openUatDataModal = openUatDataModal;
 
     function closeUatDataModal() {
         domUtils.toggleModal(uatDataModal, false);

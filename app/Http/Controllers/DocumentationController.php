@@ -93,9 +93,9 @@ class DocumentationController extends Controller
         }
 
         $firstContentMenu = $defaultCategory->navMenus()
-                                               ->where('menu_status', 1)
-                                               ->orderBy('menu_order', 'asc')
-                                               ->first();
+                                           ->where('menu_status', 1)
+                                           ->orderBy('menu_order', 'asc')
+                                           ->first();
 
         if ($firstContentMenu) {
             return redirect()->route('docs', [
@@ -104,8 +104,8 @@ class DocumentationController extends Controller
             ]);
         } else {
             $firstAnyMenu = $defaultCategory->navMenus()
-                                               ->orderBy('menu_order', 'asc')
-                                               ->first();
+                                           ->orderBy('menu_order', 'asc')
+                                           ->first();
 
             if ($firstAnyMenu) {
                 return redirect()->route('docs', [
@@ -138,8 +138,8 @@ class DocumentationController extends Controller
         if (!$currentCategory) { return redirect()->route('docs.index'); }
 
         $allMenusInCategory = NavMenu::where('category_id', $currentCategory->id)
-                                         ->orderBy('menu_order')
-                                         ->get();
+                                             ->orderBy('menu_order')
+                                             ->get();
 
         $selectedNavItem = $allMenusInCategory->first(function ($menu) use ($pageSlug) {
             return Str::slug($menu->menu_nama) === $pageSlug;
@@ -228,12 +228,13 @@ class DocumentationController extends Controller
             return redirect()->route('docs', ['category' => $categorySlug]);
         }
 
-        $singleUseCase = UseCase::where('menu_id', $selectedNavItem->menu_id)
-                               ->where(function($query) use ($useCaseSlug) {
-                                   $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
-                                         ->orWhere('id', $useCaseSlug);
-                               })
-                               ->first();
+        $singleUseCase = UseCase::with(['uatData.images', 'uatData.documents', 'reportData.images', 'reportData.documents', 'databaseData.images', 'databaseData.documents'])
+            ->where('menu_id', $selectedNavItem->menu_id)
+            ->where(function($query) use ($useCaseSlug) {
+                $query->whereRaw('LOWER(REPLACE(nama_proses, " ", "-")) = ?', [strtolower($useCaseSlug)])
+                    ->orWhere('id', $useCaseSlug);
+            })
+            ->first();
 
         if (!$singleUseCase) {
             return redirect()->route('docs', [

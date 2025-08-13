@@ -26,29 +26,14 @@ import { initGlobalContentDisplay as initDocGlobalContentDisplay } from './docum
 // Import dari folder 'utils'
 import { authUtils } from './utils/auth.js';
 import { APP_CONSTANTS } from './utils/constants.js';
-
-// --- PERUBAHAN: IMPORT imageViewerManual.js dan inisialisasi di sini ---
 import { initImageViewerManual } from './utils/imageViewerManual.js';
-// --- AKHIR PERUBAHAN ---
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('app.js: DOMContentLoaded event fired!');
-
+// Fungsi untuk memasang ulang semua event listener yang membutuhkan DOM manipulasi
+function reattachAllEventListeners() {
+    console.log('app.js: Re-attaching all event listeners...');
     const APP_DATA = window.APP_BLADE_DATA;
-    console.log('app.js: window.APP_BLADE_DATA initialized:', APP_DATA);
-
-    initGlobalModals();
-    console.log('app.js: Global modals initialized.');
-
-    console.log('app.js: Initializing layout components...');
-    initSidebar();
-    initHeader();
-    initSearchModal();
-    initDocGlobalContentDisplay();
-    console.log('app.js: Layout components initialized.');
 
     if (APP_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
-        console.log('app.js: Initializing admin components...');
         initCategoryManager();
         initNavMenuManager();
         initUseCaseFormHandler();
@@ -56,16 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
         initUatDataManager();
         initReportDataManager();
         initDatabaseDataManager();
-        console.log('app.js: Admin components initialized.');
-    } else {
-        console.log('app.js: Not an admin. Skipping admin component initialization.');
     }
 
     authUtils.initLogoutButton();
-    console.log('app.js: All initializations complete.');
+    initDocGlobalContentDisplay();
+    initImageViewerManual();
+}
 
-    // --- PERUBAHAN: INISIALISASI MANUAL IMAGE VIEWER ---
-    initImageViewerManual(); // Panggil fungsi inisialisasi dari modul baru
-    console.log('Manual Image Viewer initialized.');
-    // --- AKHIR PERUBAHAN ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('app.js: DOMContentLoaded event fired!');
+
+    // Panggil fungsi inisialisasi utama
+    initGlobalModals();
+    initSidebar();
+    initHeader();
+    initSearchModal();
+
+    // Panggil semua listener setelah DOM selesai dimuat
+    reattachAllEventListeners();
+    window.reattachAllEventListeners = reattachAllEventListeners;
+
+    console.log('app.js: All initializations complete.');
 });
