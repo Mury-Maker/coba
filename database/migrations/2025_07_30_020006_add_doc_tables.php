@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('doc_tables', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('menu_id'); //Foreign key ke navmenu_id
+            $table->unsignedBigInteger('category_id'); //Foreign key ke navmenu_id
             $table->string('nama_tabel');
+            $table->text('syntax');
             $table->timestamps();
 
             // Foreign Key
-            $table->foreign('menu_id')->references('menu_id')->on('navmenu')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
