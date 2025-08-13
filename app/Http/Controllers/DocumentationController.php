@@ -56,6 +56,9 @@ class DocumentationController extends Controller
             });
         }
 
+        $catID = $currentCategoryObject->id;
+        $tablesList = DocTables::where('category_id', $catID)->get();
+
         return [
             'title'                 => ($selectedNavItem ? Str::headline($selectedNavItem->menu_nama) : Str::headline($currentCategoryObject->name)) . ' - Dokumentasi',
             'navigation'            => $navigation,
@@ -68,6 +71,8 @@ class DocumentationController extends Controller
             'userRole'              => Auth::check() ? (Auth::user()->role ?? 'guest') : 'guest',
             'editorMode'            => (Auth::check() && (Auth::user()->role ?? '') === 'admin'),
             'currentCategoryObject' => $currentCategoryObject,
+            'catID'                 => $catID,
+            'tablesList'            => $tablesList
         ];
     }
 
@@ -168,7 +173,7 @@ class DocumentationController extends Controller
         if ($selectedNavItem->menu_status == 1) {
             $word = "daftar-tabel";
             if (Str::contains($selectedNavItem->menu_link, $word)) {
-                $sqlFile = DocSqlFile::where('navmenu_id', $selectedNavItem->menu_id)->first();
+                $sqlFile = DocSqlFile::where('category_id', $currentCategory->id)->first();
                 $fullPath = $sqlFile ? Storage::disk('public')->path('sql_files/' . $sqlFile->file_name) : null;
                 $viewData['contentView'] = 'documentation.tables_list';
                 $viewData['sqlFile'] = $sqlFile;
@@ -346,8 +351,21 @@ class DocumentationController extends Controller
         $databaseData = DatabaseData::with(['images', 'documents'])->where('use_case_id', $parentUseCase->id)->where('id_database', $databaseId)->first();
         if (!$databaseData) { return redirect()->route('docs.use_case_detail', ['category' => $categorySlug, 'page' => Str::slug($selectedNavItem->menu_nama), 'useCaseSlug' => Str::slug($parentUseCase->nama_proses)]); }
 
+
+        $catID = $currentCategory->id;
+        $tablesData = DocTables::where('category_id', $catID)
+                                ->where('nama_tabel', $databaseData->keterangan)
+                                ->first();
+
+        $relations = DocRelations::with('fromTable','totable','fromColumn','toColumn')
+                                    ->where('from_tableid', $tablesData->id)
+                                    ->orWhere('to_tableid', $tablesData->id)
+                                    ->get();
+
         $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
         $viewData['databaseData'] = $databaseData;
+        $viewData['tablesData'] = $tablesData;
+        $viewData['relations'] = $relations;
         $viewData['parentUseCase'] = $parentUseCase;
         $viewData['contentView'] = 'documentation.database_entry_detail';
         return view('documentation.index', $viewData);
@@ -369,10 +387,10 @@ class DocumentationController extends Controller
     {
         $request->validate([
             'sql_file' => 'required|file|mimes:sql,txt',
-            'navmenu_id' => 'required|exists:navmenu,menu_id',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        $navmenuId = $request->input('navmenu_id');
+        $categoryId = $request->input('category_id');
         $uploadedFile = $request->file('sql_file');
 
         $filename = $request->sql_file->getClientOriginalName();
@@ -380,24 +398,24 @@ class DocumentationController extends Controller
         $path = $uploadedFile->storeAs('sql_files', $filename, 'public');
 
         DocSqlFile::updateOrCreate(
-            ['navmenu_id' => $navmenuId],
+            ['category_id' => $categoryId],
             ['file_name' => $filename, 'file_path' => 'public/' . $path]
         );
 
         $exists = Storage::disk('public')->exists('sql_files/' . $filename);
         Log::info("File disimpan di: public/sql_files/{$filename} | Exists? " . ($exists ? 'yes' : 'no'));
 
-        Log::info("Upload SQL berhasil untuk navmenu_id: {$navmenuId}, file: {$filename}");
+        Log::info("Upload SQL berhasil untuk category_id: {$categoryId}, file: {$filename}");
 
-        return redirect()->back();
+        return $this->parse($categoryId);
     }
 
-    public function parse($navmenuId)
+    public function parse($categoryId)
     {
-        $sqlFile = DocSqlFile::where('navmenu_id', $navmenuId)->first();
+        $sqlFile = DocSqlFile::where('category_id', $categoryId)->first();
 
         if (!$sqlFile || !Storage::disk('public')->exists('sql_files/' . $sqlFile->file_name)) {
-            Log::error("SQL file tidak ditemukan untuk navmenu_id: {$navmenuId}");
+            Log::error("SQL file tidak ditemukan untuk category_id: {$categoryId}");
             return back()->with('error', 'File SQL tidak ditemukan.');
         }
 
@@ -406,36 +424,43 @@ class DocumentationController extends Controller
 
         Log::info("Mulai parsing HeidiSQL: {$sqlFile->file_name}");
 
-        $oldTables = DocTables::where('menu_id', $navmenuId)->get();
+        // Hapus data lama
+        $oldTables = DocTables::where('category_id', $categoryId)->get();
         foreach ($oldTables as $tbl) {
             DocColumns::where('table_id', $tbl->id)->delete();
             DocRelations::where('from_tableid', $tbl->id)->orWhere('to_tableid', $tbl->id)->delete();
         }
-        DocTables::where('menu_id', $navmenuId)->delete();
+        DocTables::where('category_id', $categoryId)->delete();
 
+        // Parsing struktur tabel
         preg_match_all('/CREATE TABLE(?: IF NOT EXISTS)? `(.*?)`\s*\((.*?)\)\s*(ENGINE|TYPE)=/si', $sqlContent, $matches, PREG_SET_ORDER);
 
-        $tableMap = [];
-        $columnMap = [];
+        $tableMap = [];    // nama_tabel => DocTables
+        $columnMap = [];   // nama_tabel.nama_kolom => DocColumns
 
         foreach ($matches as $match) {
             $tableName = $match[1];
             $rawColumns = $match[2];
+            $syntax = str_replace("ENGINE=", ";", $match[0]);
 
             $table = DocTables::create([
-                'menu_id' => $navmenuId,
+                'category_id' => $categoryId,
                 'nama_tabel' => $tableName,
+                'syntax' => $syntax, 
             ]);
             $tableMap[$tableName] = $table;
 
+            // Primary key
             preg_match_all('/PRIMARY KEY\s+\(`(.*?)`\)/i', $rawColumns, $pkMatches);
             $primaryKeys = isset($pkMatches[1][0]) ? explode('`,`', $pkMatches[1][0]) : [];
 
+            // Columns
             preg_match_all('/`([^`]+)`\s+((?:(?!,\n).)*)(?:,|\n)/i', $rawColumns, $columnMatches, PREG_SET_ORDER);
             foreach ($columnMatches as $col) {
                 $name = $col[1];
                 $type = trim($col[2]);
 
+                // Skip jika bukan kolom nyata (contoh: FOREIGN KEY constraint)
                 if (strtoupper($type) === 'FOREIGN') {
                     continue;
                 }
@@ -451,13 +476,14 @@ class DocumentationController extends Controller
                     'is_primary' => $isPrimary,
                     'is_nullable' => $isNullable,
                     'is_unique' => $isUnique,
-                    'is_foreign' => false,
+                    'is_foreign' => false, // default
                 ]);
 
                 $columnMap["$tableName.$name"] = $column;
             }
         }
 
+        // Parsing FOREIGN KEY (relasi)
         foreach ($matches as $match) {
             $tableName = $match[1];
             $rawColumns = $match[2];
@@ -484,14 +510,16 @@ class DocumentationController extends Controller
             }
         }
 
-        $erdData = $this->generateGoJsData($navmenuId);
-        session(['erd' => $erdData]);
+        // return response()->json([
+        //         'success' => 'File Berhasil Diupload dan Diparsing. Silahkan Klik Tombol "Generate ERD" untuk Menampilkan ERD '
+        //     ]);
 
-        return redirect()->back()->with('success', 'ERD berhasil digenerate.');
+        return redirect()->back()->with('success', 'File Berhasil Diupload dan Diparsing. Silahkan Klik Tombol "Generate ERD" untuk Menampilkan ERD ');
     }
-    public function generateGoJsData($navmenuId)
+
+    public function generateGoJsData($categoryId)
     {
-        $tables = DocTables::with(['columns', 'relations'])->where('menu_id', $navmenuId)->get();
+        $tables = DocTables::with(['columns', 'relations'])->where('category_id', $categoryId)->get();
 
         $nodes = [];
         $links = [];
@@ -545,15 +573,21 @@ class DocumentationController extends Controller
             }
         }
 
-        return ['nodes' => $nodes, 'links' => $links];
+        $erdData = ['nodes' => $nodes,
+                    'links' => $links
+    ];
+
+    session(['erd' => $erdData]);
+
+    return redirect()->back();
     }
 
 
 
     // Hapus File dari penyimpanan lokal dan Database
-    public function destroySQL($navmenuId)
+    public function destroySQL($categoryId)
     {
-        $sqlFile = DocSqlFile::where('navmenu_id', $navmenuId)->first();
+        $sqlFile = DocSqlFile::where('category_id', $categoryId)->first();
 
         if (!$sqlFile) {
             return back()->with('error', 'File SQL tidak ditemukan di database.');
@@ -566,14 +600,14 @@ class DocumentationController extends Controller
         }
 
         // Hapus data dari database
-        $tableIds = DocTables::where('menu_id', $navmenuId)->pluck('id');
+        $tableIds = DocTables::where('menu_id', $categoryId)->pluck('id');
 
         DocRelations::whereIn('from_tableid', $tableIds)
                     ->orWhereIn('to_tableid', $tableIds)
                     ->delete();
 
         DocColumns::whereIn('table_id', $tableIds)->delete();
-        DocTables::where('menu_id', $navmenuId)->delete();
+        DocTables::where('menu_id', $categoryId)->delete();
         $sqlFile->delete();
 
         return back()->with('success', 'File SQL dan datanya berhasil dihapus.');

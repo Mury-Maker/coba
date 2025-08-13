@@ -2,51 +2,99 @@
     <h2 class="text-2xl font-bold mb-4">Detail Data Database</h2>
 
     {{-- Tabel Informasi Umum --}}
-    <div class="overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
-        <table class="min-w-full bg-white divide-y divide-gray-200">
-            <tbody>
-                <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Database:</td>
-                    <td class="py-2 px-4 text-gray-900">{{ $databaseData->id_database ?? 'N/A' }}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="overflow-x-auto rounded-lg shadow-sm mb-6">
+            <p class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700"><strong>ID Database:</strong> {{ $databaseData->id_database ?? 'N/A' }}</p>
     </div>
 
     {{-- Bagian Keterangan dan Relasi --}}
-    @php
-        $sections = [
-            'Keterangan' => $databaseData->keterangan ?? '<span class="text-gray-500 italic">N/A</span>',
-            'Relasi' => $databaseData->relasi ?? '<span class="text-gray-500 italic">N/A</span>',
-        ];
-    @endphp
-
-    @foreach($sections as $label => $content)
-        <div class="relative overflow-x-auto rounded-lg border-2 border-gray-400 shadow-sm mb-6">
-            {{-- Tombol Salin --}}
-            <button onclick="copyToClipboard('copy-{{ Str::slug($label) }}')"
-                    class="absolute top-2 right-2 text-sm text-gray-600 hover:text-black focus:outline-none">
-                <i class="fas fa-copy mr-1"></i> Salin
-            </button>
-
-            <table class="min-w-full bg-white divide-y divide-gray-200">
-                <thead>
+        <h2>Nama Tabel: {{ $tablesData->nama_tabel ?? 'Tidak ada data' }}</h2>
+        <div class="kolom-tabels">
+        <div class="min-w-full m-2">
+            <table class="min-w-full bg-white border border-gray-300 text-sm text-left">
+                <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-4 py-2 text-left font-bold text-lg text-gray-700 bg-gray-100" colspan="2">
-                            {{ $label }}
-                        </th>
+                        <th class="py-2 px-4 border-r border-b">No</th>
+                        <th class="py-2 px-4 border-r border-b">Nama Kolom</th>
+                        <th class="py-2 px-4 border-r border-b">Tipe Data</th>
+                        <th class="py-2 px-4 border-r border-b">Attribute</th>
+                        <th class="py-2 px-4 border-r border-b">Key</th>
+                        
+                        
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto" colspan="2">
-                            <div id="copy-{{ Str::slug($label) }}">{!! $content !!}</div>
-                        </td>
-                    </tr>
+                <tbody id="useCaseListTableBody">
+                    @forelse($tablesData->columns as $col)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="py-2 px-4 border-r border-b">{{ $loop->iteration }}</td>
+                            <td class="py-2 px-4 border-r border-b">{{ $col->nama_kolom }}</td>
+                            <td class="py-2 px-4 border-r border-b">{{ strtok($col->tipe, " ")  }}</td>
+                            <td class="py-2 px-4 border-r border-b">{{ strstr($col->tipe, " ") }}</td>
+                            <td class="py-2 px-4 border-r border-b">
+                                @if($col->is_primary === 1)
+                                PK
+                                @elseif($col->is_foreign === 1)
+                                FK
+                                @else
+
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-4 px-4 text-center text-gray-500">Tidak ada tindakan (use case) yang didokumentasikan untuk menu ini.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
-    @endforeach
+        </div>
+        <div class="relasi">
+            <h2>Relasi:</h2>
+            <div class="card-relasi">
+
+                @forelse($relations as $rel)
+                <div class="table-card-body">
+                    <h4>Relasi {{$loop->iteration}}</h4>
+                <div class="from-table">
+                    <div class="keterangan-tabel">Tabel Asal (Child)</div>
+                    <div class="nama-tabel">Nama Tabel: {{ $rel->fromTable->nama_tabel }}</div>
+                    <div class="nama-kolom">Kolom: {{ $rel->fromColumn->nama_kolom }} (FK)</div>
+                </div>
+
+                <div class="to-table">
+                    <div class="keterangan-tabel">Referenced (Parent)</div>
+                    <div class="nama-tabel">Nama Tabel: {{ $rel->toTable->nama_tabel }}</div>
+                    <div class="nama-kolom">Kolom: {{ $rel->toColumn->nama_kolom }}</div>
+                </div>
+                </div>
+
+
+                @empty
+
+                <p>Tidak ada Relasi ditemukan</p>
+
+                @endforelse
+
+            </div>
+
+            <div class="keterangan-relasi">
+                <h2>Keterangan Relasi</h2>
+                <p>{{$databaseData->relasi}}</p>
+            </div>
+        </div>
+        <h2>Syntax Pembuatan Tabel:</h2>
+        <div class="relative overflow-x-auto rounded-lg shadow-sm mb-6">
+            {{-- Tombol Salin --}}
+            <button onclick="copyToClipboard('copy-syntax')"
+                    class="absolute top-2 right-2 text-sm text-white hover:text-blue-600 focus:outline-none">
+                <i class="fas fa-copy mr-1"></i> Salin
+            </button>
+            <pre class="whitespace-pre-line">
+                <code id="copy-syntax">
+                {{ $tablesData->syntax }}
+                </code>
+            </pre>
+        </div>
 
     {{-- Bagian Dokumen --}}
     <div class="md:col-span-2 mt-8">

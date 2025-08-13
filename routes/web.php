@@ -37,6 +37,7 @@ Route::get('/docs/{category}/{page}/{useCaseSlug}/database/{databaseId}', [Docum
 // Form Import File Sql
 Route::post('/sql-upload', [DocumentationController::class, 'uploadSQL'])->name('sql.upload');
 Route::post('/sql-parse/{navmenuId}', [DocumentationController::class, 'parse'])->name('sql.parse');
+Route::post('/erd-generate/{categoryId}', [DocumentationController::class, 'generateGoJsData'])->name('erd.generate');
 Route::delete('/sql/delete/{navmenuId}', [DocumentationController::class, 'destroySQl'])->name('sql.delete');
 
 Route::get('/api/search', [SearchController::class, 'search'])->name('api.search');

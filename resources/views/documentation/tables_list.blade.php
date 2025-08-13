@@ -10,22 +10,22 @@
             @if($sqlFile)
             <div class="sql">
             
-            <p>{{$menu_id}}</p>
+            <p>{{$catID}}</p>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">File SQL Tersedia</h2>
             <p>Nama File Saat ini: 
                 
                 <strong>
-                    <a href="{{ $sqlPath }}">
+                    <a href="{{ asset('storage/sql_files/' . $sqlFile->file_name) }}">
                     {{ $sqlFile->file_name }}
                 </a>
                 </strong>
 
                 <p>Tekan tombol berikut untuk menampilkan ERD</p>
-                <form action="{{ route('sql.parse', ['navmenuId' => $menu_id]) }}" method="POST" class="mt-4">
+                <form action="{{ route('erd.generate', ['categoryId' => $catID]) }}" method="POST" class="mt-4">
                     @csrf
-                    <input type="hidden" name="navmenu_id" value="{{ $menu_id }}">
+                    <input type="hidden" name="category_id" value="{{ $catID }}">
                     <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                        Parse Sql
+                        Generate ERD
                     </button>
                 </form>
                 <hr style="margin-bottom: 12px">
@@ -54,7 +54,7 @@
 
             <div class="deleteSql">
                 <p>Hapus File</p>
-                <form action="{{ route('sql.delete', ['navmenuId' => $menu_id]) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file dan semua datanya?')">
+                <form action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file dan semua datanya?')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Hapus File & Data</button>
@@ -67,7 +67,7 @@
                 <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <input type="hidden" name="navmenu_id" value="{{ $menu_id }}" />
+                    <input type="hidden" name="category_id" value="{{ $catID }}" />
                     
 
                     <div class="mb-4">
@@ -83,13 +83,13 @@
         {{-- Jika file sql tidak ditemukan  --}}
             @else
             <div class="nosql">
-            <p>Menu ID: {{ $menu_id }}</p>
+            <p>Menu ID: {{ $catID }}</p>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">Belum ada file SQL</h2>
 
             <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <input type="hidden" name="navmenu_id" value="{{ $menu_id }}" />
+                <input type="hidden" name="category_id" value="{{ $catID }}" />
 
                 <label class="files_sql" for="sql_file">Silahkan Klik Disini Untuk Memilih File SQL (Hanya menerima file dari hasil export HeidiSQL)</label>
                 <div class="mb-4">

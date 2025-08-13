@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DocTables extends Model
 {
-    protected $fillable = ['menu_id', 'nama_tabel'];
+    protected $fillable = ['category_id', 'nama_tabel', 'syntax'];
 
     public function columns()
     {
@@ -19,9 +19,9 @@ class DocTables extends Model
         return $this->hasMany(DocRelations::class, 'from_tableid');
     }
 
-    public function navmenu()
+    public function category()
     {
-        return $this->belongsTo(Navmenu::class, 'menu_id', 'menu_id');
+        return $this->belongsTo(Navmenu::class, 'category_id', 'id');
     }
 
     public function relations()
