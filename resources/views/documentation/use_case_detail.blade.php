@@ -1,9 +1,10 @@
+{{-- resources/views/documentation/use_case_detail.blade.php --}}
 @section('action-buttons')
     {{-- Tombol-tombol di sini jika diperlukan --}}
 @endsection
 
 @php
-    $hasUseCaseData = $singleUseCase && $singleUseCase->id;
+    $hasUseCaseData = $singleUseCase && $singleUseCase['id'];
 @endphp
 
 {{-- Container utama untuk konten detail aksi dan report --}}
@@ -16,7 +17,7 @@
                 @if(auth()->user()->role === 'admin')
                     <button id="editSingleUseCaseBtn"
                         class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-600 text-black text-sm font-medium rounded-md shadow-sm transition"
-                        data-usecase-id="{{ $singleUseCase->id }}">
+                        data-usecase-id="{{ $singleUseCase['id'] }}">
                         <i class="fas fa-edit mr-2"></i> Edit Detail Aksi
                     </button>
                 @endif
@@ -29,50 +30,50 @@
                 <tbody>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Usecase:</td>
-                        <td class="py-2 px-4 text-gray-900">UC - {{ $singleUseCase->id ?? 'N/A' }}</td>
+                        <td class="py-2 px-4 text-gray-900">UC - {{ $singleUseCase['id'] ?? 'N/A' }}</td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Nama Proses:</td>
-                        <td class="py-2 px-4 text-gray-900">{{ $singleUseCase->nama_proses ?? 'N/A' }}</td>
+                        <td class="py-2 px-4 text-gray-900">{{ $singleUseCase['nama_proses'] ?? 'N/A' }}</td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Deskripsi Aksi:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->deskripsi_aksi ?? '<span class="text-gray-500 italic">Tidak ada deskripsi.</span>' !!}
+                            {!! $singleUseCase['deskripsi_aksi'] ?? '<span class="text-gray-500 italic">Tidak ada deskripsi.</span>' !!}
                         </td>
                     </tr>
                     <tr class="hover:bg-gray-50">
-                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Aktor:</td>
-                        <td class="py-2 px-4 text-gray-900">{{ $singleUseCase->aktor ?? 'N/A' }}</td>
+                        <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aktor:</td>
+                        <td class="py-2 px-4 text-gray-900">{{ $singleUseCase['aktor'] ?? 'N/A' }}</td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Tujuan:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->tujuan ?? '<span class="text-gray-500 italic">Tidak ada tujuan.</span>' !!}
+                            {!! $singleUseCase['tujuan'] ?? '<span class="text-gray-500 italic">Tidak ada tujuan.</span>' !!}
                         </td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Awal:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->kondisi_awal ?? '<span class="text-gray-500 italic">Tidak ada kondisi awal.</span>' !!}
+                            {!! $singleUseCase['kondisi_awal'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi awal.</span>' !!}
                         </td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Akhir:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->kondisi_akhir ?? '<span class="text-gray-500 italic">Tidak ada kondisi akhir.</span>' !!}
+                            {!! $singleUseCase['kondisi_akhir'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi akhir.</span>' !!}
                         </td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aksi Aktor:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->aksi_aktor ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
+                            {!! $singleUseCase['aksi_aktor'] ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
                         </td>
                     </tr>
                     <tr class="hover:bg-gray-50">
                         <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Reaksi Sistem:</td>
                         <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
-                            {!! $singleUseCase->reaksi_sistem ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
+                            {!! $singleUseCase['reaksi_sistem'] ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
                         </td>
                     </tr>
                 </tbody>
@@ -80,7 +81,7 @@
         </div>
 
         <div class="flex justify-start items-center gap-3 mt-4 mb-8">
-            <a href="{{ route('usecase.print.single', $singleUseCase->id) }}" target="_blank"
+            <a href="{{ route('usecase.print.single', $singleUseCase['id']) }}" target="_blank"
                 class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                 <i class="fas fa-print mr-2"></i> Only Data Usecase
             </a>
@@ -101,7 +102,7 @@
                                 <button id="addReportDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                     <i class="fa fa-plus-circle mr-2"></i>Tambah
                                 </button>
-                                <a href="{{ route('report.cetak', $singleUseCase->id) }}" target="_blank">
+                                <a href="{{ route('report.cetak', $singleUseCase['id']) }}" target="_blank">
                                     <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
@@ -152,7 +153,7 @@
                                                 <a href="{{ route('docs.use_case_report_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'reportId' => $report->id_report
                                                 ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                     <i class="fas fa-eye"></i>
@@ -167,7 +168,7 @@
                                                 <a href="{{ route('docs.use_case_report_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'reportId' => $report->id_report
                                                 ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
                                                     <span>Lihat</span>
@@ -185,8 +186,48 @@
                         </tbody>
                     </table>
                 </div>
+                {{-- Kontainer Paginasi Report --}}
                 <div id="report-pagination-links-container" class="mt-4">
-                    {{ $reportDataPaginated->links() }}
+                    @if ($reportDataPaginated->lastPage() > 1)
+                        <div class="mt-4 flex justify-between items-center flex-wrap">
+                            <div class="text-sm text-gray-700">
+                                Menampilkan {{ $reportDataPaginated->firstItem() }} hingga {{ $reportDataPaginated->lastItem() }} dari
+                                {{ $reportDataPaginated->total() }} hasil
+                            </div>
+                            <div class="mt-2 sm:mt-0">
+                                <span class="relative inline-flex shadow-sm rounded-md">
+                                    {{-- Tombol Previous --}}
+                                    @if ($reportDataPaginated->onFirstPage())
+                                        <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </span>
+                                    @else
+                                        <a href="{{ $reportDataPaginated->previousPageUrl() . '&report_per_page=' . request('report_per_page', 5) . '&report_search=' . request('report_search') }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    @endif
+
+                                    {{-- Link Halaman --}}
+                                    @foreach ($reportDataPaginated->getUrlRange(1, $reportDataPaginated->lastPage()) as $page => $url)
+                                        <a href="{{ $url . '&report_per_page=' . request('report_per_page', 5) . '&report_search=' . request('report_search') }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium {{ $page == $reportDataPaginated->currentPage() ? 'text-white bg-blue-600 border-blue-600' : 'text-gray-700 bg-white border-gray-300 hover:text-blue-600' }} border">
+                                            {{ $page }}
+                                        </a>
+                                    @endforeach
+
+                                    {{-- Tombol Next --}}
+                                    @if ($reportDataPaginated->hasMorePages())
+                                        <a href="{{ $reportDataPaginated->nextPageUrl() . '&report_per_page=' . request('report_per_page', 5) . '&report_search=' . request('report_search') }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    @else
+                                        <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -201,7 +242,7 @@
                                 <button id="addDatabaseDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                     <i class="fa fa-plus-circle mr-2"></i>Tambah
                                 </button>
-                                <a href="{{ route('database.cetak', $singleUseCase->id) }}" target="_blank">
+                                <a href="{{ route('database.cetak', $singleUseCase['id']) }}" target="_blank">
                                     <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
@@ -250,7 +291,7 @@
                                                 <a href="{{ route('docs.use_case_database_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'databaseId' => $database->id_database
                                                 ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                     <i class="fas fa-eye"></i>
@@ -265,7 +306,7 @@
                                                 <a href="{{ route('docs.use_case_database_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'databaseId' => $database->id_database
                                                 ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
                                                     <span>Lihat</span>
@@ -283,8 +324,48 @@
                         </tbody>
                     </table>
                 </div>
+                {{-- Kontainer Paginasi Database --}}
                 <div id="database-pagination-links-container" class="mt-4">
-                    {{ $databaseDataPaginated->links() }}
+                    @if ($databaseDataPaginated->lastPage() > 1)
+                        <div class="mt-4 flex justify-between items-center flex-wrap">
+                            <div class="text-sm text-gray-700">
+                                Menampilkan {{ $databaseDataPaginated->firstItem() }} hingga {{ $databaseDataPaginated->lastItem() }} dari
+                                {{ $databaseDataPaginated->total() }} hasil
+                            </div>
+                            <div class="mt-2 sm:mt-0">
+                                <span class="relative inline-flex shadow-sm rounded-md">
+                                    {{-- Tombol Previous --}}
+                                    @if ($databaseDataPaginated->onFirstPage())
+                                        <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </span>
+                                    @else
+                                        <a href="{{ $databaseDataPaginated->previousPageUrl() . '&database_per_page=' . request('database_per_page', 5) . '&database_search=' . request('database_search') }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    @endif
+
+                                    {{-- Link Halaman --}}
+                                    @foreach ($databaseDataPaginated->getUrlRange(1, $databaseDataPaginated->lastPage()) as $page => $url)
+                                        <a href="{{ $url . '&database_per_page=' . request('database_per_page', 5) . '&database_search=' . request('database_search') }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium {{ $page == $databaseDataPaginated->currentPage() ? 'text-white bg-blue-600 border-blue-600' : 'text-gray-700 bg-white border-gray-300 hover:text-blue-600' }} border">
+                                            {{ $page }}
+                                        </a>
+                                    @endforeach
+
+                                    {{-- Tombol Next --}}
+                                    @if ($databaseDataPaginated->hasMorePages())
+                                        <a href="{{ $databaseDataPaginated->nextPageUrl() . '&database_per_page=' . request('database_per_page', 5) . '&database_search=' . request('database_search') }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    @else
+                                        <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -299,7 +380,7 @@
                                 <button id="addUatDataBtn" class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md shadow transition">
                                     <i class="fa fa-plus-circle mr-2"></i>Tambah
                                 </button>
-                                <a href="{{ route('uat.cetak', $singleUseCase->id) }}" target="_blank">
+                                <a href="{{ route('uat.cetak', $singleUseCase['id']) }}" target="_blank">
                                     <button class="inline-flex items-center px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded-md shadow transition">
                                         <i class="fas fa-print mr-2"></i> Print / Cetak PDF
                                     </button>
@@ -361,7 +442,7 @@
                                                 <a href="{{ route('docs.use_case_uat_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'uatId' => $uat->id_uat
                                                 ]) }}" class="btn-action btn-action--icon bg-green-500 text-white" title="Detail">
                                                     <i class="fas fa-eye"></i>
@@ -376,7 +457,7 @@
                                                 <a href="{{ route('docs.use_case_uat_detail_page', [
                                                     'category' => $currentCategory,
                                                     'page' => Str::slug($selectedNavItem->menu_nama),
-                                                    'useCaseSlug' => Str::slug($singleUseCase->nama_proses),
+                                                    'useCaseSlug' => Str::slug($singleUseCase['nama_proses']),
                                                     'uatId' => $uat->id_uat
                                                 ]) }}" class="btn-action btn-action--full bg-green-500 text-white" title="Detail">
                                                     <span>Lihat</span>
@@ -394,8 +475,48 @@
                         </tbody>
                     </table>
                 </div>
+                {{-- Kontainer Paginasi UAT --}}
                 <div id="uat-pagination-links-container" class="mt-4">
-                    {{ $uatDataPaginated->links() }}
+                    @if ($uatDataPaginated->lastPage() > 1)
+                        <div class="mt-4 flex justify-between items-center flex-wrap">
+                            <div class="text-sm text-gray-700">
+                                Menampilkan {{ $uatDataPaginated->firstItem() }} hingga {{ $uatDataPaginated->lastItem() }} dari
+                                {{ $uatDataPaginated->total() }} hasil
+                            </div>
+                            <div class="mt-2 sm:mt-0">
+                                <span class="relative inline-flex shadow-sm rounded-md">
+                                    {{-- Tombol Previous --}}
+                                    @if ($uatDataPaginated->onFirstPage())
+                                        <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-l-md">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </span>
+                                    @else
+                                        <a href="{{ $uatDataPaginated->previousPageUrl() . '&uat_per_page=' . request('uat_per_page', 5) . '&uat_search=' . request('uat_search') }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    @endif
+
+                                    {{-- Link Halaman --}}
+                                    @foreach ($uatDataPaginated->getUrlRange(1, $uatDataPaginated->lastPage()) as $page => $url)
+                                        <a href="{{ $url . '&uat_per_page=' . request('uat_per_page', 5) . '&uat_search=' . request('uat_search') }}" class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium {{ $page == $uatDataPaginated->currentPage() ? 'text-white bg-blue-600 border-blue-600' : 'text-gray-700 bg-white border-gray-300 hover:text-blue-600' }} border">
+                                            {{ $page }}
+                                        </a>
+                                    @endforeach
+
+                                    {{-- Tombol Next --}}
+                                    @if ($uatDataPaginated->hasMorePages())
+                                        <a href="{{ $uatDataPaginated->nextPageUrl() . '&uat_per_page=' . request('uat_per_page', 5) . '&uat_search=' . request('uat_search') }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:text-gray-700 focus:z-10 focus:outline-none focus:border-blue-300 focus:ring-blue-200 active:bg-gray-100 active:text-gray-500 transition ease-in-out duration-150">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    @else
+                                        <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default rounded-r-md">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -409,7 +530,11 @@
             const container = document.getElementById(containerId);
             const wrapper = container.parentElement;
 
-            // Tampilkan efek loading
+            if (!container || !wrapper) {
+                console.error(`Container atau wrapper untuk ID ${containerId} tidak ditemukan.`);
+                return;
+            }
+
             wrapper.style.opacity = '0.5';
 
             fetch(url, {
@@ -427,19 +552,19 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
-                // Ambil elemen tabel dan paginasi baru
                 const newTableContainer = doc.getElementById(containerId);
-                const newPaginationContainer = doc.getElementById(`${containerId.split('-')[0]}-pagination-links-container`);
+                const paginationId = `${containerId.split('-')[0]}-pagination-links-container`;
+                const newPaginationContainer = doc.getElementById(paginationId);
 
                 if (newTableContainer) {
                     container.innerHTML = newTableContainer.innerHTML;
                 }
                 if (newPaginationContainer) {
-                    document.getElementById(`${containerId.split('-')[0]}-pagination-links-container`).innerHTML = newPaginationContainer.innerHTML;
+                    document.getElementById(paginationId).innerHTML = newPaginationContainer.innerHTML;
                 }
 
-                // Pasang kembali event listener ke elemen-elemen yang baru dimuat
-                attachEventListeners();
+                // Memanggil kembali listener setelah DOM diperbarui
+                attachTableEventListeners();
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -451,11 +576,14 @@
         }
 
         // Fungsi untuk memasang event listener pada elemen-elemen tabel
-        function attachEventListeners() {
+        function attachTableEventListeners() {
+            console.log('Attaching event listeners to tables...');
+
             // Report
             const reportPerPageSelect = document.getElementById('report_per_page');
             const reportSearchInput = document.getElementById('reportSearchInput');
             const reportPagination = document.getElementById('report-pagination-links-container');
+            const reportDataTableBody = document.getElementById('reportDataTableBody');
 
             if (reportPerPageSelect) {
                 reportPerPageSelect.onchange = function() {
@@ -490,10 +618,34 @@
                 });
             }
 
+            // Memasang kembali listener untuk tombol-tombol aksi setelah DOM diperbarui
+            if (reportDataTableBody) {
+                reportDataTableBody.querySelectorAll('.edit-report-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const reportId = this.dataset.id;
+                        const reportData = window.APP_BLADE_DATA.singleUseCase.report_data.find(item => item.id_report == reportId);
+                        if(reportData) {
+                             window.openReportDataModal('edit', reportData);
+                        } else {
+                            alert('Data Report yang ingin diedit tidak ditemukan di cache.');
+                        }
+                    });
+                });
+                reportDataTableBody.querySelectorAll('.delete-report-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const reportId = this.dataset.id;
+                        window.openCommonConfirmModal('Yakin ingin menghapus data Report ini? Tindakan ini tidak dapat dibatalkan!', async () => {
+                             // Logika hapus
+                        });
+                    });
+                });
+            }
+
             // Database
             const databasePerPageSelect = document.getElementById('database_per_page');
             const databaseSearchInput = document.getElementById('databaseSearchInput');
             const databasePagination = document.getElementById('database-pagination-links-container');
+            const databaseDataTableBody = document.getElementById('databaseDataTableBody');
 
             if (databasePerPageSelect) {
                 databasePerPageSelect.onchange = function() {
@@ -528,10 +680,34 @@
                 });
             }
 
+            // Memasang kembali listener untuk tombol-tombol aksi setelah DOM diperbarui
+            if (databaseDataTableBody) {
+                databaseDataTableBody.querySelectorAll('.edit-database-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const databaseId = this.dataset.id;
+                        const databaseData = window.APP_BLADE_DATA.singleUseCase.database_data.find(item => item.id_database == databaseId);
+                        if(databaseData) {
+                            window.openDatabaseDataModal('edit', databaseData);
+                        } else {
+                            alert('Data Database yang ingin diedit tidak ditemukan di cache.');
+                        }
+                    });
+                });
+                databaseDataTableBody.querySelectorAll('.delete-database-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const databaseId = this.dataset.id;
+                        window.openCommonConfirmModal('Yakin ingin menghapus data Database ini? Tindakan ini tidak dapat dibatalkan!', async () => {
+                             // Logika hapus
+                        });
+                    });
+                });
+            }
+
             // UAT
             const uatPerPageSelect = document.getElementById('uat_per_page');
             const uatSearchInput = document.getElementById('uatSearchInput');
             const uatPagination = document.getElementById('uat-pagination-links-container');
+            const uatDataTableBody = document.getElementById('uatDataTableBody');
 
             if (uatPerPageSelect) {
                 uatPerPageSelect.onchange = function() {
@@ -565,9 +741,35 @@
                     };
                 });
             }
+
+            // Memasang kembali listener untuk tombol-tombol aksi setelah DOM diperbarui
+            if (uatDataTableBody) {
+                uatDataTableBody.querySelectorAll('.edit-uat-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const uatId = this.dataset.id;
+                        const uatData = window.APP_BLADE_DATA.singleUseCase.uat_data.find(item => item.id_uat == uatId);
+                        if(uatData) {
+                            window.openUatDataModal('edit', uatData);
+                        } else {
+                            alert('Data UAT yang ingin diedit tidak ditemukan di cache.');
+                        }
+                    });
+                });
+                uatDataTableBody.querySelectorAll('.delete-uat-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const uatId = this.dataset.id;
+                        window.openCommonConfirmModal('Yakin ingin menghapus data UAT ini? Tindakan ini tidak dapat dibatalkan!', async () => {
+                             // Logika hapus
+                        });
+                    });
+                });
+            }
         }
 
-        // Panggil saat DOM selesai dimuat untuk pertama kalinya
-        attachEventListeners();
+        // Panggil saat halaman pertama kali dimuat
+        attachTableEventListeners();
+
+        // Buat fungsi global agar bisa dipanggil dari AJAX di blade lain
+        window.reattachAllEventListeners = attachTableEventListeners;
     });
 </script>

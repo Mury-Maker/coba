@@ -134,13 +134,13 @@ export function initDatabaseDataManager() {
     ['dragleave', 'drop'].forEach(eventName => {
         domUtils.addEventListener(dropArea, eventName, unhighlight, false);
     });
-    
+
     // Fungsi untuk mencegah perilaku default
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
-    
+
     // Fungsi untuk menambahkan kelas highlight
     function highlight() {
         dropArea.classList.add('drag-over');
@@ -332,6 +332,7 @@ export function initDatabaseDataManager() {
         }
         domUtils.toggleModal(databaseDataModal, true);
     }
+    window.openDatabaseDataModal = openDatabaseDataModal;
 
     function closeDatabaseDataModal() {
         domUtils.toggleModal(databaseDataModal, false);
@@ -341,7 +342,7 @@ export function initDatabaseDataManager() {
         selectedDatabaseImageFilesMap.clear();
         selectedDatabaseDocumentFilesMap.clear();
     }
-    
+
     // Menambahkan event listener untuk menutup modal saat klik di luar form
     domUtils.addEventListener(document, 'click', (e) => {
         // Memeriksa apakah target klik berada di luar modal, tapi masih di dalam 'overlay' modal

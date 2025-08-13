@@ -1,3 +1,5 @@
+// public/js/documentation/useCase/useCaseFormHandler.js
+
 import { domUtils } from '../../core/domUtils.js';
 import { apiClient } from '../../core/apiClient.js';
 import { notificationManager } from '../../core/notificationManager.js';
@@ -13,14 +15,14 @@ function handleFormSubmit(e) {
     const useCaseForm = domUtils.getElement('useCaseForm');
     const useCaseId = domUtils.getElement('useCaseFormUseCaseId').value;
     const method = domUtils.getElement('useCaseFormMethod').value;
-    
+
     let url;
     if (method === 'PUT' && useCaseId) {
         url = `${APP_CONSTANTS.API_ROUTES.USECASE.UPDATE}/${useCaseId}`;
     } else {
         url = APP_CONSTANTS.API_ROUTES.USECASE.STORE;
     }
-    
+
     const formData = new FormData(useCaseForm);
 
     apiClient.fetchAPI(url, {
@@ -31,7 +33,7 @@ function handleFormSubmit(e) {
         notificationManager.hideNotification(loadingNotif);
         notificationManager.showCentralSuccessPopup(data.success);
         domUtils.toggleModal(domUtils.getElement('useCaseModal'), false);
-        
+
         const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug || 'epesantren';
         const currentPageSlug = window.APP_BLADE_DATA.currentPage || 'beranda-epesantren';
 
@@ -41,7 +43,7 @@ function handleFormSubmit(e) {
         } else {
             redirectUrl = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}/${data.use_case_slug}`;
         }
-        
+
         window.location.href = redirectUrl;
 
     }).catch(error => {
@@ -55,7 +57,11 @@ function handleEditListButton(e) {
     if (editBtn) {
         modalOrigin = 'use_case_list';
         const useCaseId = parseInt(editBtn.dataset.id);
-        const useCase = window.APP_BLADE_DATA.useCases.find(uc => uc.id === useCaseId);
+
+        // Perbaikan: Akses data dari properti 'data' pada objek paginasi
+        const useCasesArray = window.APP_BLADE_DATA.useCases.data || [];
+        const useCase = useCasesArray.find(uc => uc.id === useCaseId);
+
         if (useCase) {
             window.openUseCaseModal('edit', useCase);
         } else {
@@ -75,7 +81,7 @@ function handleDeleteListButton(e) {
                 await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.USECASE.DESTROY}/${useCaseId}`, { method: 'DELETE' });
                 notificationManager.hideNotification(loadingNotif);
                 notificationManager.showCentralSuccessPopup('Tindakan berhasil dihapus.');
-                
+
                 const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug || 'epesantren';
                 const currentPageSlug = window.APP_BLADE_DATA.currentPage || 'beranda-epesantren';
                 window.location.href = `${APP_CONSTANTS.ROUTES.DOCS_BASE}/${currentCategorySlug}/${currentPageSlug}`;
@@ -121,7 +127,6 @@ export function initUseCaseFormHandler() {
             domUtils.getElement('useCaseFormMethod').value = 'PUT';
             domUtils.getElement('useCaseFormUseCaseId').value = useCase.id;
 
-            // Perbaikan: Mengisi form dengan data yang sudah ada
             domUtils.getElement('form_nama_proses').value = useCase.nama_proses || '';
             domUtils.getElement('form_aktor').value = useCase.aktor || '';
             domUtils.getElement('form_deskripsi_aksi').value = useCase.deskripsi_aksi || '';
@@ -142,14 +147,15 @@ export function initUseCaseFormHandler() {
 
     domUtils.addEventListener(useCaseForm, 'submit', handleFormSubmit);
 
-    domUtils.addEventListener(document, 'click', (e) => {
-        const addUseCaseBtn = e.target.closest('#addUseCaseBtn');
-        if (addUseCaseBtn) {
+    // Menambahkan event listener ke tombol-tombol yang relevan
+    const addUseCaseBtn = domUtils.getElement('addUseCaseBtn');
+    if (addUseCaseBtn) {
+        domUtils.addEventListener(addUseCaseBtn, 'click', () => {
             modalOrigin = 'use_case_list';
             window.openUseCaseModal('create');
-        }
+        });
+    }
 
-        handleEditListButton(e);
-        handleDeleteListButton(e);
-    });
+    domUtils.addEventListener(document, 'click', handleEditListButton);
+    domUtils.addEventListener(document, 'click', handleDeleteListButton);
 }

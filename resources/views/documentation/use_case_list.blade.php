@@ -205,79 +205,76 @@
     });
 </script>
 
-{{-- SKRIP AJAX BARU UNTUK LIVE SEARCH DAN PAGINASI --}}
+{{-- resources/views/documentation/use_case_list.blade.php --}}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tableContainer = document.getElementById('table-container');
-    const perPageSelect = document.getElementById('per_page');
-    const searchInput = document.getElementById('searchInput');
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableContainer = document.getElementById('table-container');
+        const perPageSelect = document.getElementById('per_page');
+        const searchInput = document.getElementById('searchInput');
 
-    let searchTimeout = null;
+        let searchTimeout = null;
 
-    function fetchData(url) {
-        // Tampilkan loading state
-        tableContainer.style.opacity = '0.5';
+        function fetchData(url) {
+            tableContainer.style.opacity = '0.5';
 
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTableContainer = doc.getElementById('table-container');
+
+                if (newTableContainer) {
+                    tableContainer.innerHTML = newTableContainer.innerHTML;
+                }
+            })
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                tableContainer.style.opacity = '1';
+                // Panggil kembali listener untuk elemen baru
+                attachEventListeners();
+            });
+        }
+
+        function attachEventListeners() {
+            // Listener untuk select per_page
+            const newPerPageSelect = document.getElementById('per_page');
+            if (newPerPageSelect) {
+                newPerPageSelect.addEventListener('change', function() {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('per_page', this.value);
+                    url.searchParams.set('search', searchInput.value);
+                    fetchData(url.toString());
+                });
             }
-        })
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const newTableContainer = doc.getElementById('table-container');
 
-            if (newTableContainer) {
-                tableContainer.innerHTML = newTableContainer.innerHTML;
+            // Listener untuk pagination links
+            const paginationLinksContainer = document.getElementById('pagination-links-container');
+            if (paginationLinksContainer) {
+                paginationLinksContainer.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const url = this.href;
+                        fetchData(url);
+                    });
+                });
             }
-        })
-        .catch(error => console.error('Error:', error))
-        .finally(() => {
-            tableContainer.style.opacity = '1';
-            // Panggil kembali listener untuk elemen baru
-            attachEventListeners();
-        });
-    }
+        }
 
-    function attachEventListeners() {
-        // Listener untuk select per_page
-        const newPerPageSelect = document.getElementById('per_page');
-        if (newPerPageSelect) {
-            newPerPageSelect.addEventListener('change', function() {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
                 const url = new URL(window.location.href);
-                url.searchParams.set('per_page', this.value);
+                url.searchParams.set('per_page', perPageSelect.value);
                 url.searchParams.set('search', searchInput.value);
                 fetchData(url.toString());
-            });
-        }
+            }, 500);
+        });
 
-        // Listener untuk pagination links
-        const paginationLinksContainer = document.getElementById('pagination-links-container');
-        if (paginationLinksContainer) {
-            paginationLinksContainer.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const url = this.href;
-                    fetchData(url);
-                });
-            });
-        }
-    }
-
-    // Listener untuk live search dengan debounce
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('per_page', perPageSelect.value);
-            url.searchParams.set('search', searchInput.value);
-            fetchData(url.toString());
-        }, 500); // Debounce 500ms
+        attachEventListeners();
     });
-
-    // Panggil listener saat halaman pertama kali dimuat
-    attachEventListeners();
-});
 </script>
