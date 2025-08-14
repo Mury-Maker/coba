@@ -76,11 +76,24 @@
                     @forelse($useCases as $useCase)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="py-2 px-4 border-r border-b">
-                                {{ ($useCases->currentPage() - 1) * $useCases->perPage() + $loop->iteration }}</td>
-                            <td class="py-2 px-4 border-r border-b">{{ $useCase->nama_proses }}</td>
-                            <td class="py-2 px-4 border-r border-b">{{ $useCase->aktor }}</td>
-                            <td class="py-2 px-4 border-r border-b">{!! $useCase->kondisi_awal !!}</td>
-                            <td class="py-2 px-4 border-r border-b">{!! $useCase->kondisi_akhir !!}</td>
+                                {{ ($useCases->currentPage() - 1) * $useCases->perPage() + $loop->iteration }}
+                            </td>
+                            <td class="py-2 px-4 border-r border-b break-words whitespace-normal max-w-xs">
+                                {{ $useCase->nama_proses }}
+                            </td>
+                            <td class="py-2 px-4 border-r border-b break-words whitespace-normal max-w-xs">
+                                {{ $useCase->aktor }}
+                            </td>
+                            <td class="py-2 px-4 border-r border-b max-w-xs">
+                                <div class="two-line-ellipsis">
+                                    {!! $useCase->kondisi_awal !!}
+                                </div>
+                            </td>
+                            <td class="py-2 px-4 border-r border-b max-w-xs">
+                                <div class="two-line-ellipsis">
+                                    {!! $useCase->kondisi_akhir !!}
+                                </div>
+                            </td>
                             <td class="py-2 px-4 border-b text-center align-middle w-36 max-w-[9rem]">
                                 @auth
                                     @if (auth()->user()->role === 'admin')

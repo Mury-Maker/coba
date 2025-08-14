@@ -790,6 +790,28 @@ aside {
     }
 }
 
+.table td {
+    max-width: 200px;
+    word-break: break-word;
+    white-space: normal;
+}
+
+td {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.two-line-ellipsis {
+    /* Properti ini memungkinkan teks untuk memotong dan menampilkan ellipsis setelah dua baris. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Menjaga teks agar tetap di dalam batasan tanpa memanjangkan sel. */
+    white-space: normal;
+    word-break: break-word; /* Properti ini membantu menangani kata-kata yang sangat panjang. */
+}
 
 #myDiagramDiv{
     background-color: white;
