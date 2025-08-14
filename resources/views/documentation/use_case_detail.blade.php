@@ -30,53 +30,59 @@
             <tbody>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Usecase:</td>
-                    <td class="py-2 px-4 text-gray-900">UC - {{ $singleUseCase['id'] ?? 'N/A' }}</td>
+                    <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
+                        UC - {{ $singleUseCase['id'] ?? 'N/A' }}
+                    </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Nama Proses:</td>
-                    <td class="py-2 px-4 text-gray-900">{{ $singleUseCase['nama_proses'] ?? 'N/A' }}</td>
+                    <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
+                        {{ $singleUseCase['nama_proses'] ?? 'N/A' }}
+                    </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Deskripsi Aksi:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['deskripsi_aksi'] ?? '<span class="text-gray-500 italic">Tidak ada deskripsi.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aktor:</td>
-                    <td class="py-2 px-4 text-gray-900">{{ $singleUseCase['aktor'] ?? 'N/A' }}</td>
+                    <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
+                        {{ $singleUseCase['aktor'] ?? 'N/A' }}
+                    </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Tujuan:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['tujuan'] ?? '<span class="text-gray-500 italic">Tidak ada tujuan.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Awal:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['kondisi_awal'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi awal.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Akhir:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['kondisi_akhir'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi akhir.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aksi Aktor:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['aksi_aktor'] ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Reaksi Sistem:</td>
-                    <td class="py-2 px-4 text-gray-900 prose max-w-none overflow-auto">
+                    <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
                         {!! $singleUseCase['reaksi_sistem'] ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
                     </td>
                 </tr>
-            </tbody>
+            </tbody>            
         </table>
     </div>
 
@@ -154,12 +160,17 @@
                                 <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ ($reportDataPaginated->currentPage() - 1) * $reportDataPaginated->perPage() + $loop->iteration }}
                                 </td>
-                                <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">{{ $report->aktor }}
+                                <td class="py-2 px-4 text-sm text-gray-900 max-w-[200px] break-words whitespace-normal">
+                                    {{ $report->aktor }}
                                 </td>
-                                <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $report->nama_report }}</td>
-                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $report->keterangan !!}
+                                <td class="py-2 px-4 text-sm text-gray-900 max-w-[200px] break-words whitespace-normal">
+                                    {{ $report->nama_report }}
                                 </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 max-w-[200px] break-words whitespace-normal">
+                                    <div class="two-line-ellipsis">
+                                        {!! $report->keterangan !!}
+                                    </div>
+                                </td>                                                           
                                 <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                     @auth
                                         @if (auth()->user()->role === 'admin')
@@ -321,10 +332,16 @@
                                 <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ ($databaseDataPaginated->currentPage() - 1) * $databaseDataPaginated->perPage() + $loop->iteration }}
                                 </td>
-                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $database->keterangan !!}
+                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-[200px] break-words whitespace-normal">
+                                    <div class="two-line-ellipsis">
+                                        {!! $database->keterangan !!}
+                                    </div>
                                 </td>
-                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $database->relasi !!}
-                                </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-[200px] break-words whitespace-normal">
+                                    <div class="two-line-ellipsis">
+                                        {!! $database->relasi !!}
+                                    </div>
+                                </td>                                
                                 <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                     @auth
                                         @if (auth()->user()->role === 'admin')
@@ -488,10 +505,14 @@
                                 <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ ($uatDataPaginated->currentPage() - 1) * $uatDataPaginated->perPage() + $loop->iteration }}
                                 </td>
-                                <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $uat->nama_proses_usecase }}</td>
-                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-prose">{!! $uat->keterangan_uat !!}
+                                <td class="py-2 px-4 text-sm text-gray-900 max-w-[200px] break-words whitespace-normal">
+                                    {{ $uat->nama_proses_usecase }}
                                 </td>
+                                <td class="py-2 px-4 text-sm text-gray-900 prose max-w-[200px] break-words whitespace-normal">
+                                    <div class="two-line-ellipsis">
+                                        {!! $uat->keterangan_uat !!}
+                                    </div>
+                                </td>                                
                                 <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
                                     @php
                                         $badgeClass = match ($uat->status_uat) {
