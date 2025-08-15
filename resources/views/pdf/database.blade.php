@@ -48,7 +48,7 @@
     <thead>
         <tr>
             <th>No</th>
-            <th>Keterangan</th>
+            <th>Nama Tabel</th>
             <th>Relasi</th>
         </tr>
     </thead>

@@ -600,14 +600,14 @@ class DocumentationController extends Controller
         }
 
         // Hapus data dari database
-        $tableIds = DocTables::where('menu_id', $categoryId)->pluck('id');
+        $tableIds = DocTables::where('category_id', $categoryId)->pluck('id');
 
         DocRelations::whereIn('from_tableid', $tableIds)
                     ->orWhereIn('to_tableid', $tableIds)
                     ->delete();
 
         DocColumns::whereIn('table_id', $tableIds)->delete();
-        DocTables::where('menu_id', $categoryId)->delete();
+        DocTables::where('category_id', $categoryId)->delete();
         $sqlFile->delete();
 
         return back()->with('success', 'File SQL dan datanya berhasil dihapus.');

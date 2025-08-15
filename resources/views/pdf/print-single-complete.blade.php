@@ -33,8 +33,8 @@
                     <tr><th>Tujuan</th><td>{{ $singleUseCase->tujuan }}</td></tr>
                     <tr><th>Kondisi Awal</th><td>{{ $singleUseCase->kondisi_awal }}</td></tr>
                     <tr><th>Kondisi Akhir</th><td>{{ $singleUseCase->kondisi_akhir }}</td></td></tr>
-                    <tr><th>Aksi Aktor</th><td>{{ $singleUseCase->aksi_aktor }}</td></tr>
-                    <tr><th>Reaksi Sistem</th><td>{{ $singleUseCase->reaksi_sistem }}</td></tr>
+                    <tr><th>Aksi Aktor</th><td>{!! $singleUseCase->aksi_aktor !!}</td></tr>
+                    <tr><th>Reaksi Sistem</th><td>{!! $singleUseCase->reaksi_sistem !!}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -65,7 +65,7 @@
                 <h3>Tabel Database</h3>
                 <table>
                     <thead>
-                        <tr><th>No</th><th>Keterangan</th><th>Relasi</th></tr>
+                        <tr><th>No</th><th>Nama Tabel</th><th>Relasi</th></tr>
                     </thead>
                     <tbody>
                         @foreach ($singleUseCase->databaseData as $database)

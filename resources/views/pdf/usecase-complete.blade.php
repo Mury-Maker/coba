@@ -101,11 +101,11 @@
                         </tr>
                         <tr>
                             <th>Aksi Aktor</th>
-                            <td>{{ $useCase->aksi_aktor }}</td>
+                            <td>{!! $useCase->aksi_aktor !!}</td>
                         </tr>
                         <tr>
                             <th>Reaksi Sistem</th>
-                            <td>{{ $useCase->reaksi_sistem }}</td>
+                            <td>{!! $useCase->reaksi_sistem !!}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,7 +144,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Keterangan</th>
+                                <th>Nama Tabel</th>
                                 <th>Relasi</th>
                             </tr>
                         </thead>
