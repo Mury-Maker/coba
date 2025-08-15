@@ -15,6 +15,7 @@
                         <datalist id="tables">
                             @foreach($tablesList as $tb)
                             <option value="{{ $tb->nama_tabel }}"></option>
+                            
                             @endforeach
                         </datalist>
                     </div>
