@@ -82,7 +82,7 @@
                         {!! $singleUseCase['reaksi_sistem'] ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
                     </td>
                 </tr>
-            </tbody>            
+            </tbody>
         </table>
     </div>
 
@@ -170,7 +170,7 @@
                                     <div class="two-line-ellipsis">
                                         {!! $report->keterangan !!}
                                     </div>
-                                </td>                                                           
+                                </td>
                                 <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                     @auth
                                         @if (auth()->user()->role === 'admin')
@@ -341,7 +341,7 @@
                                     <div class="two-line-ellipsis">
                                         {!! $database->relasi !!}
                                     </div>
-                                </td>                                
+                                </td>
                                 <td class="py-2 px-4 text-center text-sm font-medium w-[150px]">
                                     @auth
                                         @if (auth()->user()->role === 'admin')
@@ -489,7 +489,7 @@
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 No</th>
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Nama Proses Usecase</th>
+                                Nama Proses UAT</th>
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Keterangan</th>
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -512,7 +512,7 @@
                                     <div class="two-line-ellipsis">
                                         {!! $uat->keterangan_uat !!}
                                     </div>
-                                </td>                                
+                                </td>
                                 <td class="py-2 px-4 whitespace-nowrap text-sm text-gray-900">
                                     @php
                                         $badgeClass = match ($uat->status_uat) {
