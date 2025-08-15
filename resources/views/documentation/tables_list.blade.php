@@ -10,14 +10,22 @@
             @if($sqlFile)
             <div class="sql">
             
-            <p>{{$catID}}</p>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">File SQL Tersedia</h2>
-            <p>Nama File Saat ini: 
+
+            <p>Nama File Saat ini: <br></p>
                 
                 <strong>
-                    <a href="{{ asset('storage/sql_files/' . $sqlFile->file_name) }}">
+            <div class="deleteSql">  
+                <a title="Download File .sql" href="{{ asset('storage/sql_files/' . $sqlFile->file_name) }}">
                     {{ $sqlFile->file_name }}
                 </a>
+
+                <form action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file dan semua datanya?')">
+                    @csrf
+                    @method('DELETE')
+                    <button title="Hapus File dan Data" type="submit" class=""><i class="fa-solid fa-trash" style="color: #ff0000;"></i></button>
+                </form>
+            </div>
                 </strong>
 
                 <p>Tekan tombol berikut untuk menampilkan ERD</p>
@@ -31,40 +39,12 @@
                 <hr style="margin-bottom: 12px">
             </div>
 
-            <div class="erd">
-                <div class="judul-halaman">
-                <h2 class="text-lg font-bold mb-4" style="flex-grow: 1">Diagram ERD (GoJS)</h2>
-                    <div class="btn-fullscreen">
-                        <button onclick="toggleFullScreen()" style="margin-bottom: 10px;">
-                            <i class="fa-solid fa-expand"></i>
-                            Fullscreen
-                        </button>
-                    </div>
-                </div>
 
-                <div id="myDiagramDiv" style="width:100%; height:600px; border:1px solid black; padding:28px;">
-                    <div class="btn-fullscreen">
-                        
-                    </div>
-                </div>
-
-            </div>
-
-            <hr style="margin-bottom: 12px;">
-
-            <div class="deleteSql">
-                <p>Hapus File</p>
-                <form action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file dan semua datanya?')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Hapus File & Data</button>
-                </form>
-                <hr style="margin-bottom: 12px">
-            </div>
 
             <div class="updateSql">
-                <p>Ganti file:</p>
-                <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800" ><button onclick="toggleFileUpdate()">Ganti file:</button></h2>
+                <div class="form-update-erd hidden">
+                    <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <input type="hidden" name="category_id" value="{{ $catID }}" />
@@ -74,9 +54,46 @@
                         <input type="file" name="sql_file" accept=".sql" required class="block w-full border rounded p-2" />
                     </div>
 
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Upload</button>
+                    <button type="submit" class="focus:outline-none text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Simpan</button>
+                    <button onclick="window.location.reload();" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Batal</button>
                 </form>
+                </div>
+                <hr style="margin-bottom: 12px; ">
             </div>
+
+            <div class="erd">
+                <div class="judul-halaman">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800" style="flex-grow: 1">Diagram ERD (GoJS)</h2>
+                    <div class="btn-fullscreen">
+                        <button onclick="toggleFullScreen()">
+                            <i class="fa-solid fa-expand"></i>
+                            Fullscreen
+                        </button>
+                    </div>
+
+                    <div class="dropdown-download">
+                    <button onclick="toggleDropdownDownloads()" class="btn-download">Downloads <i class="fa-regular fa-image"></i> </button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <button onclick="makePNG()">PNG</button>
+                            <button onclick="makeSvg()">SVG</button>
+                            <button onclick="makeImage()">JPEG</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                
+
+                <div id="myDiagramDiv" style="width:100%; height:600px; border:1px solid black; padding:28px;">
+                    
+                </div>
+
+            </div>
+
+            <hr style="margin-bottom: 12px;">
+
+
+
 
         </div>
 
@@ -121,16 +138,26 @@
             }
         }
 
+        function toggleFileUpdate() {
+            document.querySelectorAll('.form-update-erd').forEach(el => {
+                el.classList.toggle('hidden');
+                el.classList.toggle('show');
+            });
+        }
+
+
+
         const erdData = @json(session('erd') ?? $erd ?? ['nodes'=>[], 'links'=>[]]);
 
         function initGoJS() {
-            const $ = go.GraphObject.make;
+            let $ = go.GraphObject.make;
 
-            const myDiagram = $(go.Diagram, "myDiagramDiv", {
+            myDiagram = $(go.Diagram, "myDiagramDiv", {
                 initialContentAlignment: go.Spot.Left,
                 layout: $(go.ForceDirectedLayout),
                 "undoManager.isEnabled": true,
-                "linkingTool.direction": go.LinkingTool.ForwardsOnly
+                "linkingTool.direction": go.LinkingTool.ForwardsOnly,
+                padding: 100
             });
                 myDiagram.nodeTemplate =
                 $(go.Node, "Auto", {
@@ -269,9 +296,155 @@
             // Allow multiple links between the same nodes with different keys
             myDiagram.model.linkKeyProperty = "key";
         }
+        
+        function toggleDropdownDownloads() {
+                document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+            // Close the dropdown menu if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn-download')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+
+        function pngCallback(blob) {
+            var url = window.URL.createObjectURL(blob);
+
+            var name = '{{ $sqlFile->file_name ?? "" }}';
+            var category = '{{ $currentCategory ?? "" }}';
+            name  = name.replace('.sql','');
+            console.log(name);
+            console.log(category);
+            var filename = `${category}-erd-${name}.png`;
+
+            var a = document.createElement('a');
+            a.style = 'display: none';
+            a.href = url;
+            a.download = filename;
+
+            // IE 11
+            if (window.navigator.msSaveBlob !== undefined) {
+            window.navigator.msSaveBlob(blob, filename);
+            return;
+            }
+
+            document.body.appendChild(a);
+            requestAnimationFrame(() => {
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            });
+        }
+
+        function jpegCallback(blob) {
+            var url = window.URL.createObjectURL(blob);
+
+            var name = '{{ $sqlFile->file_name ?? "" }}';
+            name  = name.replace('.sql','');
+            var category = '{{ $currentCategory ?? "" }}';
+
+            console.log(name)
+
+            var filename = `${category}-erd-${name}.jpeg`;
+
+            var a = document.createElement('a');
+            a.style = 'display: none';
+            a.href = url;
+            a.download = filename;
+
+            // IE 11
+            if (window.navigator.msSaveBlob !== undefined) {
+            window.navigator.msSaveBlob(blob, filename);
+            return;
+            }
+
+            document.body.appendChild(a);
+            requestAnimationFrame(() => {
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            });
+        }
+
+        function makePNG() {
+            var blob = myDiagram.makeImageData({ 
+                                background: 'white', 
+                                returnType: 'blob',
+                                scale: 1, 
+                                maxSize: new go.Size(3000, 3000),
+                                padding: 100,
+                                callback: pngCallback 
+            });
+        }
+
+        function makeImage() {
+            myDiagram.makeImageData({
+            maxSize: new go.Size(3000, 3000),
+            returnType: 'blob',
+            scale: 1,
+            background: "white",
+            type: "image/jpeg",
+            callback: jpegCallback,
+            padding: 100
+            });
+        }
+
+        function svgCallback(blob) {
+            var url = window.URL.createObjectURL(blob);
+
+
+            var name = '{{ $sqlFile->file_name ?? "" }}';
+            name  = name.replace('.sql','');
+            var category = '{{ $currentCategory ?? "" }}';
+
+            console.log(name)
+
+            var filename = `${category}-erd-${name}.svg`;
+
+            var a = document.createElement('a');
+            a.style = 'display: none';
+            a.href = url;
+            a.download = filename;
+
+            // IE 11
+            if (window.navigator.msSaveBlob !== undefined) {
+            window.navigator.msSaveBlob(blob, filename);
+            return;
+            }
+
+            document.body.appendChild(a);
+            requestAnimationFrame(() => {
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            });
+        }
+
+        function makeSvg() {
+            var svg = myDiagram.makeSvg({ 
+                scale: 1, 
+                background: 'white',
+                padding: 100
+            });
+            var svgstr = new XMLSerializer().serializeToString(svg);
+            var blob = new Blob([svgstr], { type: 'image/svg+xml' });
+            svgCallback(blob);
+        }
+        
 
         // Jalankan GoJS setelah halaman dimuat
         window.addEventListener('DOMContentLoaded', initGoJS);
+
     </script>
+
+    
 
 
