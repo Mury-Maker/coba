@@ -64,11 +64,11 @@
             <main class="flex-1 overflow-y-auto p-8 lg:p-12 relative" style="background-color: white">
                 <nav class="flex items-center text-sm text-gray-600 mb-6" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                        {{-- Breadcrumb content --}}
+                        {{-- Link Home --}}
                         <li class="inline-flex items-center">
                             @php
                                 $homeCategoryRoute = route('docs', ['category' => $currentCategory]);
-                                $isHomeActive = empty($selectedNavItem) && empty($parentUseCase);
+                                $isHomeActive = empty($selectedNavItem) && empty($parentUseCase) && empty($singleUseCase);
                             @endphp
                             <a href="{{ $homeCategoryRoute }}" class="inline-flex items-center text-gray-500 hover:text-blue-600 transition {{ $isHomeActive ? 'text-gray-800 font-semibold' : '' }}">
                                 <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -77,6 +77,8 @@
                                 Home
                             </a>
                         </li>
+                
+                        {{-- Link Navigasi Induk (Parent Nav Item) --}}
                         @if (isset($selectedNavItem) && $selectedNavItem->parent)
                             <li>
                                 <div class="flex items-center">
@@ -90,46 +92,27 @@
                                 </div>
                             </li>
                         @endif
-                        @if (isset($selectedNavItem) && empty($singleUseCase) && empty($parentUseCase))
-                            <li aria-current="page">
-                                <div class="flex items-center">
-                                    <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
-                                    </svg>
-                                    <span class="text-blue-600 font-semibold">
-                                        {{ $selectedNavItem->menu_nama }}
-                                    </span>
-                                </div>
-                            </li>
-                        @elseif(isset($selectedNavItem) && (isset($singleUseCase) || isset($parentUseCase)))
+                
+                        {{-- Link Navigasi Terpilih (Selected Nav Item) --}}
+                        @if (isset($selectedNavItem))
                             <li>
                                 <div class="flex items-center">
                                     <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
                                     </svg>
+                                    @php
+                                        // Tautan ini hanya perlu aktif jika tidak ada detail use case yang ditampilkan
+                                        $isUseCaseActive = empty($singleUseCase) && empty($parentUseCase) && empty($databaseData) && empty($reportData) && empty($uatData);
+                                    @endphp
                                     <a href="{{ route('docs', ['category' => $currentCategory, 'page' => Str::slug($selectedNavItem->menu_nama)]) }}"
-                                       class="text-gray-500 hover:text-blue-600 transition">
+                                       class="{{ $isUseCaseActive ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-blue-600' }} transition">
                                         {{ $selectedNavItem->menu_nama }}
                                     </a>
                                 </div>
                             </li>
                         @endif
-                        @if (!empty($singleUseCase))
-                            <li>
-                                <div class="flex items-center">
-                                    <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
-                                    </svg>
-                                    <a href="{{ route('docs.use_case_detail', [
-                                        'category' => $currentCategory,
-                                        'page' => Str::slug($selectedNavItem->menu_nama),
-                                        'useCaseSlug' => Str::slug($singleUseCase->nama_proses)
-                                    ]) }}" class="text-blue-600 font-semibold">
-                                        Detail UseCase - {{ $singleUseCase->nama_proses }}
-                                    </a>
-                                </div>
-                            </li>
-                        @endif
+                
+                        {{-- Link Detail UseCase (jika ada) --}}
                         @if (!empty($parentUseCase))
                             <li>
                                 <div class="flex items-center">
@@ -146,36 +129,62 @@
                                 </div>
                             </li>
                         @endif
+                
+                        {{-- Link Detail Single UseCase (jika ada) --}}
+                        @if (!empty($singleUseCase))
+                            <li>
+                                <div class="flex items-center">
+                                    <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
+                                    </svg>
+                                    <a href="{{ route('docs.use_case_detail', [
+                                        'category' => $currentCategory,
+                                        'page' => Str::slug($selectedNavItem->menu_nama),
+                                        'useCaseSlug' => Str::slug($singleUseCase->nama_proses)
+                                    ]) }}" class="text-blue-600 font-semibold">
+                                        Detail - {{ $singleUseCase->nama_proses }}
+                                    </a>
+                                </div>
+                            </li>
+                        @endif
+                
+                        {{-- Link Database --}}
                         @if (isset($databaseData))
-                            <li aria-current="page">
+                            <li>
                                 <div class="flex items-center">
                                     <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
                                     </svg>
                                     <span class="text-blue-600 font-semibold">
-                                        Database
+                                        Detail - Database
                                     </span>
                                 </div>
                             </li>
-                        @elseif (isset($reportData))
-                            <li aria-current="page">
+                        @endif
+                        
+                        {{-- Link Report --}}
+                        @if (isset($reportData))
+                            <li>
                                 <div class="flex items-center">
                                     <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
                                     </svg>
                                     <span class="text-blue-600 font-semibold">
-                                        Report
+                                       Detail - Report
                                     </span>
                                 </div>
                             </li>
-                        @elseif (isset($uatData))
-                            <li aria-current="page">
+                        @endif
+                
+                        {{-- Link UAT --}}
+                        @if (isset($uatData))
+                            <li>
                                 <div class="flex items-center">
                                     <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M7.05 4.05a1 1 0 011.414 0L14 9.586l-5.536 5.535a1 1 0 01-1.414-1.414L11.172 10 7.05 5.879a1 1 0 010-1.414z" />
                                     </svg>
                                     <span class="text-blue-600 font-semibold">
-                                        UAT
+                                        Detail - UAT
                                     </span>
                                 </div>
                             </li>
