@@ -14,11 +14,19 @@
     </div>
     @if($editorMode)
         {{-- PERBAIKAN DI SINI: Gunakan data-action="add-parent-menu" --}}
-        <button type="button" data-action="add-parent-menu"
-            class="bg-blue-500 text-white h-11 rounded-lg w-full flex items-center justify-center hover:bg-blue-600 transition-colors mb-3"
-            title="Tambah Menu Utama Baru">
-            <i class="fa fa-plus"></i>
-        </button>
+<button type="button" data-action="add-parent-menu"
+    class="h-11 w-full min-w-[40px] rounded-lg flex items-center justify-center gap-x-2
+           border-[3px] border-gray-500 text-gray-500 font-bold bg-transparent
+           hover:bg-blue-500 hover:text-white hover:border-blue-500
+           transition-colors mb-3">
+    <i class="fa fa-plus"></i>
+    <p class="sidebar-text">Tambah Menu Baru</p>
+</button>
+
+
+
+
+
     @endif
 
     {{-- Sidebar Tambahan Mobile (akan tampil saat responsif) --}}

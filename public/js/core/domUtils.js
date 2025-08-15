@@ -37,10 +37,14 @@ function showElement(element) {
  */
 function toggleClass(element, className, add) {
     if (element) {
-        if (add) {
-            element.classList.add(className);
+        if (typeof add === 'boolean') {
+            if (add) {
+                element.classList.add(className);
+            } else {
+                element.classList.remove(className);
+            }
         } else {
-            element.classList.remove(className);
+            element.classList.toggle(className); // Menggunakan fungsi toggle bawaan
         }
     }
 }

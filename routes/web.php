@@ -16,9 +16,9 @@ use Illuminate\Http\Request; // Diperlukan untuk rute API jika menggunakan Reque
 // Mengatur rute root '/'
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('docs.index'); // Redirect ke halaman docs jika sudah login
+        return redirect()->route('docs.index');
     }
-    return redirect()->route('login'); // Redirect ke halaman login jika belum login
+    return redirect()->route('login');
 })->name('home');
 
 // Rute Login/Logout
@@ -88,5 +88,5 @@ Route::get('/report/cetak/{usecase_id}', [ReportDataController::class, 'cetakPdf
 Route::get('/database/cetak/{usecase_id}', [DatabaseDataController::class, 'cetakPdf'])->name('database.cetak');
 Route::get('/usecase/print/{id}', [UsecaseController::class, 'printSingle'])->name('usecase.print.single');
 
-Route::get('/usecase/cetak/single/lengkap/{id}', [App\Http\Controllers\UseCaseData\UseCaseController::class, 'printSingleComplete'])->name('usecase.print.single.complete');
-Route::get('/usecase/cetak/lengkap/{menu_id}', [App\Http\Controllers\UseCaseData\UseCaseController::class, 'cetakPDFComplete'])->name('usecase.cetak.lengkap');
+Route::get('/usecase/cetak/single/lengkap/{id}', [UseCaseController::class, 'printSingleComplete'])->name('usecase.print.single.complete');
+Route::get('/usecase/cetak/lengkap/{menu_id}', [UseCaseController::class, 'cetakPDFComplete'])->name('usecase.cetak.lengkap');

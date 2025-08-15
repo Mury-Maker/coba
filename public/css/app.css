@@ -290,9 +290,7 @@ div::-webkit-scrollbar{
     color: white;
 }
 .judul-halaman {
-    margin: 10px 10px 10px 0;
     display: flex;
-    gap: 12px;
 }
 .judul-halaman h1 {
     font-size: 26px;
@@ -353,6 +351,10 @@ div::-webkit-scrollbar{
 }
 
 /* --- Dropdown Header & Sidebar --- */
+.container-judul img {
+    height: 40px;
+    width: 40px;
+}
 
 #docs-sidebar{
     padding: 0 18px;
@@ -371,6 +373,7 @@ div::-webkit-scrollbar{
 }
 .sidebar-menu-item-wrapper {
     min-height: 40px;
+    min-width: 40px;
     display: flex;
     align-items: center;
 }
@@ -662,7 +665,6 @@ aside.collapsed-desktop .container-judul #main-category-title {
     display: none;
 }
 aside.collapsed-desktop .container-judul img {
-    height: 32px;
     margin: 0 auto;
 }
 aside.collapsed-desktop .container-judul #add-parent-menu-btn {
@@ -733,6 +735,9 @@ aside {
         align-items: center;
         display: block;
     }
+}
+.sidebar-collapsed .sidebar-text {
+    display: none;
 }
 
 @media (max-width: 768px) {

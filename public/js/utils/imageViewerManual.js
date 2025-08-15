@@ -1,12 +1,10 @@
-// public/js/utils/imageViewerManual.js
-
 import { domUtils } from '../core/domUtils.js';
 import { notificationManager } from '../core/notificationManager.js';
 
 let slideIndex = 1;
 let currentGalleryImages = [];
 
-// --- FUNGSI GLOBAL YANG DIPANGGIL DARI ONCLICK INLINE DI HTML ---
+// === Modal Control ===
 window.openModal = function(initialSlide = 1) {
     const modal = domUtils.getElement("myModal");
     if (modal) {
@@ -22,14 +20,7 @@ window.closeModal = function() {
         domUtils.toggleClass(modal, 'show', false);
 
         const slidesContainer = modal.querySelector('#slidesContainer');
-        const thumbnailRow = modal.querySelector('#thumbnailRow');
-        const captionTextElement = modal.querySelector('#caption');
-        const numbertextElement = modal.querySelector('.numbertext');
-
         if (slidesContainer) slidesContainer.innerHTML = '';
-        if (thumbnailRow) thumbnailRow.innerHTML = '';
-        if (captionTextElement) captionTextElement.innerHTML = '';
-        if (numbertextElement) numbertextElement.innerHTML = '';
 
         const prevBtn = modal.querySelector('.prev-w3');
         const nextBtn = modal.querySelector('.next-w3');
@@ -46,12 +37,9 @@ window.currentSlide = function(n) {
     showSlides(slideIndex = n);
 }
 
+// === Show Slides ===
 function showSlides(n) {
-    let i;
     let slides = document.getElementsByClassName("mySlides");
-    let dots = document.getElementsByClassName("demo");
-    let numbertextElement = document.querySelector(".numbertext");
-    let captionTextElement = document.getElementById("caption");
     const modal = domUtils.getElement("myModal");
     const prevBtn = modal.querySelector('.prev-w3');
     const nextBtn = modal.querySelector('.next-w3');
@@ -59,49 +47,92 @@ function showSlides(n) {
     if (slides.length === 0) {
         if (prevBtn) domUtils.toggleClass(prevBtn, 'hidden', true);
         if (nextBtn) domUtils.toggleClass(nextBtn, 'hidden', true);
-        if (numbertextElement) numbertextElement.innerHTML = '';
-        if (captionTextElement) captionTextElement.innerHTML = 'Tidak ada gambar.';
         return;
     }
 
-    if (n > slides.length) {slideIndex = 1}
-    if (n < 1) {slideIndex = slides.length}
+    if (n > slides.length) { slideIndex = 1 }
+    if (n < 1) { slideIndex = slides.length }
 
-    for (i = 0; i < slides.length; i++) {
+    for (let i = 0; i < slides.length; i++) {
         slides[i].style.display = "none";
-    }
-    for (i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active-w3", "");
+        domUtils.toggleClass(slides[i], 'zoomed', false);
     }
 
     if (slides[slideIndex-1]) {
-        slides[slideIndex-1].style.display = "block";
-    }
-    if (dots[slideIndex-1]) {
-        dots[slideIndex-1].className += " active-w3";
+        slides[slideIndex-1].style.display = "flex";
     }
 
-    if (numbertextElement) {
-        numbertextElement.innerHTML = `${slideIndex} / ${slides.length}`;
-    }
-    if (captionTextElement && dots[slideIndex-1]) {
-        captionTextElement.innerHTML = dots[slideIndex-1].alt;
-    }
-
-    if (prevBtn && nextBtn) {
-        if (slides.length <= 1) {
-            domUtils.toggleClass(prevBtn, 'hidden', true);
-            domUtils.toggleClass(nextBtn, 'hidden', true);
-        } else {
-            domUtils.toggleClass(prevBtn, 'hidden', false);
-            domUtils.toggleClass(nextBtn, 'hidden', false);
-        }
+    if (slides.length <= 1) {
+        domUtils.toggleClass(prevBtn, 'hidden', true);
+        domUtils.toggleClass(nextBtn, 'hidden', true);
+    } else {
+        domUtils.toggleClass(prevBtn, 'hidden', false);
+        domUtils.toggleClass(nextBtn, 'hidden', false);
     }
 }
 
-export function initImageViewerManual() {
-    console.log('initImageViewerManual dipanggil.');
+// === Better Zoom Function ===
+function enableBetterZoom(slideDiv, imgElement) {
+    let scale = 1;
+    let originX = 0;
+    let originY = 0;
+    let isDragging = false;
+    let startX, startY;
 
+    // Zoom pakai scroll wheel
+    imgElement.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        let zoomIntensity = 0.1;
+
+        if (e.deltaY < 0) {
+            scale += zoomIntensity;
+        } else {
+            scale = Math.max(1, scale - zoomIntensity);
+        }
+
+        let rect = imgElement.getBoundingClientRect();
+        originX = ((e.clientX - rect.left) / rect.width) * 100;
+        originY = ((e.clientY - rect.top) / rect.height) * 100;
+
+        imgElement.style.transformOrigin = `${originX}% ${originY}%`;
+        imgElement.style.transform = `scale(${scale})`;
+    });
+
+    // Drag saat zoom
+    imgElement.addEventListener('mousedown', function (e) {
+        if (scale > 1) {
+            isDragging = true;
+            startX = e.pageX - imgElement.offsetLeft;
+            startY = e.pageY - imgElement.offsetTop;
+            imgElement.style.cursor = 'grabbing';
+        }
+    });
+
+    document.addEventListener('mouseup', function () {
+        isDragging = false;
+        imgElement.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        imgElement.style.position = 'relative';
+        imgElement.style.left = `${e.pageX - startX}px`;
+        imgElement.style.top = `${e.pageY - startY}px`;
+    });
+
+    // Double click reset zoom
+    imgElement.addEventListener('dblclick', function () {
+        scale = 1;
+        imgElement.style.transform = 'scale(1)';
+        imgElement.style.left = '0px';
+        imgElement.style.top = '0px';
+        imgElement.style.cursor = 'zoom-in';
+    });
+}
+
+// === Init Image Viewer ===
+export function initImageViewerManual() {
     domUtils.addEventListener(document, 'click', (e) => {
         const clickedGalleryItem = e.target.closest('a.gallery-item');
 
@@ -111,7 +142,6 @@ export function initImageViewerManual() {
 
             const galleryContainer = clickedGalleryItem.closest('.grid.gap-4');
             if (!galleryContainer) {
-                console.error("Gallery container not found for the clicked image.");
                 notificationManager.showNotification("Gagal membuka galeri: Container tidak ditemukan.", "error");
                 return;
             }
@@ -122,12 +152,7 @@ export function initImageViewerManual() {
 
             imageElements.forEach((el, index) => {
                 const fullSrc = el.dataset.fullSrc || el.href;
-                const caption = el.dataset.caption || '';
-                currentGalleryImages.push({
-                    full: fullSrc,
-                    thumb: el.querySelector('img')?.src || fullSrc,
-                    caption: caption
-                });
+                currentGalleryImages.push({ full: fullSrc });
                 if (el === clickedGalleryItem) {
                     initialSlideIndex = index;
                 }
@@ -141,65 +166,43 @@ export function initImageViewerManual() {
             populateModalContentInternal(currentGalleryImages, initialSlideIndex);
         }
     });
+
     domUtils.addEventListener(document, 'keydown', (e) => {
         const modal = domUtils.getElement("myModal");
-        
-        // Pastikan modal sedang terbuka
         if (modal && modal.classList.contains('show')) {
-            if (e.key === "ArrowRight") {
-                // Tombol Panah Kanan ditekan
-                plusSlides(1);
-            } else if (e.key === "ArrowLeft") {
-                // Tombol Panah Kiri ditekan
-                plusSlides(-1);
-            }
+            if (e.key === "ArrowRight") plusSlides(1);
+            else if (e.key === "ArrowLeft") plusSlides(-1);
         }
     });
 }
 
+// === Populate Modal Slides ===
 function populateModalContentInternal(imagesData, clickedIndex) {
     const modal = domUtils.getElement("myModal");
     if (!modal) {
-        console.error("Modal viewer (myModal) not found in DOM.");
         notificationManager.showNotification("Elemen modal viewer tidak ditemukan. Mohon refresh halaman.", "error");
         return;
     }
 
-    const modalContentContainer = modal.querySelector('.modal-content-w3');
-    if (!modalContentContainer) {
-        console.error("Modal content container for image viewer not found.");
-        notificationManager.showNotification("Elemen konten modal viewer tidak lengkap.", "error");
+    const slidesContainer = modal.querySelector('#slidesContainer');
+    if (!slidesContainer) {
+        notificationManager.showNotification("Elemen kontainer slides tidak ditemukan.", "error");
         return;
     }
 
-    const slidesContainer = modal.querySelector('#slidesContainer');
-    const captionTextElement = modal.querySelector('#caption');
-    const thumbnailRow = modal.querySelector('#thumbnailRow');
-
-    if (!slidesContainer) { console.error('slidesContainer not found in modal!'); return; }
-    if (!captionTextElement) { console.error('captionTextElement not found in modal!'); return; }
-    if (!thumbnailRow) { console.error('thumbnailRow not found in modal!'); return; }
-
     slidesContainer.innerHTML = '';
-    captionTextElement.innerHTML = '';
-    thumbnailRow.innerHTML = '';
 
-    imagesData.forEach((imageData, index) => {
-        // Slide item
+    imagesData.forEach((imageData) => {
         const slideDiv = document.createElement('div');
-        slideDiv.className = 'mySlides fade';
-        slideDiv.innerHTML = `
-            <div class="numbertext"></div> <img src="${imageData.full}" style="width:100%">
-        `;
-        slidesContainer.appendChild(slideDiv);
+        slideDiv.className = 'mySlides';
 
-        // Thumbnail item
-        const columnDiv = document.createElement('div');
-        columnDiv.className = 'column';
-        columnDiv.innerHTML = `
-            <img class="demo cursor hover-shadow" src="${imageData.thumb}" style="width:100%" onclick="window.currentSlide(${index + 1})" alt="${imageData.caption}">
-        `;
-        thumbnailRow.appendChild(columnDiv);
+        const imgElement = document.createElement('img');
+        imgElement.src = imageData.full;
+
+        enableBetterZoom(slideDiv, imgElement);
+
+        slideDiv.appendChild(imgElement);
+        slidesContainer.appendChild(slideDiv);
     });
 
     window.openModal(clickedIndex + 1);
