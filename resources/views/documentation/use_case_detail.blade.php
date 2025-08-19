@@ -29,57 +29,57 @@
         <table class="min-w-full bg-white divide-y divide-gray-200">
             <tbody>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Usecase:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">ID Usecase</td>
                     <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
-                        UC - {{ $singleUseCase['id'] ?? 'N/A' }}
+                        : UC - {{ $singleUseCase['id'] ?? 'N/A' }}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
                     <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 w-1/4">Nama Proses:</td>
                     <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
-                        {{ $singleUseCase['nama_proses'] ?? 'N/A' }}
+                        : {{ $singleUseCase['nama_proses'] ?? 'N/A' }}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Deskripsi Aksi:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Deskripsi Aksi</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['deskripsi_aksi'] ?? '<span class="text-gray-500 italic">Tidak ada deskripsi.</span>' !!}
+                        : {!! $singleUseCase['deskripsi_aksi'] ?? '<span class="text-gray-500 italic">Tidak ada deskripsi.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aktor:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aktor</td>
                     <td class="py-2 px-4 text-gray-900 break-words whitespace-normal max-w-xl">
-                        {{ $singleUseCase['aktor'] ?? 'N/A' }}
+                        : {{ $singleUseCase['aktor'] ?? 'N/A' }}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Tujuan:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Tujuan</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['tujuan'] ?? '<span class="text-gray-500 italic">Tidak ada tujuan.</span>' !!}
+                        : {!! $singleUseCase['tujuan'] ?? '<span class="text-gray-500 italic">Tidak ada tujuan.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Awal:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Awal</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['kondisi_awal'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi awal.</span>' !!}
+                        : {!! $singleUseCase['kondisi_awal'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi awal.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Akhir:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Kondisi Akhir</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['kondisi_akhir'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi akhir.</span>' !!}
+                        : {!! $singleUseCase['kondisi_akhir'] ?? '<span class="text-gray-500 italic">Tidak ada kondisi akhir.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aksi Aktor:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Aksi Aktor</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['aksi_aktor'] ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
+                        : {!! $singleUseCase['aksi_aktor'] ?? '<span class="text-gray-500 italic">Tidak ada aksi aktor.</span>' !!}
                     </td>
                 </tr>
                 <tr class="hover:bg-gray-50">
-                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Reaksi Sistem:</td>
+                    <td class="py-2 px-4 whitespace-nowrap font-semibold text-gray-700 align-top">Reaksi Sistem</td>
                     <td class="py-2 px-4 text-gray-900 prose  overflow-auto break-words whitespace-normal max-w-xl">
-                        {!! $singleUseCase['reaksi_sistem'] ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
+                        : {!! $singleUseCase['reaksi_sistem'] ?? '<span class="text-gray-500 italic">Tidak ada reaksi sistem.</span>' !!}
                     </td>
                 </tr>
             </tbody>

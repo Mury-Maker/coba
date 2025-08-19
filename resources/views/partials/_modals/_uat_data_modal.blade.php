@@ -10,12 +10,18 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label for="form_uat_nama_proses_usecase" class="block text-gray-700 text-sm font-bold mb-2">Nama Proses Usecase:</label>
-                        <input type="text" id="form_uat_nama_proses_usecase" name="nama_proses_usecase" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                    </div>
+                        <label for="form_uat_nama_proses_usecase" class="block text-gray-700 text-sm font-bold mb-2">
+                            Nama Proses Usecase:
+                        </label>
+                        <input type="text" id="form_uat_nama_proses_usecase" 
+                               name="nama_proses_usecase" 
+                               value="Proses Contoh"
+                               readonly
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed leading-tight focus:outline-none">
+                    </div>                    
                     <div>
                         <label for="form_uat_keterangan" class="block text-gray-700 text-sm font-bold mb-2">Keterangan:</label>
-                        <textarea id="form_uat_keterangan" name="keterangan_uat" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                        <textarea id="form_uat_keterangan" name="keterangan_uat" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline" placeholder="Masukkan Keterangan Usecase"></textarea>
                     </div>
                     <div>
                         <label for="form_uat_status" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>

@@ -5,9 +5,22 @@
     <title>Usecase - {{ $menu->menu_nama }}</title>
     <style>
         body { font-family: sans-serif; font-size: 12px; }
+        h1, h2, h3 { text-align: center; }
+        h2 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            color: #34495e;
+        }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 6px 10px; }
-        th { background: #eee; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; }
+        th { background: #eee; font-weight: bold; }
+        .empty-data {
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            padding: 20px;
+        }
         @page {
             margin: 20mm;
         }
@@ -15,6 +28,7 @@
 </head>
 <body>
     <h2>Use Case - {{ $menu->menu_nama }}</h2>
+
     <table>
         <thead>
             <tr>
@@ -29,18 +43,22 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($useCases as $uc)
+            @forelse ($useCases as $uc)
                 <tr>
-                    <td>{{ $uc->nama_proses }}</td>
-                    <td>{{ $uc->deskripsi_aksi }}</td>
-                    <td>{{ $uc->aktor }}</td>
-                    <td>{{ $uc->tujuan }}</td>
-                    <td>{{ $uc->kondisi_awal }}</td>
-                    <td>{{ $uc->kondisi_akhir }}</td>
-                    <td>{{ $uc->aksi_aktor }}</td>
-                    <td>{{ $uc->reaksi_sistem }}</td>
+                    <td>{{ $uc->nama_proses ?? '-' }}</td>
+                    <td>{{ $uc->deskripsi_aksi ?? '-' }}</td>
+                    <td>{{ $uc->aktor ?? '-' }}</td>
+                    <td>{{ $uc->tujuan ?? '-' }}</td>
+                    <td>{{ $uc->kondisi_awal ?? '-' }}</td>
+                    <td>{{ $uc->kondisi_akhir ?? '-' }}</td>
+                    <td>{{ $uc->aksi_aktor ?? '-' }}</td>
+                    <td>{{ $uc->reaksi_sistem ?? '-' }}</td>
                 </tr>
-            @endforeach
+            @empty
+                <tr>
+                    <td colspan="8" class="empty-data">Tidak ada data use case yang ditemukan.</td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </body>

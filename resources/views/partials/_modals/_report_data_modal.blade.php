@@ -12,19 +12,19 @@
                     {{-- Form Aktor --}}
                     <div>
                         <label for="form_report_aktor" class="block text-gray-700 text-sm font-bold mb-2">Aktor:</label>
-                        <input type="text" id="form_report_aktor" name="aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        <input type="text" id="form_report_aktor" name="aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Masukkan Nama Aktor" required>
                     </div>
 
                     {{-- Form Nama Report --}}
                     <div>
                         <label for="form_report_nama" class="block text-gray-700 text-sm font-bold mb-2">Nama Report:</label>
-                        <input type="text" id="form_report_nama" name="nama_report" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        <input type="text" id="form_report_nama" name="nama_report" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Masukkan Nama Report" required>
                     </div>
 
                     {{-- Form Keterangan --}}
                     <div>
                         <label for="form_report_keterangan" class="block text-gray-700 text-sm font-bold mb-2">Keterangan:</label>
-                        <textarea id="form_report_keterangan" name="keterangan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                        <textarea id="form_report_keterangan" name="keterangan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline" placeholder="Masukkan Detail Keterangan Report"></textarea>
                     </div>
                 </div>
 
