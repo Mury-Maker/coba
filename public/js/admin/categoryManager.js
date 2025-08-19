@@ -36,14 +36,11 @@ export function initCategoryManager() {
         if (mode === 'create') {
             adminCategoryModalTitle.textContent = 'Tambah Kategori Baru';
             formCategoryName.value = '';
-            // TIDAK ADA PANGGILAN API GET DI BLOK 'create' INI.
-            // Modal hanya dibuka kosong.
-        } else if (mode === 'edit' && categorySlug) { // HANYA JIKA MODE 'EDIT' DAN categorySlug ADA
+        } else if (mode === 'edit' && categorySlug) {
             adminCategoryModalTitle.textContent = `Edit Kategori: ${categoryName}`;
-            formCategoryMethod.value = 'PUT'; // Metode untuk PUT
-            formCategoryIdToEdit.value = categorySlug; // Menggunakan slug untuk identifikasi di route
+            formCategoryMethod.value = 'PUT';
+            formCategoryIdToEdit.value = categorySlug;
 
-            // Isi form dengan data kategori yang ada (HANYA UNTUK MODE EDIT)
             try {
                 console.log('Fetching category data for edit:', categorySlug); // DEBUG
                 const categoryData = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.CATEGORIES.GET}/${categorySlug}`);
@@ -51,9 +48,9 @@ export function initCategoryManager() {
                 console.log('Category data loaded:', categoryData); // DEBUG
             } catch (error) {
                 notificationManager.showNotification('Gagal memuat data kategori untuk diedit.', 'error');
-                domUtils.toggleModal(adminCategoryModal, false); // Tutup modal jika gagal memuat data edit
+                domUtils.toggleModal(adminCategoryModal, false);
                 console.error('Failed to fetch category data:', error); // DEBUG
-                return; // Penting: keluar dari fungsi jika gagal memuat data edit
+                return;
             }
         }
         domUtils.toggleModal(adminCategoryModal, true);
@@ -71,6 +68,13 @@ export function initCategoryManager() {
 
     domUtils.addEventListener(cancelAdminCategoryFormBtn, 'click', closeAdminCategoryModal);
 
+    // KODE BARU: Tutup modal saat klik di luar form
+    domUtils.addEventListener(adminCategoryModal, 'click', (e) => {
+        if (e.target === adminCategoryModal) {
+            closeAdminCategoryModal();
+        }
+    });
+
     domUtils.addEventListener(adminCategoryForm, 'submit', async (e) => {
         e.preventDefault();
         console.log('Form Kategori disubmit.'); // DEBUG
@@ -81,12 +85,12 @@ export function initCategoryManager() {
         const method = formCategoryMethod.value;
         const categoryIdToEdit = formCategoryIdToEdit.value;
 
-        let url = APP_CONSTANTS.API_ROUTES.CATEGORIES.STORE; // Default untuk POST (CREATE)
+        let url = APP_CONSTANTS.API_ROUTES.CATEGORIES.STORE;
         let httpMethod = 'POST';
 
-        if (method === 'PUT') { // Jika method dari form adalah PUT (untuk EDIT)
-            url = `${APP_CONSTANTS.API_ROUTES.CATEGORIES.UPDATE}/${categoryIdToEdit}`; // URL untuk UPDATE (dengan slug)
-            httpMethod = 'POST'; // Tetap POST karena FormData memerlukan ini, nanti di-override via header
+        if (method === 'PUT') {
+            url = `${APP_CONSTANTS.API_ROUTES.CATEGORIES.UPDATE}/${categoryIdToEdit}`;
+            httpMethod = 'POST';
         }
 
         const formData = {
@@ -104,11 +108,11 @@ export function initCategoryManager() {
                 options.headers = { 'X-HTTP-Method-Override': 'PUT' };
             }
 
-            const data = await apiClient.fetchAPI(url, options); // Tunggu respons API
+            const data = await apiClient.fetchAPI(url, options);
 
             console.log('API request berhasil. Respons:', data); // DEBUG
             notificationManager.hideNotification(loadingNotif);
-            notificationManager.showCentralSuccessPopup(data.success); // Ini yang menampilkan pop-up sukses
+            notificationManager.showCentralSuccessPopup(data.success);
             closeAdminCategoryModal();
 
             if (data.redirect_url) {
@@ -119,7 +123,6 @@ export function initCategoryManager() {
         } catch (error) {
             console.error('API request GAGAL:', error); // DEBUG
             notificationManager.hideNotification(loadingNotif);
-            // Error sudah ditangani oleh apiClient
         }
     });
 

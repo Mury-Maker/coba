@@ -13,44 +13,44 @@
 
                     <div class="mb-4 md:col-span-2">
                         <label for="form_nama_proses" class="block text-gray-700 text-sm font-bold mb-2">Nama Proses:</label>
-                        <input type="text" id="form_nama_proses" name="nama_proses" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
+                        <input type="text" id="form_nama_proses" name="nama_proses" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="Masukkan Nama Usecase" required>
                     </div>
 
                     {{-- Deskripsi Aksi (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
                         <label for="form_deskripsi_aksi" class="block text-gray-700 text-sm font-bold mb-2">Deskripsi Aksi:</label>
-                        <textarea id="form_deskripsi_aksi" name="deskripsi_aksi" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-32"></textarea>
+                        <textarea id="form_deskripsi_aksi" name="deskripsi_aksi" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-32" placeholder="Masukkan Deskripsi Aksi Usecase"></textarea>
                     </div>
 
                     {{-- Aktor dan Tujuan (Berbagi 2 kolom) --}}
                     <div class="mb-4">
                         <label for="form_aktor" class="block text-gray-700 text-sm font-bold mb-2">Aktor:</label>
-                        <input type="text" id="form_aktor" name="aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <input type="text" id="form_aktor" name="aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" placeholder="Masukkan Nama Aktor">
                     </div>
                     <div class="mb-4">
                         <label for="form_tujuan" class="block text-gray-700 text-sm font-bold mb-2">Tujuan:</label>
-                        <textarea id="form_tujuan" name="tujuan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <textarea id="form_tujuan" name="tujuan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24" placeholder="Masukkan Tujuan Usecase"></textarea>
                     </div>
 
                     {{-- Kondisi Awal (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
                         <label for="form_kondisi_awal" class="block text-gray-700 text-sm font-bold mb-2">Kondisi Awal:</label>
-                        <textarea id="form_kondisi_awal" name="kondisi_awal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <textarea id="form_kondisi_awal" name="kondisi_awal" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24" placeholder="Masukkan Kondisi Awal Usecase"></textarea>
                     </div>
                     {{-- Kondisi Akhir (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
                         <label for="form_kondisi_akhir" class="block text-gray-700 text-sm font-bold mb-2">Kondisi Akhir:</label>
-                        <textarea id="form_kondisi_akhir" name="kondisi_akhir" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <textarea id="form_kondisi_akhir" name="kondisi_akhir" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24" placeholder="Masukkan Kondisi Akhir Usecase"></textarea>
                     </div>
                     {{-- Aksi Reaksi (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
                         <label for="form_aksi_aktor" class="block text-gray-700 text-sm font-bold mb-2">Aksi Aktor:</label>
-                        <textarea id="form_aksi_aktor" name="aksi_aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <textarea id="form_aksi_aktor" name="aksi_aktor" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24" placeholder="Masukkan Aksi Aktor"></textarea>
                     </div>
                     {{-- Reaksi Sistem (Mengambil 2 kolom) --}}
                     <div class="mb-4 md:col-span-2">
                         <label for="form_reaksi_sistem" class="block text-gray-700 text-sm font-bold mb-2">Reaksi Sistem:</label>
-                        <textarea id="form_reaksi_sistem" name="reaksi_sistem" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24"></textarea>
+                        <textarea id="form_reaksi_sistem" name="reaksi_sistem" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24" placeholder="Masukkan Reaksi Sistem Pada Usecase"></textarea>
                     </div>
                 </div>
 

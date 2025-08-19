@@ -11,7 +11,7 @@
 
                 <div class="mb-4">
                     <label for="form_navmenu_nama" class="block text-gray-700 text-sm font-bold mb-2">Nama Menu:</label>
-                    <input type="text" id="form_navmenu_nama" name="menu_nama"
+                    <input type="text" id="form_navmenu_nama" name="menu_nama" placeholder="Masukkan Nama Menu"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
                 </div>
                 <div class="mb-4">
@@ -32,7 +32,7 @@
 
                     <!-- Icon list -->
                     <div id="iconPickerList"
-                        class="grid grid-cols-5 gap-3 text-2xl mt-2 border rounded p-3 bg-gray-50 overflow-hidden max-h-0 opacity-0 transition-all duration-500 ease-in-out overflow-y-auto">
+                        class="grid grid-cols-5 gap-3 text-2xl mt-2 border rounded p-3 bg-gray-50 overflow-hidden max-h-0 opacity-0 transition-all duration-500 ease-in-out overflow-y-auto **pointer-events-none**">
 
                         <!-- Baris 1 -->
                         <i class="fa-solid fa-house cursor-pointer p-2 border rounded hover:bg-gray-200"
@@ -43,8 +43,8 @@
                             data-value="fa-solid fa-gear"></i>
                         <i class="fa-solid fa-bell cursor-pointer p-2 border rounded hover:bg-gray-200"
                             data-value="fa-solid fa-bell"></i>
-                        <i class="fa-solid fa-chart-line cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-chart-line"></i>
+                        <i class="fa-regular fa-circle cursor-pointer p-2 border rounded hover:bg-gray-200"
+                            data-value="fa-regular fa-circle"></i>
 
                         <!-- Baris 2 -->
                         <i class="fa-solid fa-book cursor-pointer p-2 border rounded hover:bg-gray-200"
@@ -232,42 +232,64 @@
     </div>
 @endif
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const previewBox = document.getElementById("iconPreviewBox");
-        const iconList = document.getElementById("iconPickerList");
-        const inputHidden = document.getElementById("form_navmenu_icon");
-        const arrowIcon = document.getElementById("arrowIcon");
+document.addEventListener("DOMContentLoaded", function() {
+    const submitButton = document.getElementById("submitAdminNavMenuFormBtn");
+    const menuNamaInput = document.getElementById("form_navmenu_nama");
+    const adminNavMenuModal = document.getElementById("adminNavMenuModal");
 
-        // Toggle daftar icon
-        previewBox.addEventListener("click", () => {
-            const isHidden = iconList.classList.contains("max-h-0");
-            if (isHidden) {
-                iconList.classList.remove("max-h-0", "opacity-0");
-                iconList.classList.add("max-h-60", "opacity-100");
-                arrowIcon.style.transform = "rotate(90deg)";
-            } else {
-                iconList.classList.add("max-h-0", "opacity-0");
-                iconList.classList.remove("max-h-60", "opacity-100");
-                arrowIcon.style.transform = "rotate(0deg)";
-            }
-        });
+    // Fungsi untuk mengontrol status tombol
+    function checkFormValidity() {
+        if (menuNamaInput.value.trim() !== "") {
+            submitButton.disabled = false;
+            submitButton.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+            submitButton.disabled = true;
+            submitButton.classList.add("opacity-50", "cursor-not-allowed");
+        }
+    }
 
-        // Pilih icon
-        iconList.querySelectorAll("i").forEach(icon => {
-            icon.addEventListener("click", () => {
-                iconList.querySelectorAll("i").forEach(i => i.classList.remove(
-                    "icon-selected"));
-                icon.classList.add("icon-selected");
+    // Panggil fungsi saat modal dibuka atau saat input berubah
+    // Pastikan ini dipanggil setiap kali Anda memuat data ke form
+    adminNavMenuModal.addEventListener('modal:opened', function() {
+        checkFormValidity();
+    });
 
-                inputHidden.value = icon.getAttribute("data-value");
-                previewBox.querySelector("span").innerHTML =
-                    `<i class="${icon.getAttribute("data-value")}"></i>`;
+    // Tambahkan event listener untuk memantau perubahan pada input
+    menuNamaInput.addEventListener("input", checkFormValidity);
 
-                // Sembunyikan list
-                iconList.classList.add("max-h-0", "opacity-0");
-                iconList.classList.remove("max-h-60", "opacity-100");
-                arrowIcon.style.transform = "rotate(0deg)";
-            });
+    // KODE LAINNYA DI SINI
+    const previewBox = document.getElementById("iconPreviewBox");
+    const iconList = document.getElementById("iconPickerList");
+    const inputHidden = document.getElementById("form_navmenu_icon");
+    const arrowIcon = document.getElementById("arrowIcon");
+
+    previewBox.addEventListener("click", () => {
+        const isHidden = iconList.classList.contains("max-h-0");
+        if (isHidden) {
+            iconList.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
+            iconList.classList.add("max-h-60", "opacity-100");
+            arrowIcon.style.transform = "rotate(90deg)";
+        } else {
+            iconList.classList.add("max-h-0", "opacity-0", "pointer-events-none");
+            iconList.classList.remove("max-h-60", "opacity-100");
+            arrowIcon.style.transform = "rotate(0deg)";
+        }
+    });
+
+    iconList.querySelectorAll("i").forEach(icon => {
+        icon.addEventListener("click", () => {
+            iconList.querySelectorAll("i").forEach(i => i.classList.remove(
+                "icon-selected"));
+            icon.classList.add("icon-selected");
+
+            inputHidden.value = icon.getAttribute("data-value");
+            previewBox.querySelector("span").innerHTML =
+                `<i class="${icon.getAttribute("data-value")}"></i>`;
+
+            iconList.classList.add("max-h-0", "opacity-0", "pointer-events-none");
+            iconList.classList.remove("max-h-60", "opacity-100");
+            arrowIcon.style.transform = "rotate(0deg)";
         });
     });
+});
 </script>

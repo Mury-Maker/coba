@@ -10,18 +10,22 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label for="form_database_keterangan" class="block text-gray-700 text-sm font-bold mb-2">Nama Tabel:</label>
-                        <input list="tables" id="form_database_keterangan" name="keterangan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline"></input>
-                        <datalist id="tables">
+                        <label for="form_database_keterangan" class="block text-gray-700 text-sm font-bold mb-2">
+                            Nama Tabel:
+                        </label>
+                        <select id="form_database_keterangan" 
+                                name="keterangan" 
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline" 
+                                required>
+                            <option value="" disabled selected>Pilih tabel</option>
                             @foreach($tablesList as $tb)
-                            <option value="{{ $tb->nama_tabel }}"></option>
-                            
+                                <option value="{{ $tb->nama_tabel }}">{{ $tb->nama_tabel }}</option>
                             @endforeach
-                        </datalist>
-                    </div>
+                        </select>
+                    </div>                    
                     <div>
                         <label for="form_database_relasi" class="block text-gray-700 text-sm font-bold mb-2">Keterangan Relasi:</label>
-                        <textarea id="form_database_relasi" name="relasi" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                        <textarea id="form_database_relasi" name="relasi" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 h-24 leading-tight focus:outline-none focus:shadow-outline" placeholder="Masukkan Keterangan Relasi Tabelnya"></textarea>
                     </div>
                 </div>
 
