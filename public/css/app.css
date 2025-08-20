@@ -881,3 +881,68 @@ td {
     gap: 12px;
 }
 
+/* --- Efek Hover untuk Sidebar Desktop yang Tertutup --- */
+@media (min-width: 768px) {
+    /* Saat kursor hover di atas sidebar yang memiliki kelas `collapsed-desktop`, terapkan gaya "terbuka" */
+    aside.collapsed-desktop:hover {
+        width: 18rem; /* Atur lebar kembali ke ukuran penuh */
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        overflow-x: auto; /* Aktifkan scrollbar jika konten melebihi lebar */
+    }
+
+    /* Tampilkan elemen-elemen yang disembunyikan saat sidebar collapsed */
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper > a span,
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper > div[data-toggle] span,
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper .flex.items-center.space-x-0\.5,
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper .menu-arrow-icon,
+    aside.collapsed-desktop:hover .sidebar-text {
+        opacity: 1 !important;
+        width: auto !important;
+        pointer-events: auto !important;
+        transition: opacity 0.3s ease-in-out 0.2s, width 0.3s ease-in-out 0.2s; /* Tambahkan delay untuk transisi yang lebih halus */
+    }
+
+    /* Atur ulang lebar ikon saat hover */
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper > a .w-4,
+    aside.collapsed-desktop:hover #sidebar-navigation .sidebar-menu-item-wrapper > div[data-toggle] .w-4 {
+        width: 1rem !important;
+    }
+
+    /* Tampilkan kembali elemen judul utama dan tombol tambah menu */
+    aside.collapsed-desktop:hover .container-judul,
+    aside.collapsed-desktop:hover .text-lg.font-semibold.text-gray-800,
+    aside.collapsed-desktop:hover #main-category-title,
+    aside.collapsed-desktop:hover #add-parent-menu-btn {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-around;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Atur ulang margin gambar logo saat hover */
+    aside.collapsed-desktop:hover .container-judul img {
+        margin: unset !important;
+    }
+}
+
+/* --- Teks Sidebar --- */
+.sidebar-text {
+    display: block; /* Pastikan teks terlihat secara default */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Aturan untuk menyembunyikan teks saat sidebar kolaps */
+.sidebar-collapsed .sidebar-text {
+    display: none;
+}
+
+/* Aturan untuk menampilkan teks saat sidebar kembali normal pada semua ukuran layar,
+   terutama saat mobile atau saat di-hover pada desktop yang kolaps */
+aside:not(.collapsed-desktop) .sidebar-text,
+aside.collapsed-desktop:hover .sidebar-text {
+    display: block !important;
+}

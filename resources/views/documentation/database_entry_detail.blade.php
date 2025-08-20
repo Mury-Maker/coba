@@ -4,10 +4,10 @@
 
     {{-- Tabel Informasi Umum --}}
     <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-        <p class="py-3 px-4 whitespace-nowrap font-semibold text-gray-700">
+        <div class="flex items-center px-4 py-2 font-semibold text-gray-700">
             <strong>ID Database:</strong>
-            {{ $databaseData->id_database ?? 'N/A' }}
-        </p>
+            <span class="ml-1">{{ $databaseData->id_database ?? 'N/A' }}</span>
+        </div>
     </div>
 
     <hr>

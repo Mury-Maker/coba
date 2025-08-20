@@ -75,42 +75,50 @@
                 </a>
             @endif
 
+
             {{-- Kontainer KANAN: Tombol Admin dan Panah Dropdown --}}
             <div class="flex items-center flex-shrink-0">
 
                 {{-- Tombol Admin (Add Child, Edit, Delete) --}}
                 @if($editorMode)
                     <div class="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mr-1">
-                        @if ($item->menu_status == 0) {{-- Hanya folder yang bisa punya sub-menu --}}
-                            {{-- PERBAIKAN DI SINI: Tambah Sub Menu --}}
-                            <button
-                                type="button"
-                                data-action="add-child-menu"
-                                data-parent-id="{{ $item->menu_id }}"
-                                class="text-blue-500 hover:text-blue-700 p-1"
-                                title="Tambah Sub Menu"
-                                aria-label="Tambah Sub Menu">
-                                <i class="fa-solid fa-plus-circle"></i>
-                            </button>
-                        @endif
-                        @if (str_contains($item->menu_link, 'daftar-tabel') != true )
-                        <button
-                            data-action="edit-menu"
-                            data-menu-id="{{ $item->menu_id }}"
-                            class="text-yellow-500 hover:text-yellow-700 p-1"
-                            title="Edit Menu"
-                            aria-label="Edit Menu">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button
-                            data-action="delete-menu"
-                            data-menu-id="{{ $item->menu_id }}"
-                            data-menu-nama="{{ $item->menu_nama }}"
-                            class="text-red-500 hover:text-red-700 p-1"
-                            title="Hapus Menu"
-                            aria-label="Hapus Menu {{ $item->menu_nama }}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                        {{-- PERUBAHAN KRITIS DI SINI --}}
+                        @if (trim($item->menu_nama) !== 'Dashboard')
+                            @if (str_contains($item->menu_link, 'daftar-tabel') != true)
+                                {{-- Tombol Tambah Sub Menu --}}
+                                @if ($item->menu_status == 0)
+                                    <button
+                                        type="button"
+                                        data-action="add-child-menu"
+                                        data-parent-id="{{ $item->menu_id }}"
+                                        class="text-blue-500 hover:text-blue-700 p-1"
+                                        title="Tambah Sub Menu"
+                                        aria-label="Tambah Sub Menu">
+                                        <i class="fa-solid fa-plus-circle"></i>
+                                    </button>
+                                @endif
+
+                                {{-- Tombol Edit --}}
+                                <button
+                                    data-action="edit-menu"
+                                    data-menu-id="{{ $item->menu_id }}"
+                                    class="text-yellow-500 hover:text-yellow-700 p-1"
+                                    title="Edit Menu"
+                                    aria-label="Edit Menu">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+
+                                {{-- Tombol Hapus --}}
+                                <button
+                                    data-action="delete-menu"
+                                    data-menu-id="{{ $item->menu_id }}"
+                                    data-menu-nama="{{ $item->menu_nama }}"
+                                    class="text-red-500 hover:text-red-700 p-1"
+                                    title="Hapus Menu"
+                                    aria-label="Hapus Menu {{ $item->menu_nama }}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            @endif
                         @endif
                     </div>
                 @endif
@@ -132,6 +140,7 @@
                     @endif
                 </div>
             </div>
+
         </div>
 
         @if($isFolder)

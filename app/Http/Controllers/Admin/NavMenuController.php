@@ -275,14 +275,14 @@ class NavMenuController extends Controller
                 } else {
                     $categoryExists = Category::where('slug', $currentCategorySlug)->exists();
                     if ($categoryExists) {
-                        $berandaSlug = Str::slug('Beranda ' . $deletedCategoryName);
+                        $berandaSlug = Str::slug('Dashboard ' . $deletedCategoryName);
                         $berandaMenu = NavMenu::where('category_id', $navMenu->category->id)
                                                 ->where('menu_link', $berandaSlug)
                                                 ->first();
 
                         if ($berandaMenu) {
                              $redirectUrl = route('docs', ['category' => $currentCategorySlug, 'page' => $berandaSlug]);
-                             Log::info('NavMenuController@destroy: Redirect ke beranda kategori: ' . $redirectUrl);
+                             Log::info('NavMenuController@destroy: Redirect ke dashboard kategori: ' . $redirectUrl);
                         } else {
                              $redirectUrl = route('docs', ['category' => $currentCategorySlug]);
                              Log::info('NavMenuController@destroy: Redirect ke kategori tanpa menu spesifik: ' . $redirectUrl);
