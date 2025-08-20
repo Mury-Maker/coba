@@ -6,31 +6,31 @@ import { notificationManager } from '../core/notificationManager.js';
 import { APP_CONSTANTS } from '../utils/constants.js';
 
 export function initSidebar() {
-    console.log('initSidebar dipanggil.'); // DEBUG: Confirm initialization
+    console.log('initSidebar dipanggil.');
     const mobileMenuToggle = domUtils.getElement('mobile-menu-toggle');
     const sidebar = domUtils.getElement('docs-sidebar');
-    const backdrop = domUtils.getElement('sidebar-backdrop'); // Pastikan Anda memiliki elemen ini di Blade, jika tidak hapus
+    const backdrop = domUtils.getElement('sidebar-backdrop');
 
     // Toggle sidebar mobile
     if (mobileMenuToggle && sidebar && backdrop) {
         domUtils.addEventListener(mobileMenuToggle, 'click', () => {
-            console.log('Mobile menu toggle clicked.'); // DEBUG
+            console.log('Mobile menu toggle clicked.');
             domUtils.toggleClass(sidebar, 'show', true);
             domUtils.toggleClass(backdrop, 'show', true);
         });
         domUtils.addEventListener(backdrop, 'click', () => {
-            console.log('Backdrop clicked, closing mobile menu.'); // DEBUG
+            console.log('Backdrop clicked, closing mobile menu.');
             domUtils.toggleClass(sidebar, 'show', false);
             domUtils.toggleClass(backdrop, 'show', false);
         });
     } else {
-        console.log('Mobile menu elements not found (mobileMenuToggle, sidebar, or backdrop).'); // DEBUG
+        console.log('Mobile menu elements not found (mobileMenuToggle, sidebar, or backdrop).');
     }
 
     const desktopSidebarToggle = domUtils.getElement('desktop-sidebar-toggle');
     if (desktopSidebarToggle && sidebar) {
         domUtils.addEventListener(desktopSidebarToggle, 'click', () => {
-            console.log('Desktop sidebar toggle clicked.'); // DEBUG
+            console.log('Desktop sidebar toggle clicked.');
             domUtils.toggleClass(sidebar, 'collapsed-desktop', !sidebar.classList.contains('collapsed-desktop'));
             domUtils.toggleClass(document.body, 'sidebar-collapsed', !document.body.classList.contains('sidebar-collapsed'));
 
@@ -38,7 +38,7 @@ export function initSidebar() {
             if (icon) {
                 if (sidebar.classList.contains('collapsed-desktop')) {
                     icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-bars'); // Tetap fa-bars, tapi CSS akan ubah posisi
+                    icon.classList.add('fa-bars');
                     icon.title = 'Perluas Sidebar';
                 } else {
                     icon.classList.remove('fa-bars');
@@ -47,7 +47,7 @@ export function initSidebar() {
                 }
             }
 
-            // Opsional: Tutup semua submenu saat sidebar dilipat
+            // Tutup semua submenu saat sidebar dilipat
             if (sidebar.classList.contains('collapsed-desktop')) {
                 const allOpenSubmenus = sidebar.querySelectorAll('.submenu-container.open');
                 allOpenSubmenus.forEach(openSubmenu => {
@@ -61,20 +61,22 @@ export function initSidebar() {
             }
         });
     } else {
-        console.log('Desktop sidebar toggle or sidebar element not found.'); // DEBUG
+        console.log('Desktop sidebar toggle or sidebar element not found.');
     }
 
-    // Fungsi untuk mengelola dropdown submenu sidebar (klik panah)
     function handleSubmenuToggle(event) {
         const sidebarElement = domUtils.getElement('docs-sidebar');
-        if (sidebarElement && sidebarElement.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
-            return;
+
+        // Cek jika sidebar dalam mode collapsed dan sedang tidak di-hover,
+        // maka klik tidak akan berefek. Ini mencegah klik saat sidebar sedang kecil.
+        // Logika ini tetap penting untuk desktop.
+        if (sidebarElement.classList.contains('collapsed-desktop') && !sidebarElement.matches(':hover') && window.innerWidth >= 768) {
+             return;
         }
 
         event.preventDefault();
         event.stopPropagation();
 
-        // Dapatkan elemen item menu (elemen <li>)
         const menuItemElement = event.currentTarget.closest('li');
 
         if (!menuItemElement) {
@@ -84,13 +86,13 @@ export function initSidebar() {
 
         const submenuId = event.currentTarget.dataset.toggle;
         const submenu = domUtils.getElement(submenuId);
-        const arrowIcon = menuItemElement.querySelector('.menu-arrow-icon i'); // <-- Perubahan di sini!
+        const arrowIcon = menuItemElement.querySelector('.menu-arrow-icon i');
 
         if (submenu) {
             const isCurrentlyOpen = submenu.classList.contains('open');
             console.log('Submenu toggled:', submenuId, 'Currently open:', isCurrentlyOpen);
 
-            // Tutup submenu saudara (seperti logika yang sudah Anda buat)
+            // Tutup submenu saudara
             const siblingSubmenus = menuItemElement.parentElement.querySelectorAll('.submenu-container.open');
             siblingSubmenus.forEach(siblingSubmenu => {
                 if (siblingSubmenu !== submenu && !submenu.contains(siblingSubmenu)) {
@@ -98,7 +100,7 @@ export function initSidebar() {
                     const siblingTrigger = siblingSubmenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
                     if (siblingTrigger) {
                         siblingTrigger.setAttribute('aria-expanded', 'false');
-                        const siblingIcon = siblingTrigger.closest('li').querySelector('.menu-arrow-icon i'); // Cari ikon di parent <li>
+                        const siblingIcon = siblingTrigger.closest('li').querySelector('.menu-arrow-icon i');
                         if (siblingIcon) {
                             domUtils.toggleClass(siblingIcon, 'open', false);
                         }
@@ -110,80 +112,23 @@ export function initSidebar() {
             domUtils.toggleClass(submenu, 'open', !isCurrentlyOpen);
             event.currentTarget.setAttribute('aria-expanded', !isCurrentlyOpen);
             if (arrowIcon) {
-                domUtils.toggleClass(arrowIcon, 'open', !isCurrentlyOpen); // Ikon panah diubah
+                domUtils.toggleClass(arrowIcon, 'open', !isCurrentlyOpen);
             }
         } else {
             console.log('Submenu element not found for toggle:', submenuId);
         }
     }
 
-    // Fungsi untuk mengelola klik pada parent menu saat sidebar minimize
-    // Ini adalah fungsi baru yang ditambahkan
-    function handleSubmenuToggle(event) {
-        const sidebarElement = domUtils.getElement('docs-sidebar');
-        if (sidebarElement && sidebarElement.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
-            return;
-        }
-    
-        event.preventDefault();
-        event.stopPropagation();
-    
-        // Dapatkan elemen item menu (elemen <li>)
-        const menuItemElement = event.currentTarget.closest('li');
-    
-        if (!menuItemElement) {
-            console.error('Could not find parent <li> for the clicked item.');
-            return;
-        }
-    
-        const submenuId = event.currentTarget.dataset.toggle;
-        const submenu = domUtils.getElement(submenuId);
-        const arrowIcon = menuItemElement.querySelector('.menu-arrow-icon i'); // <-- Perubahan di sini!
-    
-        if (submenu) {
-            const isCurrentlyOpen = submenu.classList.contains('open');
-            console.log('Submenu toggled:', submenuId, 'Currently open:', isCurrentlyOpen);
-    
-            // Tutup submenu saudara (seperti logika yang sudah Anda buat)
-            const siblingSubmenus = menuItemElement.parentElement.querySelectorAll('.submenu-container.open');
-            siblingSubmenus.forEach(siblingSubmenu => {
-                if (siblingSubmenu !== submenu && !submenu.contains(siblingSubmenu)) {
-                    domUtils.toggleClass(siblingSubmenu, 'open', false);
-                    const siblingTrigger = siblingSubmenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
-                    if (siblingTrigger) {
-                        siblingTrigger.setAttribute('aria-expanded', 'false');
-                        const siblingIcon = siblingTrigger.closest('li').querySelector('.menu-arrow-icon i'); // Cari ikon di parent <li>
-                        if (siblingIcon) {
-                            domUtils.toggleClass(siblingIcon, 'open', false);
-                        }
-                    }
-                }
-            });
-    
-            // Ubah status submenu dan ikon panah
-            domUtils.toggleClass(submenu, 'open', !isCurrentlyOpen);
-            event.currentTarget.setAttribute('aria-expanded', !isCurrentlyOpen);
-            if (arrowIcon) {
-                domUtils.toggleClass(arrowIcon, 'open', !isCurrentlyOpen); // Ikon panah diubah
-            }
-        } else {
-            console.log('Submenu element not found for toggle:', submenuId);
-        }
-    }
-
-    // Fungsi untuk membuka parent menu dari item yang aktif saat load halaman
     function openActiveMenuParents() {
-        const activeItemElement = sidebar.querySelector('.bg-blue-100'); // Cari menu yang aktif
-
+        const activeItemElement = sidebar.querySelector('.bg-blue-100');
         if (activeItemElement) {
-            console.log('Active menu item found, opening parents.'); // DEBUG
+            console.log('Active menu item found, opening parents.');
             let currentElement = activeItemElement;
             while (currentElement && currentElement !== sidebar) {
                 if (currentElement.classList.contains('submenu-container')) {
                     domUtils.toggleClass(currentElement, 'open', true);
                     const parentWrapper = currentElement.previousElementSibling;
                     const triggerButton = parentWrapper ? parentWrapper.querySelector('[data-toggle^="submenu-"]') : null;
-
                     if (triggerButton) {
                         const icon = triggerButton.querySelector('i');
                         if (icon) {
@@ -195,29 +140,37 @@ export function initSidebar() {
                 currentElement = currentElement.parentElement;
             }
         } else {
-            console.log('No active menu item found for openActiveMenuParents.'); // DEBUG
+            console.log('No active menu item found for openActiveMenuParents.');
         }
     }
 
-    // Attach event listeners untuk submenu toggles
+    // --- Perbaikan Utama: Menutup dropdown saat kursor keluar dari sidebar ---
+    if (sidebar) {
+        domUtils.addEventListener(sidebar, 'mouseleave', () => {
+            console.log('Mouse left sidebar. Closing all submenus...');
+            const allOpenSubmenus = sidebar.querySelectorAll('.submenu-container.open');
+            allOpenSubmenus.forEach(submenu => {
+                domUtils.toggleClass(submenu, 'open', false);
+                const relatedTrigger = submenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
+                if (relatedTrigger) {
+                    relatedTrigger.setAttribute('aria-expanded', 'false');
+                    domUtils.toggleClass(relatedTrigger.querySelector('i'), 'open', false);
+                }
+            });
+        });
+    }
+
     function attachSubmenuEventListeners() {
         const submenuTriggers = document.querySelectorAll('[data-toggle^="submenu-"]');
         if (submenuTriggers.length > 0) {
-            console.log('Attaching submenu event listeners. Found:', submenuTriggers.length, 'triggers.'); // DEBUG
+            console.log('Attaching submenu event listeners. Found:', submenuTriggers.length, 'triggers.');
         } else {
-            console.log('No submenu triggers found.'); // DEBUG
+            console.log('No submenu triggers found.');
         }
 
         submenuTriggers.forEach(trigger => {
-            domUtils.removeEventListener(trigger, handleSubmenuToggle); // Clean up old listeners
+            domUtils.removeEventListener(trigger, handleSubmenuToggle);
             domUtils.addEventListener(trigger, 'click', handleSubmenuToggle);
-        });
-
-        // Attach event listener baru untuk klik parent menu saat sidebar minimize
-        const parentLinks = document.querySelectorAll('.sidebar-menu-parent-link');
-        parentLinks.forEach(link => {
-            domUtils.removeEventListener(link, 'click', handleParentMenuClick); // Clean up old listeners
-            domUtils.addEventListener(link, 'click', handleParentMenuClick);
         });
     }
 
@@ -225,62 +178,57 @@ export function initSidebar() {
     openActiveMenuParents();
 
     window.refreshSidebarDropdowns = () => {
-        console.log('refreshSidebarDropdowns called.'); // DEBUG
+        console.log('refreshSidebarDropdowns called.');
         attachSubmenuEventListeners();
         openActiveMenuParents();
     };
 
     // ADMIN: Event Listener untuk tombol admin di sidebar (delegasi event pada dokumen)
     if (window.APP_BLADE_DATA.userRole === APP_CONSTANTS.ROLES.ADMIN) {
-        console.log('Sidebar: Admin mode detected, attaching menu action listeners.'); // DEBUG
+        console.log('Sidebar: Admin mode detected, attaching menu action listeners.');
         domUtils.addEventListener(document, 'click', (e) => {
-            // Tombol "+" di sidebar utama (Tambah Menu Utama Baru)
             const addParentMenuBtn = e.target.closest('[data-action="add-parent-menu"]');
-
-            // Tombol "+" di samping item menu (Tambah Sub Menu)
             const addChildMenuBtn = e.target.closest('[data-action="add-child-menu"]');
-
             const editNavMenuBtn = e.target.closest('[data-action="edit-menu"]');
             const deleteNavMenuBtn = e.target.closest('[data-action="delete-menu"]');
-            const toggleSubmenuBtn = e.target.closest('[data-toggle^="submenu-"]');
 
             if (addParentMenuBtn) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('--- Tombol "Tambah Menu Utama Baru" di Sidebar diklik. ---'); // DEBUG
+                console.log('--- Tombol "Tambah Menu Utama Baru" di Sidebar diklik. ---');
                 const parentId = parseInt(addParentMenuBtn.dataset.parentId || '0');
                 notificationManager.openAdminNavMenuModal('create', null, parentId);
             } else if (addChildMenuBtn) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('--- Tombol "Tambah Sub Menu" diklik. ---'); // DEBUG
+                console.log('--- Tombol "Tambah Sub Menu" diklik. ---');
                 const parentId = parseInt(addChildMenuBtn.dataset.parentId || '0');
                 notificationManager.openAdminNavMenuModal('create', null, parentId);
             } else if (editNavMenuBtn) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Edit NavMenu button clicked.'); // DEBUG
+                console.log('Edit NavMenu button clicked.');
                 const menuId = parseInt(editNavMenuBtn.dataset.menuId);
                 apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.NAVMENU.GET}/${menuId}`)
                     .then(menuData => notificationManager.openAdminNavMenuModal('edit', menuData))
                     .catch(error => {
-                        console.error('Error fetching NavMenu data for edit:', error); // DEBUG
+                        console.error('Error fetching NavMenu data for edit:', error);
                         notificationManager.showNotification('Gagal memuat data menu.', 'error');
                     });
             } else if (deleteNavMenuBtn) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Delete NavMenu button clicked.'); // DEBUG
+                console.log('Delete NavMenu button clicked.');
                 const menuId = parseInt(deleteNavMenuBtn.dataset.menuId);
                 const menuNama = deleteNavMenuBtn.dataset.menuNama;
                 notificationManager.openConfirmModal(`Apakah Anda yakin ingin menghapus menu "${menuNama}"? Tindakan ini tidak dapat dibatalkan dan akan menghapus semua sub-menu terkait, serta seluruh konten (Aksi, UAT, Report, Database) di dalamnya.`, async () => {
-                    console.log('Konfirmasi Hapus disetujui untuk:', menuId); // DEBUG
+                    console.log('Konfirmasi Hapus disetujui untuk:', menuId);
                     const loadingNotif = notificationManager.showNotification('Menghapus menu...', 'loading');
                     try {
                         const data = await apiClient.fetchAPI(`${APP_CONSTANTS.API_ROUTES.NAVMENU.DESTROY}/${menuId}`, {
                             method: 'DELETE'
                         });
-                        console.log('Delete API berhasil. Respons:', data); // DEBUG
+                        console.log('Delete API berhasil. Respons:', data);
                         notificationManager.hideNotification(loadingNotif);
                         notificationManager.showCentralSuccessPopup(data.success);
                         if (data.redirect_url) {
@@ -289,13 +237,10 @@ export function initSidebar() {
                             window.location.reload();
                         }
                     } catch (error) {
-                        console.error('Delete API GAGAL:', error); // DEBUG
+                        console.error('Delete API GAGAL:', error);
                         notificationManager.hideNotification(loadingNotif);
                     }
                 });
-            } else if (toggleSubmenuBtn) {
-                // Ini adalah penanganan untuk panah toggle submenu, yang sudah ditangani oleh handleSubmenuToggle
-                // Tidak perlu memanggil fungsi lain di sini karena event sudah ditangkap oleh listener lain
             }
         });
     }

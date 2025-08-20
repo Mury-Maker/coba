@@ -19,6 +19,13 @@
 
                 {{-- Category Dropdown (untuk Desktop dan Mobile Sidebar) --}}
                 <div class="relative hidden md:block">
+
+                    {{-- kategori teks --}}
+                    {{-- <a href="{{ route('docs', ['category' => $currentCategorySlug]) }}" id="main-category-title"
+                        class="text-2xl font-bold text-blue-600 header-main-category-title"
+                        title="{!! ucwords(str_replace('-', ' ', $currentCategorySlug)) !!}">
+                        <span class="truncate-text">Epesantren</span>
+                    </a> --}}
                     <button id="category-dropdown-btn"
                         class="flex items-center px-4 py-2 text-base font-medium rounded-lg transition-colors focus:outline-none">
                         <span id="category-button-text" class="truncate-text"

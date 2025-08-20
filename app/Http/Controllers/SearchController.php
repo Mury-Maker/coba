@@ -109,7 +109,7 @@ class SearchController extends Controller
                 } else if (Str::contains(strtolower($useCase->nama_proses), $searchTerm)) {
                     $relevance = 90;
                     $snippet = $useCase->nama_proses;
-                    $context = 'Nama Proses'; // Konteks lebih spesifik
+                    $context = 'Nama Proses UseCase'; // Konteks lebih spesifik
                 }
 
                 $results[] = [
@@ -198,7 +198,7 @@ class SearchController extends Controller
                         'useCaseSlug' => Str::slug($report->useCase->nama_proses),
                         'reportId' => $report->id_report
                     ]),
-                    'context' => 'Detail Laporan',
+                    'context' => 'Detail Report',
                     'relevance' => 55,
                     'snippet' => Str::limit(strip_tags($snippet), 150)
                 ];

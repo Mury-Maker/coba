@@ -22,6 +22,7 @@ import { initUatDataManager } from './documentation/useCase/uatDataManager.js';
 import { initReportDataManager } from './documentation/useCase/reportDataManager.js';
 import { initDatabaseDataManager } from './documentation/useCase/databaseDataManager.js';
 import { initGlobalContentDisplay as initDocGlobalContentDisplay } from './documentation/globalContentDisplay.js';
+import {initTablesListManager } from './documentation/tablesListManager.js';
 
 // Import dari folder 'utils'
 import { authUtils } from './utils/auth.js';
@@ -41,6 +42,7 @@ function reattachAllEventListeners() {
         initUatDataManager();
         initReportDataManager();
         initDatabaseDataManager();
+        initTablesListManager();
     }
 
     authUtils.initLogoutButton();

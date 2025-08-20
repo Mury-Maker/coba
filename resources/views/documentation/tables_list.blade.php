@@ -1,4 +1,3 @@
-{{-- usecase_index.blade.php --}}
     <div class="max-w-7xl mx-auto px-2 sm:px-2 lg:px-2">
         <div class="bg-white rounded-lg shadow-md p-6">
 
@@ -9,27 +8,29 @@
         {{-- Jika file sql ditemukan  --}}
             @if($sqlFile)
             <div class="sql">
-            
+
             <h2 class="text-2xl font-bold mb-4 text-gray-800">File SQL Tersedia</h2>
 
             <p>Nama File Saat ini: <br></p>
-                
+
                 <strong>
-            <div class="deleteSql">  
+            <div class="deleteSql">
                 <a title="Download File .sql" href="{{ asset('storage/sql_files/' . $sqlFile->file_name) }}">
                     {{ $sqlFile->file_name }}
                 </a>
 
-                <form action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus file dan semua datanya?')">
-                    @csrf
-                    @method('DELETE')
-                    <button title="Hapus File dan Data" type="submit" class=""><i class="fa-solid fa-trash" style="color: #ff0000;"></i></button>
-                </form>
+<form id="deleteSqlForm" action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST">
+    @csrf
+    @method('DELETE')
+    <button title="Hapus File dan Data" type="button" class="hapus-sql-btn">
+        <i class="fa-solid fa-trash" style="color: #ff0000;"></i>
+    </button>
+</form>
             </div>
                 </strong>
 
                 <p>Tekan tombol berikut untuk menampilkan ERD</p>
-                <form action="{{ route('erd.generate', ['categoryId' => $catID]) }}" method="POST" class="mt-4">
+                <form id="generateErdForm" action="{{ route('erd.generate', ['categoryId' => $catID]) }}" method="POST" class="mt-4">
                     @csrf
                     <input type="hidden" name="category_id" value="{{ $catID }}">
                     <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
@@ -44,11 +45,11 @@
             <div class="updateSql">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800" ><button onclick="toggleFileUpdate()">Ganti file:</button></h2>
                 <div class="form-update-erd hidden">
-                    <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
+                    <form id="updateSqlForm" action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <input type="hidden" name="category_id" value="{{ $catID }}" />
-                    
+
 
                     <div class="mb-4">
                         <input type="file" name="sql_file" accept=".sql" required class="block w-full border rounded p-2" />
@@ -82,10 +83,10 @@
 
                 </div>
 
-                
+
 
                 <div id="myDiagramDiv" style="width:100%; height:600px; border:1px solid black; padding:28px;">
-                    
+
                 </div>
 
             </div>
@@ -103,7 +104,7 @@
             <p>Menu ID: {{ $catID }}</p>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">Belum ada file SQL</h2>
 
-            <form action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
+            <form id="uploadSqlForm" action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <input type="hidden" name="category_id" value="{{ $catID }}" />
@@ -178,7 +179,7 @@
                         margin: 4,
                         defaultAlignment: go.Spot.Left,
                         stretch: go.GraphObject.Horizontal,
-                        
+
                     },
 
                         // Header Nama Tabel
@@ -296,7 +297,7 @@
             // Allow multiple links between the same nodes with different keys
             myDiagram.model.linkKeyProperty = "key";
         }
-        
+
         function toggleDropdownDownloads() {
                 document.getElementById("myDropdown").classList.toggle("showDownloads");
         }
@@ -375,19 +376,19 @@
         }
 
         function makePNG() {
-            var blob = myDiagram.makeImageData({ 
-                                background: 'white', 
+            var blob = myDiagram.makeImageData({
+                                background: 'white',
                                 returnType: 'blob',
-                                scale: 1, 
-                                maxSize: new go.Size(3000, 3000),
+                                scale: 1,
+                                maxSize: new go.Size(5000, 5000),
                                 padding: 100,
-                                callback: pngCallback 
+                                callback: pngCallback
             });
         }
 
         function makeImage() {
             myDiagram.makeImageData({
-            maxSize: new go.Size(3000, 3000),
+            maxSize: new go.Size(5000, 5000),
             returnType: 'blob',
             scale: 1,
             background: "white",
@@ -429,8 +430,8 @@
         }
 
         function makeSvg() {
-            var svg = myDiagram.makeSvg({ 
-                scale: 1, 
+            var svg = myDiagram.makeSvg({
+                scale: 1,
                 background: 'white',
                 padding: 100
             });
@@ -438,13 +439,13 @@
             var blob = new Blob([svgstr], { type: 'image/svg+xml' });
             svgCallback(blob);
         }
-        
+
 
         // Jalankan GoJS setelah halaman dimuat
         window.addEventListener('DOMContentLoaded', initGoJS);
 
     </script>
 
-    
+
 
 

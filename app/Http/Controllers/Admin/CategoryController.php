@@ -47,8 +47,8 @@ class CategoryController extends Controller
 
                 $homeMenu = NavMenu::create([
                     'category_id' => $category->id,
-                    'menu_nama' => 'Beranda ' . Str::headline($category->name),
-                    'menu_link' => Str::slug('Beranda ' . $category->name),
+                    'menu_nama' => 'Dashboard ',
+                    'menu_link' => Str::slug('dashboard ' . $category->name),
                     'menu_icon' => 'fa-solid fa-home',
                     'menu_child' => 0,
                     'menu_order' => 0,
@@ -72,7 +72,7 @@ class CategoryController extends Controller
                     'deskripsi_aksi' => 'Informasi pengantar untuk kategori ' . Str::headline($category->name) . '.',
                     'aktor' => 'Sistem',
                     'tujuan' => 'Memberikan gambaran umum kategori.',
-                    'kondisi_awal' => 'Pengguna mengakses halaman beranda kategori.',
+                    'kondisi_awal' => 'Pengguna mengakses halaman dashboard kategori.',
                     'kondisi_akhir' => 'Informasi umum ditampilkan.',
                     'aksi_aktor' => 'Pengguna membaca konten.',
                     'reaksi_sistem' => 'Sistem menyajikan informasi.',
@@ -85,7 +85,7 @@ class CategoryController extends Controller
                 'success' => 'Kategori berhasil ditambahkan!',
                 'redirect_url' => route('docs', [
                     'category' => $newCategory->slug,
-                    'page' => Str::slug('Beranda ' . $newCategory->name)
+                    'page' => Str::slug('Dashboard ')
                 ])
             ], 201);
         } catch (\Exception $e) {
@@ -124,11 +124,11 @@ class CategoryController extends Controller
 
                 if ($homeMenu) {
                     $homeMenu->update([
-                        'menu_nama' => 'Beranda ' . Str::headline($newCategoryName),
-                        'menu_link' => Str::slug('Beranda ' . $newCategoryName),
+                        'menu_nama' => 'Dashboard ',
+                        'menu_link' => Str::slug('Dashboard '),
                     ]);
 
-                    $infoUseCase = $homeMenu->useCases()->where('id', 'INFO-BERANDA')->first();
+                    $infoUseCase = $homeMenu->useCases()->where('id', 'INFO-DASHBOARD')->first();
                     if ($infoUseCase) {
                         $infoUseCase->update([
                             'nama_proses' => 'Informasi Umum Kategori ' . Str::headline($newCategoryName),

@@ -130,7 +130,7 @@
                     </select>
                     <input type="text" name="report_search" id="reportSearchInput" placeholder="Cari Report..."
                         value="{{ request('report_search') }}"
-                        class="form-input border-2 border-gray-500 inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition bg-gray-100" />
+                        class="form-input border-2 border-gray-500 inline-flex items-center px-2 py-1 text-sm font-medium rounded-md transition bg-gray-100" />
                     <input type="hidden" name="database_per_page" value="{{ request('database_per_page', 5) }}">
                     <input type="hidden" name="database_search" value="{{ request('database_search') }}">
                     <input type="hidden" name="uat_per_page" value="{{ request('uat_per_page', 5) }}">
@@ -304,7 +304,7 @@
                     </select>
                     <input type="text" name="database_search" id="databaseSearchInput"
                         placeholder="Cari Database..." value="{{ request('database_search') }}"
-                        class="form-input border-2 border-gray-500 inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition bg-gray-100" />
+                        class="form-input border-2 border-gray-500 inline-flex items-center px-2 py-1 text-sm font-medium rounded-md transition bg-gray-100" />
                     <input type="hidden" name="report_per_page" value="{{ request('report_per_page', 5) }}">
                     <input type="hidden" name="report_search" value="{{ request('report_search') }}">
                     <input type="hidden" name="uat_per_page" value="{{ request('uat_per_page', 5) }}">
@@ -475,7 +475,7 @@
                     </select>
                     <input type="text" name="uat_search" id="uatSearchInput" placeholder="Cari UAT..."
                         value="{{ request('uat_search') }}"
-                        class="form-input border-2 border-gray-500 inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition bg-gray-100" />
+                        class="form-input border-2 border-gray-500 inline-flex items-center px-2 py-1 text-sm font-medium rounded-md transition bg-gray-100" />
                     <input type="hidden" name="report_per_page" value="{{ request('report_per_page', 5) }}">
                     <input type="hidden" name="report_search" value="{{ request('report_search') }}">
                     <input type="hidden" name="database_per_page" value="{{ request('database_per_page', 5) }}">

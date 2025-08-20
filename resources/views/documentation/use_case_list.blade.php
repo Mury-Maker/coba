@@ -21,7 +21,7 @@
                     <i class="fas fa-print mr-2"></i> Cetak Usecase PDF
                 </button>
             </a>
-            <a href="{{ route('usecase.cetak.lengkap', ['menu_id' => $menu_id]) }}"" target="_blank"
+            <a href="{{ route('usecase.cetak.lengkap', ['menu_id' => $menu_id]) }}" target="_blank"
                 class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md shadow transition">
                 <i class="fas fa-print mr-2"></i> Semua Data (All table)
             </a>
@@ -47,7 +47,7 @@
                 method="GET" class="flex items-center">
 
                 <input type="text" name="search" id="searchInput" placeholder="Cari..." value="{{ $search_term }}"
-                    class="form-input border-2 border-gray-500 inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition bg-gray-100" />
+                    class="form-input border-2 border-gray-500 inline-flex items-center px-2 py-1 text-sm font-medium rounded-md transition bg-gray-100" />
                 <input type="hidden" name="per_page" value="{{ $per_page }}">
             </form>
         </div>
