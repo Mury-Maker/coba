@@ -22,6 +22,23 @@ export function initNavMenuManager() {
     const formNavMenuStatus = domUtils.getElement('form_navmenu_status');
     const formNavMenuCategoryId = domUtils.getElement('form_navmenu_category_id');
     const cancelAdminNavMenuFormBtn = domUtils.getElement('cancelAdminNavMenuFormBtn');
+    
+    // Ambil elemen iconPreview
+    const iconPreview = document.getElementById("iconPreview");
+
+    // Fungsi untuk mereset tampilan form, termasuk ikon
+    function resetFormState() {
+        adminNavMenuForm.reset();
+        formNavMenuId.value = '';
+        formNavMenuMethod.value = 'POST';
+        adminNavMenuModalTitle.textContent = 'Tambah Menu Baru';
+        // Reset tampilan ikon
+        if (iconPreview) {
+            iconPreview.className = 'text-2xl text-gray-500';
+        }
+        formNavMenuIcon.value = ''; // Pastikan input teks icon juga direset
+        console.log('[Modal] Form dan ikon direset.');
+    }
 
     window.openAdminNavMenuModal = async (mode, menuData = null, parentId = 0) => {
         console.log('[Modal] openAdminNavMenuModal:', { mode, menuData, parentId });
@@ -31,10 +48,8 @@ export function initNavMenuManager() {
             return;
         }
 
-        adminNavMenuForm.reset();
-        formNavMenuId.value = '';
-        formNavMenuMethod.value = 'POST';
-        formNavMenuCategoryId.value = window.APP_BLADE_DATA.currentCategoryId;
+        // Reset form sebelum mengisi data baru
+        resetFormState();
 
         const currentCategorySlug = window.APP_BLADE_DATA.currentCategorySlug;
         formNavMenuChild.innerHTML = '<option value="0">Tidak Ada (Menu Utama)</option>';
@@ -63,12 +78,7 @@ export function initNavMenuManager() {
         }
 
         if (mode === 'create') {
-            adminNavMenuModalTitle.textContent = 'Tambah Menu Baru';
-            formNavMenuNama.value = '';
-            formNavMenuIcon.value = '';
-            formNavMenuOrder.value = '0';
             formNavMenuChild.value = parentId;
-            formNavMenuStatus.checked = false;
         } else if (mode === 'edit' && menuData) {
             adminNavMenuModalTitle.textContent = `Edit Menu: ${menuData.menu_nama}`;
             formNavMenuMethod.value = 'PUT';
@@ -80,6 +90,11 @@ export function initNavMenuManager() {
             formNavMenuStatus.checked = menuData.menu_status == 1;
             formNavMenuCategoryId.value = menuData.category_id;
             console.log('[Modal] Edit mode data set:', menuData);
+            
+            // Set pratinjau ikon saat edit
+            if (menuData.menu_icon && iconPreview) {
+                iconPreview.className = `text-2xl text-gray-500 ${menuData.menu_icon}`;
+            }
         }
 
         domUtils.toggleModal(adminNavMenuModal, true);
@@ -87,7 +102,7 @@ export function initNavMenuManager() {
 
     function closeAdminNavMenuModal() {
         domUtils.toggleModal(adminNavMenuModal, false);
-        adminNavMenuForm.reset();
+        resetFormState(); // Panggil fungsi reset form saat modal ditutup
         console.log('[Modal] Ditutup dan form direset');
     }
 
@@ -99,6 +114,17 @@ export function initNavMenuManager() {
             const isClickInside = adminNavMenuModal.querySelector('.modal-content')?.contains(e.target);
             if (!isClickInside) {
                 closeAdminNavMenuModal();
+            }
+        }
+    });
+
+    // Event listener untuk memperbarui pratinjau ikon saat mengetik
+    domUtils.addEventListener(formNavMenuIcon, 'input', function() {
+        const iconClass = this.value.trim();
+        if (iconPreview) {
+            iconPreview.className = 'text-2xl text-gray-500';
+            if (iconClass) {
+                iconPreview.classList.add(...iconClass.split(' '));
             }
         }
     });

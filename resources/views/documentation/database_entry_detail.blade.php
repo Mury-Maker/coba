@@ -2,14 +2,6 @@
     {{-- Judul Utama --}}
     <h2 class="text-2xl font-bold">Detail Data Database</h2>
 
-    {{-- Tabel Informasi Umum --}}
-    <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-        <div class="flex items-center px-4 py-2 font-semibold text-gray-700">
-            <strong>ID Database:</strong>
-            <span class="ml-1">{{ $databaseData->id_database ?? 'N/A' }}</span>
-        </div>
-    </div>
-
     <hr>
 
     {{-- Bagian Keterangan dan Relasi --}}
@@ -132,13 +124,25 @@
 
     {{-- Bagian Dokumen (Tetap di atas) --}}
     <div class="space-y-4">
+        {{-- Dokumen --}}
         <div>
-            <p class="font-semibold text-gray-700">Dokumen Database:</p>
+            <p class="font-semibold text-gray-700">Dokumen Pendukung:</p>
             <ul class="list-disc list-inside mt-2 space-y-1">
                 @forelse($databaseData->documents as $document)
                     <li>
+                        @php
+                            $extension = pathinfo($document->filename, PATHINFO_EXTENSION);
+                            $iconClass = 'fas fa-file text-gray-500';
+                            if ($extension === 'pdf') {
+                                $iconClass = 'fas fa-file-pdf text-red-600';
+                            } elseif (in_array($extension, ['doc', 'docx'])) {
+                                $iconClass = 'fas fa-file-word text-blue-600';
+                            } elseif (in_array($extension, ['xls', 'xlsx'])) {
+                                $iconClass = 'fas fa-file-excel text-green-600';
+                            }
+                        @endphp
                         <a href="{{ asset($document->path) }}" target="_blank" class="text-blue-600 hover:underline">
-                            <i class="fas fa-file-alt mr-2"></i> {{ $document->filename }}
+                            <i class="{{ $iconClass }} mr-2"></i> {{ $document->filename }}
                         </a>
                     </li>
                 @empty

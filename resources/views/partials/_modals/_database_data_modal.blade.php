@@ -13,15 +13,22 @@
                         <label for="form_database_keterangan" class="block text-gray-700 text-sm font-bold mb-2">
                             Nama Tabel:
                         </label>
-                        <select id="form_database_keterangan" 
-                                name="keterangan" 
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline" 
-                                required>
-                            <option value="" disabled selected>Pilih tabel</option>
-                            @foreach($tablesList as $tb)
-                                <option value="{{ $tb->nama_tabel }}">{{ $tb->nama_tabel }}</option>
-                            @endforeach
-                        </select>
+                        <!-- Dropdown dengan fitur pencarian -->
+                        <div class="relative">
+                            <input type="text"
+                                id="database_table_search"
+                                placeholder="Cari nama tabel..."
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline"
+                            >
+                            <ul id="database_table_list" class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto hidden">
+                                @foreach($tablesList as $tb)
+                                    <li class="p-2 hover:bg-gray-200 cursor-pointer" data-value="{{ $tb->nama_tabel }}">
+                                        {{ $tb->nama_tabel }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <input type="hidden" id="form_database_keterangan" name="keterangan" required>
+                        </div>
                     </div>                    
                     <div>
                         <label for="form_database_relasi" class="block text-gray-700 text-sm font-bold mb-2">Keterangan Relasi:</label>
@@ -59,4 +66,46 @@
             </form>
         </div>
     </div>
+
+    <!-- Script JavaScript untuk fungsionalitas pencarian -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('database_table_search');
+            const tableList = document.getElementById('database_table_list');
+            const hiddenInput = document.getElementById('form_database_keterangan');
+            const listItems = tableList.querySelectorAll('li');
+
+            searchInput.addEventListener('focus', () => {
+                tableList.classList.remove('hidden');
+            });
+
+            searchInput.addEventListener('input', () => {
+                const filter = searchInput.value.toLowerCase();
+                listItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(filter)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+
+            listItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const value = item.getAttribute('data-value');
+                    searchInput.value = value;
+                    hiddenInput.value = value;
+                    tableList.classList.add('hidden');
+                });
+            });
+
+            // Sembunyikan daftar saat mengklik di luar area
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.relative')) {
+                    tableList.classList.add('hidden');
+                }
+            });
+        });
+    </script>
 @endif
