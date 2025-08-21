@@ -112,7 +112,8 @@ export function initDatabaseDataManager() {
 
     const formDatabaseKeterangan = domUtils.getElement('form_database_keterangan');
     const formDatabaseRelasi = domUtils.getElement('form_database_relasi');
-
+    const searchInput = domUtils.getElement('database_table_search'); // Tambahkan ini
+    
     const dropArea = domUtils.getElement('databaseDropArea');
     const fileInputBtn = domUtils.getElement('databaseFileInputBtn');
     const combinedFileInput = domUtils.getElement('databaseCombinedFileInput');
@@ -296,6 +297,10 @@ export function initDatabaseDataManager() {
             databaseDataModalTitle.textContent = 'Tambah Data Database Baru';
             databaseDataFormMethod.value = 'POST';
             databaseDataFormId.value = '';
+            // Reset input pencarian dan hidden input
+            if (searchInput) {
+                searchInput.value = '';
+            }
             formDatabaseKeterangan.value = '';
             formDatabaseRelasi.value = '';
             combinedFileInput.value = null;
@@ -306,6 +311,10 @@ export function initDatabaseDataManager() {
             databaseDataFormMethod.value = 'PUT';
             databaseDataFormId.value = databaseData.id_database;
 
+            // Perbarui input pencarian dan hidden input dengan data yang ada
+            if (searchInput) {
+                searchInput.value = databaseData.keterangan || '';
+            }
             formDatabaseKeterangan.value = databaseData.keterangan || '';
             formDatabaseRelasi.value = databaseData.relasi || '';
 

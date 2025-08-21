@@ -7,197 +7,40 @@
                 <input type="hidden" id="form_navmenu_id" name="menu_id">
                 <input type="hidden" id="form_navmenu_method" name="_method" value="POST">
                 <input type="hidden" id="form_navmenu_category_id" name="category_id"
-                    value="{{ $selectedNavItem->category_id ?? '' }}"> {{-- Ambil dari selectedNavItem atau default --}}
-
+                    value="{{ $selectedNavItem->category_id ?? '' }}">
                 <div class="mb-4">
                     <label for="form_navmenu_nama" class="block text-gray-700 text-sm font-bold mb-2">Nama Menu:</label>
                     <input type="text" id="form_navmenu_nama" name="menu_nama" placeholder="Masukkan Nama Menu"
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" required>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Ikon:</label>
-
-                    <!-- Hidden input -->
-                    <input type="hidden" id="form_navmenu_icon" name="menu_icon">
-
-                    <!-- Preview box + arrow -->
-                    <div id="iconPreviewBox"
-                        class="w-full border rounded px-3 py-2 bg-gray-100 flex items-center justify-between cursor-pointer relative">
-                        <span class="flex items-center gap-2 text-xxl text-gray-500">
-                            Pilih Icon
+                    <label for="form_navmenu_icon" class="block text-gray-700 text-sm font-bold mb-2">
+                        Ikon (kelas Font Awesome):
+                        <!-- Ikon Info -->
+                        <span class="relative group inline-block">
+                            <i class="fa-solid fa-circle-info text-blue-600 cursor-pointer ml-1"></i>
+                            <!-- Tooltip -->
+                            <div
+                                class="absolute left-6 top-1/2 -translate-y-1/2 hidden group-hover:block w-72 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-10">
+                                <p class="mb-1 font-semibold">Cara mendapatkan kode ikon:</p>
+                                <ol class="list-decimal list-inside space-y-1">
+                                    <li>Buka <a href="https://fontawesome.com/icons" target="_blank"
+                                            class="text-blue-400 underline">Font Awesome</a> di website</li>
+                                    <li>Cari dan klik ikon yang diinginkan</li>
+                                    <li>Salin kelas ikon di bagian atas halaman (contoh: <code>fa-solid fa-house</code>)
+                                    </li>
+                                    <li>Tempelkan di kolom input</li>
+                                </ol>
+                            </div>
                         </span>
-                        <i id="arrowIcon"
-                            class="fa-solid fa-chevron-right text-gray-500 transition-transform duration-300"></i>
-                    </div>
+                    </label>
 
-                    <!-- Icon list -->
-                    <div id="iconPickerList"
-                        class="grid grid-cols-5 gap-3 text-2xl mt-2 border rounded p-3 bg-gray-50 overflow-hidden max-h-0 opacity-0 transition-all duration-500 ease-in-out overflow-y-auto **pointer-events-none**">
-
-                        <!-- Baris 1 -->
-                        <i class="fa-solid fa-house cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-house"></i>
-                        <i class="fa-solid fa-user cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-user"></i>
-                        <i class="fa-solid fa-gear cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-gear"></i>
-                        <i class="fa-solid fa-bell cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-bell"></i>
-                        <i class="fa-regular fa-circle cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-regular fa-circle"></i>
-
-                        <!-- Baris 2 -->
-                        <i class="fa-solid fa-book cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-book"></i>
-                        <i class="fa-solid fa-envelope cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-envelope"></i>
-                        <i class="fa-solid fa-folder cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-folder"></i>
-                        <i class="fa-solid fa-heart cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-heart"></i>
-                        <i class="fa-solid fa-camera cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-camera"></i>
-
-                        <!-- Baris 3 -->
-                        <i class="fa-solid fa-calendar cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-calendar"></i>
-                        <i class="fa-solid fa-clock cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-clock"></i>
-                        <i class="fa-solid fa-cloud cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-cloud"></i>
-                        <i class="fa-solid fa-comment cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-comment"></i>
-                        <i class="fa-solid fa-database cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-database"></i>
-
-                        <!-- Baris 4 -->
-                        <i class="fa-solid fa-download cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-download"></i>
-                        <i class="fa-solid fa-upload cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-upload"></i>
-                        <i class="fa-solid fa-edit cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-edit"></i>
-                        <i class="fa-solid fa-eye cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-eye"></i>
-                        <i class="fa-solid fa-file cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-file"></i>
-
-                        <!-- Baris 5 -->
-                        <i class="fa-solid fa-film cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-film"></i>
-                        <i class="fa-solid fa-flag cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-flag"></i>
-                        <i class="fa-solid fa-gift cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-gift"></i>
-                        <i class="fa-solid fa-globe cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-globe"></i>
-                        <i class="fa-solid fa-graduation-cap cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-graduation-cap"></i>
-
-                        <!-- Baris 6 -->
-                        <i class="fa-solid fa-hashtag cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-hashtag"></i>
-                        <i class="fa-solid fa-headphones cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-headphones"></i>
-                        <i class="fa-solid fa-image cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-image"></i>
-                        <i class="fa-solid fa-key cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-key"></i>
-                        <i class="fa-solid fa-lightbulb cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-lightbulb"></i>
-
-                        <!-- Baris 7 -->
-                        <i class="fa-solid fa-link cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-link"></i>
-                        <i class="fa-solid fa-list cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-list"></i>
-                        <i class="fa-solid fa-lock cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-lock"></i>
-                        <i class="fa-solid fa-map cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-map"></i>
-                        <i class="fa-solid fa-map-marker-alt cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-map-marker-alt"></i>
-
-                        <!-- Baris 8 -->
-                        <i class="fa-solid fa-microphone cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-microphone"></i>
-                        <i class="fa-solid fa-music cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-music"></i>
-                        <i class="fa-solid fa-paperclip cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-paperclip"></i>
-                        <i class="fa-solid fa-paper-plane cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-paper-plane"></i>
-                        <i class="fa-solid fa-pencil cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-pencil"></i>
-
-                        <!-- Baris 9 -->
-                        <i class="fa-solid fa-phone cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-phone"></i>
-                        <i class="fa-solid fa-play cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-play"></i>
-                        <i class="fa-solid fa-plus cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-plus"></i>
-                        <i class="fa-solid fa-print cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-print"></i>
-                        <i class="fa-solid fa-question cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-question"></i>
-
-                        <!-- Baris 10 -->
-                        <i class="fa-solid fa-road cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-road"></i>
-                        <i class="fa-solid fa-rss cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-rss"></i>
-                        <i class="fa-solid fa-search cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-search"></i>
-                        <i class="fa-solid fa-server cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-server"></i>
-                        <i class="fa-solid fa-share cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-share"></i>
-
-                        <!-- Baris 11 -->
-                        <i class="fa-solid fa-shield cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-shield"></i>
-                        <i class="fa-solid fa-shopping-cart cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-shopping-cart"></i>
-                        <i class="fa-solid fa-sign-out-alt cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-sign-out-alt"></i>
-                        <i class="fa-solid fa-sitemap cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-sitemap"></i>
-                        <i class="fa-solid fa-sliders-h cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-sliders-h"></i>
-
-                        <!-- Baris 12 -->
-                        <i class="fa-solid fa-star cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-sync cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-sync"></i>
-                        <i class="fa-solid fa-table cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-table"></i>
-                        <i class="fa-solid fa-tag cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-tag"></i>
-                        <i class="fa-solid fa-tasks cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-tasks"></i>
-
-                        <!-- Baris 13 -->
-                        <i class="fa-solid fa-terminal cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-terminal"></i>
-                        <i class="fa-solid fa-thumbs-up cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-thumbs-up"></i>
-                        <i class="fa-solid fa-ticket cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-ticket"></i>
-                        <i class="fa-solid fa-trash cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-trash"></i>
-                        <i class="fa-solid fa-trophy cursor-pointer p-2 border rounded hover:bg-gray-200"
-                            data-value="fa-solid fa-trophy"></i>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="form_navmenu_icon" name="menu_icon" placeholder="fa-solid fa-house"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700">
+                        <i id="iconPreview" class="text-2xl text-gray-500"></i>
                     </div>
                 </div>
-
-                <style>
-                    .icon-selected {
-                        background-color: #2563eb;
-                        color: white;
-                    }
-                </style>
                 <div class="mb-4">
                     <label for="form_navmenu_child" class="block text-gray-700 text-sm font-bold mb-2">Parent
                         Menu:</label>
@@ -231,65 +74,82 @@
         </div>
     </div>
 @endif
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const submitButton = document.getElementById("submitAdminNavMenuFormBtn");
-    const menuNamaInput = document.getElementById("form_navmenu_nama");
-    const adminNavMenuModal = document.getElementById("adminNavMenuModal");
+    document.addEventListener("DOMContentLoaded", function() {
+        const submitButton = document.getElementById("submitAdminNavMenuFormBtn");
+        const menuNamaInput = document.getElementById("form_navmenu_nama");
+        const adminNavMenuModal = document.getElementById("adminNavMenuModal");
+        const iconInput = document.getElementById("form_navmenu_icon");
+        const iconPreview = document.getElementById("iconPreview");
+        const cancelButton = document.getElementById("cancelAdminNavMenuFormBtn");
 
-    // Fungsi untuk mengontrol status tombol
-    function checkFormValidity() {
-        if (menuNamaInput.value.trim() !== "") {
-            submitButton.disabled = false;
-            submitButton.classList.remove("opacity-50", "cursor-not-allowed");
-        } else {
-            submitButton.disabled = true;
-            submitButton.classList.add("opacity-50", "cursor-not-allowed");
+        // Fungsi untuk mengontrol status tombol
+        function checkFormValidity() {
+            if (menuNamaInput.value.trim() !== "") {
+                submitButton.disabled = false;
+                submitButton.classList.remove("opacity-50", "cursor-not-allowed");
+            } else {
+                submitButton.disabled = true;
+                submitButton.classList.add("opacity-50", "cursor-not-allowed");
+            }
         }
-    }
 
-    // Panggil fungsi saat modal dibuka atau saat input berubah
-    // Pastikan ini dipanggil setiap kali Anda memuat data ke form
-    adminNavMenuModal.addEventListener('modal:opened', function() {
-        checkFormValidity();
-    });
+        // Fungsi baru untuk mereset formulir
+        function resetForm() {
+            document.getElementById("adminNavMenuForm").reset(); // Reset semua input form
+            document.getElementById("form_navmenu_id").value = "";
+            document.getElementById("form_navmenu_method").value = "POST";
+            document.getElementById("adminNavMenuModalTitle").innerText = "Tambah Menu Baru";
 
-    // Tambahkan event listener untuk memantau perubahan pada input
-    menuNamaInput.addEventListener("input", checkFormValidity);
+            // Reset pratinjau ikon
+            iconInput.value = ""; // Bersihkan nilai input teks ikon
+            iconPreview.className = 'text-2xl text-gray-500'; // Reset kelas ikon pratinjau
 
-    // KODE LAINNYA DI SINI
-    const previewBox = document.getElementById("iconPreviewBox");
-    const iconList = document.getElementById("iconPickerList");
-    const inputHidden = document.getElementById("form_navmenu_icon");
-    const arrowIcon = document.getElementById("arrowIcon");
-
-    previewBox.addEventListener("click", () => {
-        const isHidden = iconList.classList.contains("max-h-0");
-        if (isHidden) {
-            iconList.classList.remove("max-h-0", "opacity-0", "pointer-events-none");
-            iconList.classList.add("max-h-60", "opacity-100");
-            arrowIcon.style.transform = "rotate(90deg)";
-        } else {
-            iconList.classList.add("max-h-0", "opacity-0", "pointer-events-none");
-            iconList.classList.remove("max-h-60", "opacity-100");
-            arrowIcon.style.transform = "rotate(0deg)";
+            // Atur ulang status tombol
+            checkFormValidity();
         }
-    });
 
-    iconList.querySelectorAll("i").forEach(icon => {
-        icon.addEventListener("click", () => {
-            iconList.querySelectorAll("i").forEach(i => i.classList.remove(
-                "icon-selected"));
-            icon.classList.add("icon-selected");
-
-            inputHidden.value = icon.getAttribute("data-value");
-            previewBox.querySelector("span").innerHTML =
-                `<i class="${icon.getAttribute("data-value")}"></i>`;
-
-            iconList.classList.add("max-h-0", "opacity-0", "pointer-events-none");
-            iconList.classList.remove("max-h-60", "opacity-100");
-            arrowIcon.style.transform = "rotate(0deg)";
+        // Event listener untuk menutup modal dan mereset form
+        cancelButton.addEventListener('click', function() {
+            adminNavMenuModal.classList.remove('active'); // Asumsi ini adalah cara Anda menutup modal
+            resetForm();
         });
+
+        // Event listener saat form ditutup
+        adminNavMenuModal.addEventListener('modal:closed', function() {
+            resetForm();
+        });
+
+        adminNavMenuModal.addEventListener('modal:opened', function() {
+            checkFormValidity();
+        });
+
+        menuNamaInput.addEventListener("input", checkFormValidity);
+
+        iconInput.addEventListener('input', function() {
+            const iconClass = this.value.trim();
+            iconPreview.className = 'text-2xl text-gray-500';
+            if (iconClass) {
+                iconPreview.classList.add(...iconClass.split(' '));
+            }
+        });
+
+        // Fungsi untuk mengisi form saat edit
+        window.loadEditData = function(menu) {
+            resetForm(); // Panggil resetForm() terlebih dahulu
+            document.getElementById("form_navmenu_id").value = menu.id;
+            document.getElementById("form_navmenu_nama").value = menu.menu_nama;
+            document.getElementById("form_navmenu_child").value = menu.menu_child;
+            document.getElementById("form_navmenu_order").value = menu.menu_order;
+            document.getElementById("form_navmenu_status").checked = menu.menu_status;
+
+            const menuIcon = menu.menu_icon || '';
+            iconInput.value = menuIcon;
+            iconPreview.className = 'text-2xl text-gray-500';
+            if (menuIcon) {
+                iconPreview.classList.add(...menuIcon.split(' '));
+            }
+        };
     });
-});
 </script>
