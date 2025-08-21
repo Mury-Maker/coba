@@ -147,16 +147,18 @@ export function initSidebar() {
     // --- Perbaikan Utama: Menutup dropdown saat kursor keluar dari sidebar ---
     if (sidebar) {
         domUtils.addEventListener(sidebar, 'mouseleave', () => {
-            console.log('Mouse left sidebar. Closing all submenus...');
-            const allOpenSubmenus = sidebar.querySelectorAll('.submenu-container.open');
-            allOpenSubmenus.forEach(submenu => {
-                domUtils.toggleClass(submenu, 'open', false);
-                const relatedTrigger = submenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
-                if (relatedTrigger) {
-                    relatedTrigger.setAttribute('aria-expanded', 'false');
-                    domUtils.toggleClass(relatedTrigger.querySelector('i'), 'open', false);
-                }
-            });
+            if (sidebar.classList.contains('collapsed-desktop')) {
+                console.log('Mouse left collapsed sidebar. Closing all submenus...');
+                const allOpenSubmenus = sidebar.querySelectorAll('.submenu-container.open');
+                allOpenSubmenus.forEach(submenu => {
+                    domUtils.toggleClass(submenu, 'open', false);
+                    const relatedTrigger = submenu.previousElementSibling.querySelector('[data-toggle^="submenu-"]');
+                    if (relatedTrigger) {
+                        relatedTrigger.setAttribute('aria-expanded', 'false');
+                        domUtils.toggleClass(relatedTrigger.querySelector('i'), 'open', false);
+                    }
+                });
+            }
         });
     }
 
