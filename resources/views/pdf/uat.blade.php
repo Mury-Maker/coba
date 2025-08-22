@@ -4,24 +4,46 @@
     <meta charset="utf-8">
     <title>Data UAT</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 14px; margin: 20px; }
-        h1, h2, h3 { text-align: center; }
-        h1 { margin-bottom: 20px; color: #2c3e50; }
+        body { 
+            font-family: DejaVu Sans, sans-serif; 
+            font-size: 14px; 
+            margin: 20px; 
+        }
+        h1, h2, h3 { 
+            text-align: center; 
+        }
+        h1 { 
+            margin-bottom: 20px; 
+            color: #2c3e50; 
+        }
         h2 {
             border-bottom: 2px solid #3498db;
             padding-bottom: 5px;
             margin-top: 30px;
             color: #34495e;
         }
-        h3 { color: #7f8c8d; font-weight: normal; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        h3 { 
+            color: #7f8c8d; 
+            font-weight: normal; 
+            margin: 20px 0; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 30px; 
+            table-layout: fixed; /* Mencegah tabel meluber */
+        }
         table th, table td {
             border: 1px solid #000;
-            padding: 12px; /* Ditingkatkan dari 10px */
+            padding: 12px;
             vertical-align: top;
             text-align: left;
+            word-wrap: break-word; /* Memecah kata yang terlalu panjang */
         }
-        table th { background-color: #f2f2f2; font-weight: bold; }
+        table th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+        }
         .empty-data {
             text-align: center;
             font-style: italic;
@@ -31,20 +53,41 @@
         .image-gallery {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px; /* Ditingkatkan dari 10px */
-            justify-content: center; /* Gambar di tengah */
+            gap: 15px;
+            justify-content: center;
             padding-top: 25px;
             padding-bottom: 25px;
         }
         .image-gallery img {
-            max-width: 80%;
+            max-width: 100%; /* Memastikan gambar tidak melebihi lebar kontainer */
             height: auto;
-            object-fit: contain; /* Menggunakan contain agar gambar tidak terpotong */
+            object-fit: contain;
             border: 1px solid #ccc;
             border-radius: 5px;
             display: block;
         }
-        .page-break { page-break-before: always; }
+
+        /* Aturan khusus untuk media cetak */
+        @media print {
+            @page {
+                margin: 20mm;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            table, .image-gallery {
+                page-break-inside: avoid;
+            }
+            thead {
+                display: table-header-group;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+            .image-gallery img {
+                max-width: 95%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -53,7 +96,6 @@
 
 {{-- Bagian Tabel Utama --}}
 <h2>Data UAT</h2>
-{{-- Menggunakan @forelse untuk menangani data kosong --}}
 @forelse($usecase->uatData as $index => $uat)
     @if ($loop->first)
     <table>
@@ -67,24 +109,22 @@
         </thead>
         <tbody>
     @endif
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $uat->nama_proses_usecase ?? '-' }}</td>
-                <td>{{ $uat->keterangan_uat ?? '-' }}</td>
-                <td>{{ $uat->status_uat ?? '-' }}</td>
-            </tr>
+        <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $uat->nama_proses_usecase ?? '-' }}</td>
+            <td>{{ $uat->keterangan_uat ?? '-' }}</td>
+            <td>{{ $uat->status_uat ?? '-' }}</td>
+        </tr>
     @if ($loop->last)
         </tbody>
     </table>
     @endif
 @empty
-    {{-- Tampilkan pesan ini jika $usecase->uatData kosong --}}
     <p class="empty-data">Tidak ada data UAT yang ditemukan.</p>
 @endforelse
 
 {{-- Bagian Lampiran Gambar per ID --}}
 @foreach($usecase->uatData as $uat)
-    {{-- Tampilkan header hanya jika ada gambar yang terkait --}}
     @if($uat->images->count() > 0)
         @if(!$loop->first)
         <div class="page-break"></div>

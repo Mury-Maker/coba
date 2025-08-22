@@ -117,7 +117,7 @@ class NavMenuController extends Controller
             ],
             'menu_child' => 'required|integer',
             'menu_order' => 'nullable|integer',
-            'menu_icon' => 'nullable|string|max:30',
+            'menu_icon' => 'nullable|string|max:250',
             'menu_status' => 'boolean',
         ]);
 
@@ -167,7 +167,7 @@ class NavMenuController extends Controller
             ],
             'menu_child' => 'required|integer',
             'menu_order' => 'required|integer',
-            'menu_icon' => 'nullable|string|max:30',
+            'menu_icon' => 'nullable|string|max:250',
             'menu_status' => 'boolean',
         ]);
 

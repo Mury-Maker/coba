@@ -4,24 +4,51 @@
     <meta charset="utf-8">
     <title>Data Report</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 14px; margin: 20px; }
-        h1, h2, h3 { text-align: center; }
-        h1 { margin-bottom: 20px; color: #2c3e50; }
+        body { 
+            font-family: DejaVu Sans, sans-serif; 
+            font-size: 14px; 
+            margin: 20px; 
+        }
+        h1, h2, h3 { 
+            text-align: center; 
+        }
+        h1 { 
+            margin-bottom: 20px; 
+            color: #2c3e50; 
+        }
         h2 {
             border-bottom: 2px solid #3498db;
             padding-bottom: 5px;
             margin-top: 30px;
             color: #34495e;
         }
-        h3 { color: #7f8c8d; font-weight: normal; margin: 20px 0; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        h3 { 
+            color: #7f8c8d; 
+            font-weight: normal; 
+            margin: 20px 0; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 30px; 
+            table-layout: fixed; /* Mencegah tabel meluber */
+        }
         table th, table td {
             border: 1px solid #000;
-            padding: 12px; /* Ditingkatkan dari 10px */
+            padding: 12px;
             vertical-align: top;
             text-align: left;
+            word-wrap: break-word; /* Memecah kata yang terlalu panjang */
         }
-        table th { background-color: #f2f2f2; font-weight: bold; }
+        table th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+        }
+        /* Menyesuaikan lebar kolom "No" */
+        .no-column {
+            width: 7%;
+            text-align: center;
+        }
         .empty-data {
             text-align: center;
             font-style: italic;
@@ -31,20 +58,52 @@
         .image-gallery {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px; /* Ditingkatkan dari 10px */
-            justify-content: center; /* Gambar di tengah */
+            gap: 15px;
+            justify-content: center;
             padding-top: 25px;
             padding-bottom: 25px;
         }
         .image-gallery img {
-            max-width: 80%;
+            max-width: 100%; /* Memastikan gambar tidak melebihi lebar kontainer */
             height: auto;
-            object-fit: contain; /* Menggunakan contain agar gambar tidak terpotong */
+            object-fit: contain;
             border: 1px solid #ccc;
             border-radius: 5px;
             display: block;
         }
-        .page-break { page-break-before: always; }
+        @media print {
+            /* Margin untuk halaman cetak */
+            @page {
+                margin: 20mm;
+            }
+            
+            /* Aturan page break */
+            .page-break {
+                page-break-before: always;
+            }
+            
+            /* Mencegah tabel dan galeri gambar terpotong di tengah halaman */
+            table, .image-gallery {
+                page-break-inside: avoid;
+            }
+            
+            /* Memastikan header tabel muncul di setiap halaman */
+            thead {
+                display: table-header-group;
+            }
+            
+            /* Memastikan baris tabel tidak terpotong */
+            tr {
+                page-break-inside: avoid;
+            }
+            
+            /* Memastikan setiap gambar dimulai di halaman baru jika perlu */
+            .image-gallery img {
+                page-break-before: auto;
+                page-break-after: auto;
+                max-width: 95%; /* Sedikit lebih kecil untuk ruang margin */
+            }
+        }
     </style>
 </head>
 <body>
@@ -58,7 +117,7 @@
     <table>
         <thead>
             <tr>
-                <th>No</th>
+                <th class="no-column">No</th>
                 <th>Aktor</th>
                 <th>Nama Laporan</th>
                 <th>Keterangan</th>
@@ -67,7 +126,7 @@
         <tbody>
     @endif
         <tr>
-            <td>{{ $index + 1 }}</td>
+            <td class="no-column">{{ $index + 1 }}</td>
             <td>{{ $report->aktor ?? '-' }}</td>
             <td>{{ $report->nama_report ?? '-' }}</td>
             <td>{{ $report->keterangan ?? '-' }}</td>

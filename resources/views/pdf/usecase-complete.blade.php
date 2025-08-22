@@ -45,18 +45,49 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            table-layout: fixed; /* Mencegah tabel meluber */
         }
 
         th, td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
+            word-wrap: break-word; /* Memecah teks panjang */
         }
 
         th {
             background-color: #f2f2f2;
         }
         
+        /* Mengatur lebar kolom agar judul tidak terlalu besar pada tabel Detail Use Case */
+        .detail-table th:first-child {
+            width: 25%; /* Lebar untuk kolom judul */
+        }
+        .detail-table td:last-child {
+            width: 75%; /* Lebar untuk kolom isi */
+        }
+
+        /* Mengatur lebar kolom "No" pada tabel-tabel data */
+        .report-table th:first-child,
+        .database-table th:first-child,
+        .uat-table th:first-child {
+            width: 7%; /* Lebar kecil untuk kolom No */
+        }
+        /* Mengatur lebar kolom lainnya untuk tabel Report */
+        .report-table th:nth-child(2) { width: 15%; }
+        .report-table th:nth-child(3) { width: 30%; }
+        .report-table th:nth-child(4) { width: 50%; }
+
+        /* Mengatur lebar kolom lainnya untuk tabel Database */
+        .database-table th:nth-child(2) { width: 45%; }
+        .database-table th:nth-child(3) { width: 50%; }
+
+        /* Mengatur lebar kolom lainnya untuk tabel UAT */
+        .uat-table th:nth-child(2) { width: 20%; }
+        .uat-table th:nth-child(3) { width: 50%; }
+        .uat-table th:nth-child(4) { width: 25%; }
+
+
         .empty-data {
             text-align: center;
             font-style: italic;
@@ -73,6 +104,40 @@
             border-top: 1px dashed #ccc;
             margin: 40px 0;
         }
+
+        /* Aturan khusus untuk media cetak */
+        @media print {
+            body { 
+                margin: 0;
+            }
+            .container {
+                padding: 0;
+            }
+
+            @page {
+                margin: 20mm; /* Atur margin kertas */
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+            
+            tr {
+                page-break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            hr {
+                page-break-after: always;
+            }
+        }
     </style>
 </head>
 
@@ -84,7 +149,7 @@
         @forelse ($useCases as $useCase)
             <div class="section">
                 <h3>Detail Use Case: {{ $useCase->nama_proses ?? '-' }}</h3>
-                <table>
+                <table class="detail-table">
                     <tbody>
                         <tr>
                             <th>Nama Proses</th>
@@ -125,7 +190,7 @@
             @if ($useCase->reportData->isNotEmpty())
             <div class="section">
                 <h3>Tabel Report</h3>
-                <table>
+                <table class="report-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -149,7 +214,7 @@
             @else
             <div class="section">
                 <h3>Tabel Report</h3>
-                <table>
+                <table class="report-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -170,7 +235,7 @@
             @if ($useCase->databaseData->isNotEmpty())
             <div class="section">
                 <h3>Tabel Database</h3>
-                <table>
+                <table class="database-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -192,7 +257,7 @@
             @else
             <div class="section">
                 <h3>Tabel Database</h3>
-                <table>
+                <table class="database-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -212,7 +277,7 @@
             @if ($useCase->uatData->isNotEmpty())
             <div class="section">
                 <h3>Tabel UAT</h3>
-                <table>
+                <table class="uat-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -236,7 +301,7 @@
             @else
             <div class="section">
                 <h3>Tabel UAT</h3>
-                <table>
+                <table class="uat-table">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -254,7 +319,6 @@
             </div>
             @endif
 
-            {{-- Garis pemisah antara setiap Use Case --}}
             @if (!$loop->last)
             <hr>
             @endif
@@ -263,5 +327,4 @@
         @endforelse
     </div>
 </body>
-
 </html>
