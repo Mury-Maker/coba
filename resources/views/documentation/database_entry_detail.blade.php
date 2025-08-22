@@ -6,7 +6,7 @@
 
     {{-- Bagian Keterangan dan Relasi --}}
     <div class="space-y-4">
-        <h2>Nama Tabel: {{ $tablesData->nama_tabel ?? 'Tidak ada data atau versi file sql berberda' }}</h2>
+        <h2>Nama Tabel: {{ $tablesData->nama_tabel ?? 'Tidak ada data atau versi file sql berbeda' }}</h2>
         <div class="min-w-full overflow-hidden rounded-lg shadow-sm border border-gray-200">
             <table class="min-w-full bg-white text-sm text-left">
                 <thead class="bg-gray-100">
