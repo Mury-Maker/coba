@@ -147,7 +147,8 @@ export function initSidebar() {
     // --- Perbaikan Utama: Menutup dropdown saat kursor keluar dari sidebar ---
     if (sidebar) {
         domUtils.addEventListener(sidebar, 'mouseleave', () => {
-            if (sidebar.classList.contains('collapsed-desktop')) {
+            // Logika penutupan hanya berjalan jika sidebar dilipat di desktop
+            if (sidebar.classList.contains('collapsed-desktop') && window.innerWidth >= 768) {
                 console.log('Mouse left collapsed sidebar. Closing all submenus...');
                 const allOpenSubmenus = sidebar.querySelectorAll('.submenu-container.open');
                 allOpenSubmenus.forEach(submenu => {

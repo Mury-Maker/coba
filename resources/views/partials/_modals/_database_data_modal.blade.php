@@ -70,6 +70,17 @@
                         class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">Batal</button>
                     <button type="submit" id="submitDatabaseDataFormBtn"
                         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">Simpan</button>
+                    <button type="button" id="cancelDatabaseDataFormBtn"
+                        class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">Batal</button>
+                    @if ($fileSQL)
+                        <button type="submit" id="submitDatabaseDataFormBtn"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">Simpan</button>
+                    @else
+                        <button title="Import File .sql Terlebih Dahulu Pada Menu Daftar Tabel" type="submit"
+                            id="submitDatabaseDataFormBtn"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
+                            disabled>Simpan</button>
+                    @endif
                 </div>
             </form>
         </div>
