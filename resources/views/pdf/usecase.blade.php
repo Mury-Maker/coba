@@ -4,17 +4,34 @@
     <meta charset="utf-8">
     <title>Usecase - {{ $menu->menu_nama }}</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        h1, h2, h3 { text-align: center; }
+        body { 
+            font-family: sans-serif; 
+            font-size: 12px; 
+        }
+        h1, h2, h3 { 
+            text-align: center; 
+        }
         h2 {
             border-bottom: 2px solid #3498db;
             padding-bottom: 5px;
             margin-top: 30px;
             color: #34495e;
         }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px 12px; }
-        th { background: #eee; font-weight: bold; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+            table-layout: fixed; /* Mencegah tabel meluber */
+        }
+        th, td { 
+            border: 1px solid #ccc; 
+            padding: 8px 12px; 
+            word-wrap: break-word; /* Memaksa teks yang panjang untuk memecah baris */
+        }
+        th { 
+            background: #eee; 
+            font-weight: bold; 
+        }
         .empty-data {
             text-align: center;
             font-style: italic;
@@ -23,6 +40,14 @@
         }
         @page {
             margin: 20mm;
+        }
+        @media print {
+            thead {
+                display: table-header-group; /* Menampilkan header tabel di setiap halaman */
+            }
+            tr {
+                page-break-inside: avoid; /* Mencegah baris terpotong di tengah */
+            }
         }
     </style>
 </head>
