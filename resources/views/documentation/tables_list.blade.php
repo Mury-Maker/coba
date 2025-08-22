@@ -6,7 +6,8 @@
                 </div>
 
         {{-- Jika file sql ditemukan  --}}
-            @if($sqlFile)
+
+        @if($sqlFile)
             <div class="sql">
 
             <h2 class="text-2xl font-bold mb-4 text-gray-800">File SQL Tersedia</h2>
@@ -19,13 +20,16 @@
                     {{ $sqlFile->file_name }}
                 </a>
 
-<form id="deleteSqlForm" action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST">
-    @csrf
-    @method('DELETE')
-    <button title="Hapus File dan Data" type="button" class="hapus-sql-btn">
-        <i class="fa-solid fa-trash" style="color: #ff0000;"></i>
-    </button>
-</form>
+                @if (Auth::check() && Auth::user()->role === 'admin')
+
+            <form id="deleteSqlForm" action="{{ route('sql.delete', ['navmenuId' => $catID]) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button title="Hapus File dan Data" type="button" class="hapus-sql-btn">
+                    <i class="fa-solid fa-trash" style="color: #ff0000;"></i>
+                </button>
+            </form>
+                @endif
             </div>
                 </strong>
 
@@ -41,10 +45,44 @@
             </div>
 
 
-
+        @if (Auth::check() && Auth::user()->role === 'admin')
             <div class="updateSql">
+                
                 <h2 class="text-2xl font-bold mb-4 text-gray-800" ><button onclick="toggleFileUpdate()">Ganti file:</button></h2>
                 <div class="form-update-erd hidden">
+                    
+            <div class="keterangan-export">
+                <div class="judul-keterangan">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Tata Cara Export SQL untuk Digunakan Pada Menu Ini</h2>
+                </div>
+                <div class="content-ketarangan">
+                    <div class="sql-dump">
+                        <p>1. Melalui fitur sqldump</p>
+                        <p>1.1. Install <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html" style="color: blue">sqldump</a></p>
+                        <p>1.2. Buka terminal dan jalankan:</p>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">
+                            <code>
+mysqldump -u [username] --no-data [database_name] > [output_path]</code>
+                        </pre>
+                        <p>1.3 Contoh:</p>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">
+                            <code>
+mysqldump -u root -p --no-data indodocs > D:\indococs_backup.sql</code>
+                        </pre>
+                        <hr>
+                    </div>
+                    <hr>
+                    <div class="gui">
+                        <p>2. Secara GUI (heidiSQL, sqlYog, dll)</p>
+                        <p>Cari tutorial di Yutub untuk export sesuai dengan gui yang anda gunakan</p>
+                        <p>Pastikan hasil export tidak terdapat Data (INSERT INTO)</p>
+                        <p>Pastikan untuk pendefinisian Foreign Key Tidak menggunakan Alter Table</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+                <p><strong>Silahkan Pilih File:</strong></p>
                     <form id="updateSqlForm" action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
@@ -61,6 +99,7 @@
                 </div>
                 <hr style="margin-bottom: 12px; ">
             </div>
+        @endif
 
             <div class="erd">
                 <div class="judul-halaman">
@@ -104,12 +143,45 @@
             <p>Menu ID: {{ $catID }}</p>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">Belum ada file SQL</h2>
 
+            <div class="keterangan-export">
+                <div class="judul-keterangan">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Tata Cara Export SQL untuk Digunakan Pada Menu Ini</h2>
+                </div>
+                <div class="content-ketarangan">
+                    <div class="sql-dump">
+                        <p>1. Melalui fitur sqldump</p>
+                        <p>1.1. Install <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html" style="color: blue">sqldump</a></p>
+                        <p>1.2. Buka terminal dan jalankan:</p>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">
+                            <code>
+mysqldump -u [username] --no-data [database_name] > [output_path]</code>
+                        </pre>
+                        <p>1.3 Contoh:</p>
+                        <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">
+                            <code>
+mysqldump -u root -p --no-data indodocs > D:\indococs_backup.sql</code>
+                        </pre>
+                        <hr>
+                    </div>
+                    <hr>
+                    <div class="gui">
+                        <p>2. Secara GUI (heidiSQL, sqlYog, dll)</p>
+                        <p>Cari tutorial di Yutub untuk export sesuai dengan gui yang anda gunakan</p>
+                        <p>Pastikan hasil export tidak terdapat Data (INSERT INTO)</p>
+                        <p>Pastikan untuk pendefinisian Foreign Key Tidak menggunakan Alter Table</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="upload-sql" style="margin-top: 12px;">
             <form id="uploadSqlForm" action="{{ route('sql.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <input type="hidden" name="category_id" value="{{ $catID }}" />
 
-                <label class="files_sql" for="sql_file">Silahkan Klik Disini Untuk Memilih File SQL (Hanya menerima file dari hasil export HeidiSQL)</label>
+                <label class="files_sql" for="sql_file">Silahkan Klik Disini Untuk Memilih File SQL </label>
                 <div class="mb-4">
                     <input id="sql_file" type="file" name="sql_file" accept=".sql" required class="block w-full border rounded p-2" />
                 </div>
@@ -118,7 +190,10 @@
             </form>
             </div>
 
-            @endif
+
+            </div>
+
+        @endif
 
         </div>
     </div>

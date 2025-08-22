@@ -50,7 +50,7 @@ export function initTablesListManager() {
                     body: formData,
                 });
                 notificationManager.hideNotification(loadingNotif);
-                notificationManager.showCentralSuccessPopup(response.success);
+                notificationManager.showCentralSuccessPopup('File berhasil diubah. Silahkan cek kembali Keterangan Database pada masing masing Use Case');
                 // Refresh halaman untuk menampilkan data baru
                 setTimeout(() => {
                     window.location.reload();
@@ -72,7 +72,7 @@ export function initTablesListManager() {
             const form = e.target.closest('form');
             if (!form) return;
 
-            notificationManager.openConfirmModal('Yakin ingin menghapus file dan semua data tabel? Tindakan ini tidak dapat dibatalkan.', async () => {
+            notificationManager.openConfirmModal('Yakin ingin menghapus file dan semua data tabel? Tindakan ini tidak dapat dibatalkan. Semua data pada Keterangan Database juga akan hilang', async () => {
                 const loadingNotif = notificationManager.showNotification('Menghapus data...', 'loading');
                 try {
                     const response = await apiClient.fetchAPI(form.action, {

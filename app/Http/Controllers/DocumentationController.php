@@ -57,6 +57,7 @@ class DocumentationController extends Controller
         }
 
         $catID = $currentCategoryObject->id;
+        $fileSQL = DocSqlFile::where('category_id', $catID)->first();
         $tablesList = DocTables::where('category_id', $catID)->get();
 
         return [
@@ -72,7 +73,8 @@ class DocumentationController extends Controller
             'editorMode'            => (Auth::check() && (Auth::user()->role ?? '') === 'admin'),
             'currentCategoryObject' => $currentCategoryObject,
             'catID'                 => $catID,
-            'tablesList'            => $tablesList
+            'tablesList'            => $tablesList,
+            'fileSQL'               => $fileSQL,
         ];
     }
 
@@ -357,15 +359,30 @@ class DocumentationController extends Controller
                                 ->where('nama_tabel', $databaseData->keterangan)
                                 ->first();
 
-        $relations = DocRelations::with('fromTable','totable','fromColumn','toColumn')
+        $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
+
+
+        if($tablesData){
+            $relations = DocRelations::with('fromTable','totable','fromColumn','toColumn')
                                     ->where('from_tableid', $tablesData->id)
                                     ->orWhere('to_tableid', $tablesData->id)
                                     ->get();
 
-        $viewData = $this->prepareCommonViewData($categorySlug, $pageSlug, $selectedNavItem);
-        $viewData['databaseData'] = $databaseData;
-        $viewData['tablesData'] = $tablesData;
-        $viewData['relations'] = $relations;
+        } else {
+            $relations = " ";
+        }
+
+        if($tablesData && $relations != " "){
+            $viewData['databaseData'] = $databaseData;
+            $viewData['tablesData'] = $tablesData;
+            $viewData['relations'] = $relations;
+        } else {
+            $viewData['databaseData'] = [];
+            $viewData['tablesData'] = [];
+            $viewData['relations'] = [];
+        }
+        
+
         $viewData['parentUseCase'] = $parentUseCase;
         $viewData['contentView'] = 'documentation.database_entry_detail';
         return view('documentation.index', $viewData);

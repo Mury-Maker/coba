@@ -6,7 +6,7 @@
 
     {{-- Bagian Keterangan dan Relasi --}}
     <div class="space-y-4">
-        <h2>Nama Tabel: {{ $tablesData->nama_tabel ?? 'Tidak ada data' }}</h2>
+        <h2>Nama Tabel: {{ $tablesData->nama_tabel ?? 'Tidak ada data atau versi file sql berbeda' }}</h2>
         <div class="min-w-full overflow-hidden rounded-lg shadow-sm border border-gray-200">
             <table class="min-w-full bg-white text-sm text-left">
                 <thead class="bg-gray-100">
@@ -19,6 +19,7 @@
                     </tr>
                 </thead>
                 <tbody id="useCaseListTableBody">
+                    @if($tablesData != [])
                     @forelse($tablesData->columns as $col)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="py-2.5 px-4 border-b">{{ $loop->iteration }}</td>
@@ -40,6 +41,7 @@
                             </td>
                         </tr>
                     @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -51,6 +53,7 @@
     <div>
         <h2 class="text-2xl font-bold text-gray-800">Relasi</h2>
         <div class="mt-4 space-y-5">
+            @if($relations != [])
             @forelse($relations as $rel)
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 transition hover:shadow-xl">
                     <h4 class="text-lg font-semibold text-indigo-600 mb-4">Relasi {{ $loop->iteration }}</h4>
@@ -87,6 +90,7 @@
             @empty
                 <p class="text-gray-500 italic">Tidak ada Relasi ditemukan</p>
             @endforelse
+            @endif
         </div>
     </div>
 
@@ -95,9 +99,11 @@
     {{-- Keterangan Relasi --}}
     <div>
         <h2 class="text-lg font-semibold text-yellow-800">Keterangan Relasi</h2>
+        @if($databaseData != [])
         <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-200 shadow-sm mt-2">
             <p class="text-gray-700 leading-relaxed">{{ $databaseData->relasi }}</p>
         </div>
+        @endif
     </div>
 
     <hr>
@@ -105,6 +111,7 @@
     {{-- Syntax Pembuatan Tabel --}}
     <div>
         <h2>Syntax Pembuatan Tabel:</h2>
+        @if($tablesData != [])
         <div class="relative overflow-x-auto rounded-lg shadow-sm">
             {{-- Tombol Salin --}}
             <button onclick="copyToClipboard(this, 'copy-syntax')"
@@ -118,6 +125,7 @@
                 </code>
             </pre>
         </div>
+        @endif
     </div>
 
     <hr>
@@ -126,7 +134,8 @@
     <div class="space-y-4">
         {{-- Dokumen --}}
         <div>
-            <p class="font-semibold text-gray-700">Dokumen Pendukung:</p>
+            <p class="font-semibold text-gray-700">Dokumen Database:</p>
+            @if($databaseData != [])
             <ul class="list-disc list-inside mt-2 space-y-1">
                 @forelse($databaseData->documents as $document)
                     <li>
@@ -149,11 +158,13 @@
                     <p class="text-gray-500 italic">Tidak ada dokumen Database.</p>
                 @endforelse
             </ul>
+            @endif
         </div>
 
         {{-- Bagian Gambar (Tetap di bawah) --}}
         <div>
             <p class="font-semibold text-gray-700">Gambar Database:</p>
+            @if($databaseData != [])
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mt-2 uat-image-gallery">
                 @forelse($databaseData->images as $index => $image)
                     <a href="{{ asset($image->path) }}"
@@ -168,6 +179,7 @@
                     <p class="text-gray-500 italic">Tidak ada gambar Database.</p>
                 @endforelse
             </div>
+            @endif
         </div>
     </div>
 </div>
