@@ -68,10 +68,6 @@
                 <div class="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                     <button type="button" id="cancelDatabaseDataFormBtn"
                         class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">Batal</button>
-                    <button type="submit" id="submitDatabaseDataFormBtn"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">Simpan</button>
-                    <button type="button" id="cancelDatabaseDataFormBtn"
-                        class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors duration-200">Batal</button>
                     @if ($fileSQL)
                         <button type="submit" id="submitDatabaseDataFormBtn"
                             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">Simpan</button>
